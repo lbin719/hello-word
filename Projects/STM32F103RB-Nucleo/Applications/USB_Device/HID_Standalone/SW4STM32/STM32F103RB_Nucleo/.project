@@ -163,22 +163,22 @@
 		<link>
 			<name>Middlewares/Third_party/FatFs/diskio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-12-PROJECT_LOC/git/watchlink/watchlink/v2/Middlewares/Third_Party/FatFs/src/diskio.c</locationURI>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/diskio.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/Third_party/FatFs/ff.c</name>
 			<type>1</type>
-			<locationURI>PARENT-12-PROJECT_LOC/git/watchlink/watchlink/v2/Middlewares/Third_Party/FatFs/src/ff.c</locationURI>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/Third_party/FatFs/ff_gen_drv.c</name>
 			<type>1</type>
-			<locationURI>PARENT-12-PROJECT_LOC/git/watchlink/watchlink/v2/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</locationURI>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/Third_party/FatFs/unicode.c</name>
 			<type>1</type>
-			<locationURI>PARENT-12-PROJECT_LOC/git/watchlink/watchlink/v2/Middlewares/Third_Party/FatFs/src/option/unicode.c</locationURI>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/unicode.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/flash/norflash.c</name>

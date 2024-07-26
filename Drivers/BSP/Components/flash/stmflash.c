@@ -1,5 +1,6 @@
 #include "stmflash.h"
 #include "stm32f1xx_hal.h"
+#include "ulog.h"
 
 uint32_t stmflash_write(uint32_t waddr, uint32_t* pbuf ,uint32_t length)
 {
@@ -70,9 +71,10 @@ void stmflash_test(void)
 {
   uint32_t addr = STM32_FLASH_END_ADDRESS - STM32_FLASH_SIZE;
   stmflash_erase(addr, STM32_FLASH_SIZE);
-  uint8_t w_b[] = {0,1,2,3,4,5,6,7};
+  uint32_t w_b[] = {0,1,2,3,4,5,6,7};
   stmflash_write(addr, w_b, sizeof(w_b));
 
-  uint8_t *p = addr;
-  LOG_I("w:%d,%d,%d,%d", w_b[0], w_b[1], w_b[2], w_b[3] );
+  uint32_t *p = (uint32_t *)addr;
+  LOG_I("w:%d,%d,%d,%d", p[0], p[1], p[2], p[3] );
 }
+
