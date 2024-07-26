@@ -148,7 +148,15 @@
 
 #define LCD_CS_GPIO_PORT                 GPIOB
 #define LCD_CS_GPIO_PIN                  GPIO_PIN_12
-#define LCD_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOB_CLK_ENABLE()
+#define LCD_CS_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define LCD_RST_GPIO_PORT                 GPIOA
+#define LCD_RST_GPIO_PIN                  GPIO_PIN_11
+#define LCD_RST_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
+
+#define LCD_DC_GPIO_PORT                 GPIOA
+#define LCD_DC_GPIO_PIN                  GPIO_PIN_12
+#define LCD_DC_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
 
 
 /* uart1 log  PA9 PA10 */
