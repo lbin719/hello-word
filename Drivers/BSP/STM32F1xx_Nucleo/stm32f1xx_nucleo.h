@@ -150,6 +150,7 @@
 #define LCD_CS_GPIO_PIN                  GPIO_PIN_12
 #define LCD_CS_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
+// usb 
 #define LCD_RST_GPIO_PORT                 GPIOA
 #define LCD_RST_GPIO_PIN                  GPIO_PIN_11
 #define LCD_RST_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()

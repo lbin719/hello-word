@@ -24,14 +24,14 @@ void uart1_init(void)
 
 void uart1_sync_output(const uint8_t *pData, uint16_t Size)
 {
-  // HAL_UART_Transmit(&Uart1Handle, (uint8_t *)pData, Size, 0xFFFF);
+   HAL_UART_Transmit(&Uart1Handle, (uint8_t *)pData, Size, 0xFFFF);
 
-  if (HAL_UART_Transmit_DMA(&Uart1Handle, (uint8_t *)pData, Size) != HAL_OK)
-  {
-    /* Transfer error in transmission process */
-    Error_Handler();
-  }
-  while(Uart1Handle.gState != HAL_UART_STATE_READY);
+//  if (HAL_UART_Transmit_DMA(&Uart1Handle, (uint8_t *)pData, Size) != HAL_OK)
+//  {
+//    /* Transfer error in transmission process */
+//    Error_Handler();
+//  }
+//  while(Uart1Handle.gState != HAL_UART_STATE_READY);
 }
 
 

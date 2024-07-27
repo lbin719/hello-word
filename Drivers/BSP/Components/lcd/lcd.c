@@ -27,7 +27,9 @@ void LCD_WR_REG(uint16_t regval)
 { 
 	LCD_CS_LOW();  //LCD_CS=0
     LCD_DC_LOW();
-	spi2_bytes_write(regval&0x00FF, 1);
+	// HAL_Delay(1);
+    uint8_t data = regval&0x00FF;
+	spi2_bytes_write(&data, 1);
 	LCD_CS_HIGH();  //LCD_CS=1	   		 
 }
 //写LCD数据
@@ -38,6 +40,7 @@ void LCD_WR_DATA(uint16_t data)
 
  	LCD_CS_LOW();  //LCD_CS=0
 	LCD_DC_HIGH();
+	// HAL_Delay(1);
     w_d = data>>8;
 	spi2_bytes_write(&w_d, 1);
     w_d = data;
@@ -47,7 +50,8 @@ void LCD_WR_DATA(uint16_t data)
 void LCD_WR_DATA8(uint8_t da)   //写8位数据
 {
 	LCD_CS_LOW();  //LCD_CS=0
-	LCD_DC_HIGH();				    	   
+	LCD_DC_HIGH();			
+		// HAL_Delay(1);	    	   
 	spi2_bytes_write(&da, 1);	
 	LCD_CS_HIGH();  //LCD_CS=1   			 
 }					   
@@ -150,75 +154,75 @@ void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *co
 //x2,y2:终点坐标  
 void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-	uint16_t t; 
-	int xerr=0,yerr=0,delta_x,delta_y,distance; 
-	int incx,incy,uRow,uCol; 
-	delta_x=x2-x1; //计算坐标增量 
-	delta_y=y2-y1; 
-	uRow=x1; 
-	uCol=y1; 
-	if(delta_x>0)incx=1; //设置单步方向 
-	else if(delta_x==0)incx=0;//垂直线 
-	else {incx=-1;delta_x=-delta_x;} 
-	if(delta_y>0)incy=1; 
-	else if(delta_y==0)incy=0;//水平线 
-	else{incy=-1;delta_y=-delta_y;} 
-	if( delta_x>delta_y)distance=delta_x; //选取基本增量坐标轴 
-	else distance=delta_y; 
-	for(t=0;t<=distance+1;t++ )//画线输出 
-	{  
-		LCD_DrawPoint(uRow,uCol);//画点 
-		xerr+=delta_x ; 
-		yerr+=delta_y ; 
-		if(xerr>distance) 
-		{ 
-			xerr-=distance; 
-			uRow+=incx; 
-		} 
-		if(yerr>distance) 
-		{ 
-			yerr-=distance; 
-			uCol+=incy; 
-		} 
-	}  
+	// uint16_t t; 
+	// int xerr=0,yerr=0,delta_x,delta_y,distance; 
+	// int incx,incy,uRow,uCol; 
+	// delta_x=x2-x1; //计算坐标增量 
+	// delta_y=y2-y1; 
+	// uRow=x1; 
+	// uCol=y1; 
+	// if(delta_x>0)incx=1; //设置单步方向 
+	// else if(delta_x==0)incx=0;//垂直线 
+	// else {incx=-1;delta_x=-delta_x;} 
+	// if(delta_y>0)incy=1; 
+	// else if(delta_y==0)incy=0;//水平线 
+	// else{incy=-1;delta_y=-delta_y;} 
+	// if( delta_x>delta_y)distance=delta_x; //选取基本增量坐标轴 
+	// else distance=delta_y; 
+	// for(t=0;t<=distance+1;t++ )//画线输出 
+	// {  
+	// 	LCD_DrawPoint(uRow,uCol);//画点 
+	// 	xerr+=delta_x ; 
+	// 	yerr+=delta_y ; 
+	// 	if(xerr>distance) 
+	// 	{ 
+	// 		xerr-=distance; 
+	// 		uRow+=incx; 
+	// 	} 
+	// 	if(yerr>distance) 
+	// 	{ 
+	// 		yerr-=distance; 
+	// 		uCol+=incy; 
+	// 	} 
+	// }  
 }    
 //画矩形	  
 //(x1,y1),(x2,y2):矩形的对角坐标
 void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-	LCD_DrawLine(x1,y1,x2,y1);
-	LCD_DrawLine(x1,y1,x1,y2);
-	LCD_DrawLine(x1,y2,x2,y2);
-	LCD_DrawLine(x2,y1,x2,y2);
+	// LCD_DrawLine(x1,y1,x2,y1);
+	// LCD_DrawLine(x1,y1,x1,y2);
+	// LCD_DrawLine(x1,y2,x2,y2);
+	// LCD_DrawLine(x2,y1,x2,y2);
 }
 //在指定位置画一个指定大小的圆
 //(x,y):中心点
 //r    :半径
 void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r)
 {
-	int a,b;
-	int di;
-	a=0;b=r;	  
-	di=3-(r<<1);             //判断下个点位置的标志
-	while(a<=b)
-	{
-		LCD_DrawPoint(x0+a,y0-b);             //5
- 		LCD_DrawPoint(x0+b,y0-a);             //0           
-		LCD_DrawPoint(x0+b,y0+a);             //4               
-		LCD_DrawPoint(x0+a,y0+b);             //6 
-		LCD_DrawPoint(x0-a,y0+b);             //1       
- 		LCD_DrawPoint(x0-b,y0+a);             
-		LCD_DrawPoint(x0-a,y0-b);             //2             
-  		LCD_DrawPoint(x0-b,y0-a);             //7     	         
-		a++;
-		//使用Bresenham算法画圆     
-		if(di<0)di +=4*a+6;	  
-		else
-		{
-			di+=10+4*(a-b);   
-			b--;
-		} 						    
-	}
+	// int a,b;
+	// int di;
+	// a=0;b=r;	  
+	// di=3-(r<<1);             //判断下个点位置的标志
+	// while(a<=b)
+	// {
+	// 	LCD_DrawPoint(x0+a,y0-b);             //5
+ 	// 	LCD_DrawPoint(x0+b,y0-a);             //0           
+	// 	LCD_DrawPoint(x0+b,y0+a);             //4               
+	// 	LCD_DrawPoint(x0+a,y0+b);             //6 
+	// 	LCD_DrawPoint(x0-a,y0+b);             //1       
+ 	// 	LCD_DrawPoint(x0-b,y0+a);             
+	// 	LCD_DrawPoint(x0-a,y0-b);             //2             
+  	// 	LCD_DrawPoint(x0-b,y0-a);             //7     	         
+	// 	a++;
+	// 	//使用Bresenham算法画圆     
+	// 	if(di<0)di +=4*a+6;	  
+	// 	else
+	// 	{
+	// 		di+=10+4*(a-b);   
+	// 		b--;
+	// 	} 						    
+	// }
 } 	
 //在指定位置显示一个汉字(16*16大小)
 void showhanzi16(unsigned int x,unsigned int y,unsigned char index)	
@@ -349,22 +353,22 @@ uint32_t LCD_Pow(uint8_t m,uint8_t n)
 //num:数值(0~4294967295);	 
 void LCD_ShowNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size)
 {         	
-	uint8_t t,temp;
-	uint8_t enshow=0;						   
-	for(t=0;t<len;t++)
-	{
-		temp=(num/LCD_Pow(10,len-t-1))%10;
-		if(enshow==0&&t<(len-1))
-		{
-			if(temp==0)
-			{
-				LCD_ShowChar(x+(size/2)*t,y,' ',size,0);
-				continue;
-			}else enshow=1; 
+	// uint8_t t,temp;
+	// uint8_t enshow=0;						   
+	// for(t=0;t<len;t++)
+	// {
+	// 	temp=(num/LCD_Pow(10,len-t-1))%10;
+	// 	if(enshow==0&&t<(len-1))
+	// 	{
+	// 		if(temp==0)
+	// 		{
+	// 			LCD_ShowChar(x+(size/2)*t,y,' ',size,0);
+	// 			continue;
+	// 		}else enshow=1; 
 		 	 
-		}
-	 	LCD_ShowChar(x+(size/2)*t,y,temp+'0',size,0); 
-	}
+	// 	}
+	//  	LCD_ShowChar(x+(size/2)*t,y,temp+'0',size,0); 
+	// }
 } 
 //显示数字,高位为0,还是显示
 //x,y:起点坐标
@@ -377,23 +381,23 @@ void LCD_ShowNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size)
 //[0]:0,非叠加显示;1,叠加显示.
 void LCD_ShowxNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size,uint8_t mode)
 {  
-	uint8_t t,temp;
-	uint8_t enshow=0;						   
-	for(t=0;t<len;t++)
-	{
-		temp=(num/LCD_Pow(10,len-t-1))%10;
-		if(enshow==0&&t<(len-1))
-		{
-			if(temp==0)
-			{
-				if(mode&0X80)LCD_ShowChar(x+(size/2)*t,y,'0',size,mode&0X01);  
-				else LCD_ShowChar(x+(size/2)*t,y,' ',size,mode&0X01);  
- 				continue;
-			}else enshow=1; 
+	// uint8_t t,temp;
+	// uint8_t enshow=0;						   
+	// for(t=0;t<len;t++)
+	// {
+	// 	temp=(num/LCD_Pow(10,len-t-1))%10;
+	// 	if(enshow==0&&t<(len-1))
+	// 	{
+	// 		if(temp==0)
+	// 		{
+	// 			if(mode&0X80)LCD_ShowChar(x+(size/2)*t,y,'0',size,mode&0X01);  
+	// 			else LCD_ShowChar(x+(size/2)*t,y,' ',size,mode&0X01);  
+ 	// 			continue;
+	// 		}else enshow=1; 
 		 	 
-		}
-	 	LCD_ShowChar(x+(size/2)*t,y,temp+'0',size,mode&0X01); 
-	}
+	// 	}
+	//  	LCD_ShowChar(x+(size/2)*t,y,temp+'0',size,mode&0X01); 
+	// }
 } 
 //显示字符串
 //x,y:起点坐标
@@ -402,17 +406,17 @@ void LCD_ShowxNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size,ui
 //*p:字符串起始地址		  
 void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t size,uint8_t *p)
 {         
-	uint8_t x0=x;
-	width+=x;
-	height+=y;
-    while((*p<='~')&&(*p>=' '))//判断是不是非法字符!
-    {       
-        if(x>=width){x=x0;y+=size;}
-        if(y>=height)break;//退出
-        LCD_ShowChar(x,y,*p,size,1);
-        x+=size/2;
-        p++;
-    }  
+	// uint8_t x0=x;
+	// width+=x;
+	// height+=y;
+    // while((*p<='~')&&(*p>=' '))//判断是不是非法字符!
+    // {       
+    //     if(x>=width){x=x0;y+=size;}
+    //     if(y>=height)break;//退出
+    //     LCD_ShowChar(x,y,*p,size,1);
+    //     x+=size/2;
+    //     p++;
+    // }  
 }
 
 void showimage(uint16_t x,uint16_t y) //显示40*40图片
@@ -443,6 +447,32 @@ void lcd_reset(void)
     LCD_RST_HIGH();	//LCD_RST=1		
 	HAL_Delay(20);
 }
+
+// static const uint8_t st7735s_128x160_init_cmd[] =
+// {
+// 	DISP_WR_CMD(0x11), //Sleep out
+// 	DISP_DLY_MS(120), //Delay 120ms
+// 	//------------------------------------ST7735S Frame Rate-----------------------------------------//
+// 	DISP_WR_CMD(0xB1, 0x05, 0x3C, 0x3C),
+// 	DISP_WR_CMD(0xB2, 0x05, 0x3C, 0x3C),
+// 	DISP_WR_CMD(0xB3, 0x05, 0x3C, 0x3C, 0x05, 0x3C, 0x3C),
+// 	//------------------------------------End ST7735S Frame Rate-----------------------------------------//
+// 	DISP_WR_CMD(0xB4, 0x03), //Dot inversio
+// 	DISP_WR_CMD(0xC0, 0x28, 0x08, 0x04),
+// 	DISP_WR_CMD(0xC1, 0XC0),
+// 	DISP_WR_CMD(0xC2, 0x0D, 0x00),
+// 	DISP_WR_CMD(0xC3, 0x8D, 0x2A),
+// 	DISP_WR_CMD(0xC4, 0x8D, 0xEE),
+// 	//---------------------------------End ST7735S Power Sequence-----------------------------)--------//
+// 	DISP_WR_CMD(0xC5, 0x1A), //VCO
+// 	DISP_WR_CMD(0x36, 0xC0), // MX, MY, RGB mode
+// 	//------------------------------------ST7735S Gamma Sequence-----------------------------------------//
+// 	DISP_WR_CMD(0xE0, 0x04, 0x22, 0x07, 0x0A, 0x2E, 0x30, 0x25, 0x2A, 0x28, 0x26, 0x2E, 0x3A, 0x00, 0x01, 0x03, 0x13),
+// 	DISP_WR_CMD(0xE1, 0x04, 0x16, 0x06, 0x0D, 0x2D, 0x26, 0x23, 0x27, 0x27, 0x25, 0x2D, 0x3B, 0x00, 0x01, 0x04, 0x13),
+// 	//------------------------------------End ST7735S Gamma Sequence-----------------------------------------//
+// 	DISP_WR_CMD(0x3A, 0x05), //65k mode
+// 	DISP_WR_CMD(0x29), //Display on
+// };
 
 void lcd_init_config(void)
 {
@@ -527,7 +557,7 @@ void lcd_init_config(void)
 	LCD_WR_DATA8(0x05);
 	LCD_WR_REG(0x29); //Display on
 
-	LCD_Clear(WHITE); 
+	LCD_Clear(RED); 
 }
 
 void lcd_init(void)

@@ -10,7 +10,13 @@
  extern "C" {
 #endif
 
+#define DISP_WR_CMD(x, ...)  CMD_TYPE_WR_CMD, ARRAY_SIZE(((uint8_t[]) \
+                                    {x, ##__VA_ARGS__})), x, ##__VA_ARGS__
+#define DISP_DLY_MS(x, ...)  CMD_TYPE_DLY_MS, ARRAY_SIZE(((uint8_t[]) \
+                                    {x, ##__VA_ARGS__})), x, ##__VA_ARGS__
+#define DISP_CMD_ENTRY(x)    {.len = ARRAY_SIZE(x), .cmd = x}
 
+#define CTRL_LIST_ENTRY(x)   {.len = ARRAY_SIZE(x), .list = x}
 
   
 //LCD重要参数集
@@ -30,9 +36,7 @@ extern _lcd_dev lcddev;	//管理LCD重要参数
 extern uint16_t  POINT_COLOR;//默认红色    
 extern uint16_t  BACK_COLOR; //背景颜色.默认为白色
 
-//////////////////////////////////////////////////////////////////////////////////	 
-//-----------------LCD端口定义---------------- 
-#define	LCD_REST PBout(1) //LCD REST    		 PB1 	    
+
 //LCD地址结构体
 typedef struct
 {
@@ -41,7 +45,7 @@ typedef struct
 } LCD_TypeDef;
 //使用NOR/SRAM的 Bank1.sector4,地址位HADDR[27,26]=11 A10作为数据命令区分线 
 //注意设置时STM32内部会右移一位对其! 111110=0X3E			    
-#define LCD_BASE        ((u32)(0x60000000 | 0x0007FFFE))
+#define LCD_BASE        ((uint32_t)(0x60000000 | 0x0007FFFE))
 #define LCD             ((LCD_TypeDef *) LCD_BASE)
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -88,8 +92,8 @@ void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);		   
 void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color);		   				//填充单色
 void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *color);				//填充指定颜色
 void LCD_ShowChar(uint16_t x,uint16_t y,uint8_t num,uint8_t size,uint8_t mode);						//显示一个字符
-void LCD_ShowNum(uint16_t x,uint16_t y,u32 num,uint8_t len,uint8_t size);  						//显示一个数字
-void LCD_ShowxNum(uint16_t x,uint16_t y,u32 num,uint8_t len,uint8_t size,uint8_t mode);				//显示 数字
+void LCD_ShowNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size);  						//显示一个数字
+void LCD_ShowxNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size,uint8_t mode);				//显示 数字
 void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t size,uint8_t *p);		//显示一个字符串,12/16字体
 	  
 void showimage(uint16_t x,uint16_t y); //显示40*40图片

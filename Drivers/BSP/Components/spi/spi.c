@@ -35,8 +35,8 @@ void spi2_init(void)
     Spi2Handle.Init.Mode = SPI_MODE_MASTER;                        /* 设置SPI工作模式，设置为主模式 */
     Spi2Handle.Init.Direction = SPI_DIRECTION_2LINES;              /* 设置SPI单向或者双向的数据模式:SPI设置为双线模式 */
     Spi2Handle.Init.DataSize = SPI_DATASIZE_8BIT;                  /* 设置SPI的数据大小:SPI发送接收8位帧结构 */
-    Spi2Handle.Init.CLKPolarity = SPI_POLARITY_HIGH;               /* 串行同步时钟的空闲状态为高电平 */
-    Spi2Handle.Init.CLKPhase = SPI_PHASE_2EDGE;                    /* 串行同步时钟的第二个跳变沿（上升或下降）数据被采样 */
+    Spi2Handle.Init.CLKPolarity = SPI_POLARITY_LOW;                /* 串行同步时钟的空闲状态 */
+    Spi2Handle.Init.CLKPhase = SPI_PHASE_1EDGE;                    /* 串行同步时钟的第几个跳变沿（上升或下降）数据被采样 */
     Spi2Handle.Init.NSS = SPI_NSS_SOFT;                            /* NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制 */
     Spi2Handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;  /* 定义波特率预分频的值:波特率预分频值为 */
     Spi2Handle.Init.FirstBit = SPI_FIRSTBIT_MSB;                   /* 指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始 */
@@ -134,7 +134,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     /* SCK引脚模式设置(复用输出) */
     gpio_init_struct.Pin = SPI2_SCK_GPIO_PIN;
     gpio_init_struct.Mode = GPIO_MODE_AF_PP;
-    gpio_init_struct.Pull = GPIO_PULLUP;
+    gpio_init_struct.Pull = GPIO_PULLDOWN;
     gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(SPI2_SCK_GPIO_PORT, &gpio_init_struct);
 
@@ -149,46 +149,46 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     /* Enable SPI2 clock */
     SPI2_SPI_CLK_ENABLE();
 
-    /* Enable DMA clock */
-    SPI2_DMA_CLK_ENABLE();
+    // /* Enable DMA clock */
+    // SPI2_DMA_CLK_ENABLE();
 
-    /*##-3- Configure the DMA ##################################################*/
-    /* Configure the DMA handler for Transmission process */
-    spi2hdma_tx.Instance                 = SPI2_TX_DMA_CHANNEL;
-    spi2hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-    spi2hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    spi2hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
-    spi2hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    spi2hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    spi2hdma_tx.Init.Mode                = DMA_NORMAL;
-    spi2hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-    HAL_DMA_Init(&spi2hdma_tx);
+    // /*##-3- Configure the DMA ##################################################*/
+    // /* Configure the DMA handler for Transmission process */
+    // spi2hdma_tx.Instance                 = SPI2_TX_DMA_CHANNEL;
+    // spi2hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    // spi2hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    // spi2hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+    // spi2hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    // spi2hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    // spi2hdma_tx.Init.Mode                = DMA_NORMAL;
+    // spi2hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+    // HAL_DMA_Init(&spi2hdma_tx);
 
-    /* Associate the initialized DMA handle to the the SPI handle */
-    __HAL_LINKDMA(hspi, hdmatx, spi2hdma_tx);
+    // /* Associate the initialized DMA handle to the the SPI handle */
+    // __HAL_LINKDMA(hspi, hdmatx, spi2hdma_tx);
 
-    /* Configure the DMA handler for Transmission process */
-    spi2hdma_rx.Instance                 = SPI2_RX_DMA_CHANNEL;
-    spi2hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    spi2hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    spi2hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-    spi2hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    spi2hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    spi2hdma_rx.Init.Mode                = DMA_NORMAL;
-    spi2hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-    HAL_DMA_Init(&spi2hdma_rx);
+    // /* Configure the DMA handler for Transmission process */
+    // spi2hdma_rx.Instance                 = SPI2_RX_DMA_CHANNEL;
+    // spi2hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+    // spi2hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    // spi2hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    // spi2hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    // spi2hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    // spi2hdma_rx.Init.Mode                = DMA_NORMAL;
+    // spi2hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
+    // HAL_DMA_Init(&spi2hdma_rx);
 
-    /* Associate the initialized DMA handle to the the SPI handle */
-    __HAL_LINKDMA(hspi, hdmarx, spi2hdma_rx);
+    // /* Associate the initialized DMA handle to the the SPI handle */
+    // __HAL_LINKDMA(hspi, hdmarx, spi2hdma_rx);
 
-    /*##-4- Configure the NVIC for DMA #########################################*/
-    /* NVIC configuration for DMA transfer complete interrupt (SPI2_TX) */
-    HAL_NVIC_SetPriority(SPI2_TX_DMA_IRQn, 1, 1);
-    HAL_NVIC_EnableIRQ(SPI2_TX_DMA_IRQn);
+    // /*##-4- Configure the NVIC for DMA #########################################*/
+    // /* NVIC configuration for DMA transfer complete interrupt (SPI2_TX) */
+    // HAL_NVIC_SetPriority(SPI2_TX_DMA_IRQn, 1, 1);
+    // HAL_NVIC_EnableIRQ(SPI2_TX_DMA_IRQn);
 
-    /* NVIC configuration for DMA transfer complete interrupt (SPI2_RX) */
-    HAL_NVIC_SetPriority(SPI2_RX_DMA_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(SPI2_RX_DMA_IRQn);
+    // /* NVIC configuration for DMA transfer complete interrupt (SPI2_RX) */
+    // HAL_NVIC_SetPriority(SPI2_RX_DMA_IRQn, 1, 0);
+    // HAL_NVIC_EnableIRQ(SPI2_RX_DMA_IRQn);
   }
 }
 
@@ -228,11 +228,11 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     /* Configure SPI MOSI as alternate function  */
     HAL_GPIO_DeInit(SPI2_MOSI_GPIO_PORT, SPI2_MOSI_GPIO_PIN);
 
-    /*##-2- Disable the DMA ####################################################*/
-    /* De-Initialize the DMA associated to transmission process */
-    HAL_DMA_DeInit(&spi2hdma_tx);
-    /* De-Initialize the DMA associated to reception process */
-    HAL_DMA_DeInit(&spi2hdma_rx);
+    // /*##-2- Disable the DMA ####################################################*/
+    // /* De-Initialize the DMA associated to transmission process */
+    // HAL_DMA_DeInit(&spi2hdma_tx);
+    // /* De-Initialize the DMA associated to reception process */
+    // HAL_DMA_DeInit(&spi2hdma_rx);
   }
 }
 
