@@ -50,6 +50,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
+/* usb PA11 PA12*/
+
 /* uart1 TX:PA9 RX:PA10 */
 #define USART1_TX_GPIO_PORT               GPIOA
 #define USART1_TX_GPIO_PIN                GPIO_PIN_9
@@ -130,9 +132,9 @@
 #define SPI2_SCK_GPIO_PIN               GPIO_PIN_13
 #define SPI2_SCK_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
 
-#define SPI2_MISO_GPIO_PORT             GPIOB
-#define SPI2_MISO_GPIO_PIN              GPIO_PIN_14
-#define SPI2_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
+// #define SPI2_MISO_GPIO_PORT             GPIOB
+// #define SPI2_MISO_GPIO_PIN              GPIO_PIN_14
+// #define SPI2_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
 
 #define SPI2_MOSI_GPIO_PORT             GPIOB
 #define SPI2_MOSI_GPIO_PIN              GPIO_PIN_15
@@ -152,12 +154,12 @@
 
 // usb 
 #define LCD_RST_GPIO_PORT                 GPIOA
-#define LCD_RST_GPIO_PIN                  GPIO_PIN_11
+#define LCD_RST_GPIO_PIN                  GPIO_PIN_8
 #define LCD_RST_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
 
-#define LCD_DC_GPIO_PORT                 GPIOA
-#define LCD_DC_GPIO_PIN                  GPIO_PIN_12
-#define LCD_DC_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
+#define LCD_DC_GPIO_PORT                 GPIOB
+#define LCD_DC_GPIO_PIN                  GPIO_PIN_14
+#define LCD_DC_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
 
 /* uart1 log  PA9 PA10 */

@@ -10,6 +10,27 @@
  extern "C" {
 #endif
 
+#define LCD_WIDTH 		(128)
+#define LCD_HEIGHT      (160)
+
+typedef enum
+{
+    CMD_TYPE_WR_CMD,
+    CMD_TYPE_DLY_MS,
+} panel_cmd_type_e;
+
+typedef enum
+{
+    CMD_IDX_TYPE   = 0,
+    CMD_IDX_LEN    = 1,
+    CMD_HEADER_LEN = 2,
+    CMD_IDX_CODE   = 2,
+} panel_cmd_idx_e;
+
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof(a[0]))
+#endif
+
 #define DISP_WR_CMD(x, ...)  CMD_TYPE_WR_CMD, ARRAY_SIZE(((uint8_t[]) \
                                     {x, ##__VA_ARGS__})), x, ##__VA_ARGS__
 #define DISP_DLY_MS(x, ...)  CMD_TYPE_DLY_MS, ARRAY_SIZE(((uint8_t[]) \
@@ -17,6 +38,7 @@
 #define DISP_CMD_ENTRY(x)    {.len = ARRAY_SIZE(x), .cmd = x}
 
 #define CTRL_LIST_ENTRY(x)   {.len = ARRAY_SIZE(x), .list = x}
+
 
   
 //LCD重要参数集
@@ -83,7 +105,7 @@ void LCD_Init(void);													   	//初始化
 void LCD_DisplayOn(void);													//开显示
 void LCD_DisplayOff(void);													//关显示
 void LCD_Clear(uint16_t Color);	 												//清屏
-void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos);										//设置光标
+void lcd_setcursor(uint16_t Xpos, uint16_t Ypos);										//设置光标
 void LCD_DrawPoint(uint16_t x,uint16_t y);											//画点
 void LCD_Fast_DrawPoint(uint16_t x,uint16_t y,uint16_t color);								//快速画点
 void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r);										//画圆
@@ -98,7 +120,7 @@ void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t
 	  
 void showimage(uint16_t x,uint16_t y); //显示40*40图片
 void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue);
-void LCD_WriteRAM_Prepare(void);
+void lcd_write_gram(void);
 void LCD_WR_DATA8(uint8_t da);   //写8位数据  
  
 void showhanzi16(unsigned int x,unsigned int y,unsigned char index);//16*16汉字

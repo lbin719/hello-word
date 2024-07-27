@@ -38,7 +38,7 @@ void spi2_init(void)
     Spi2Handle.Init.CLKPolarity = SPI_POLARITY_LOW;                /* 串行同步时钟的空闲状态 */
     Spi2Handle.Init.CLKPhase = SPI_PHASE_1EDGE;                    /* 串行同步时钟的第几个跳变沿（上升或下降）数据被采样 */
     Spi2Handle.Init.NSS = SPI_NSS_SOFT;                            /* NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制 */
-    Spi2Handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;  /* 定义波特率预分频的值:波特率预分频值为 */
+    Spi2Handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;  /* 定义波特率预分频的值:波特率预分频值为 */
     Spi2Handle.Init.FirstBit = SPI_FIRSTBIT_MSB;                   /* 指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始 */
     Spi2Handle.Init.TIMode = SPI_TIMODE_DISABLE;                   /* 关闭TI模式 */
     Spi2Handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;   /* 关闭硬件CRC校验 */
@@ -128,7 +128,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
   else if (hspi->Instance == SPI2)
   {
     SPI2_SCK_GPIO_CLK_ENABLE();  /* SPI2_SCK脚时钟使能 */
-    SPI2_MISO_GPIO_CLK_ENABLE(); /* SPI2_MISO脚时钟使能 */
+//    SPI2_MISO_GPIO_CLK_ENABLE(); /* SPI2_MISO脚时钟使能 */
     SPI2_MOSI_GPIO_CLK_ENABLE(); /* SPI2_MOSI脚时钟使能 */
 
     /* SCK引脚模式设置(复用输出) */
@@ -139,8 +139,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     HAL_GPIO_Init(SPI2_SCK_GPIO_PORT, &gpio_init_struct);
 
     /* MISO引脚模式设置(复用输出) */
-    gpio_init_struct.Pin = SPI2_MISO_GPIO_PIN;
-    HAL_GPIO_Init(SPI2_MISO_GPIO_PORT, &gpio_init_struct);
+    // gpio_init_struct.Pin = SPI2_MISO_GPIO_PIN;
+    // HAL_GPIO_Init(SPI2_MISO_GPIO_PORT, &gpio_init_struct);
 
     /* MOSI引脚模式设置(复用输出) */
     gpio_init_struct.Pin = SPI2_MOSI_GPIO_PIN;
@@ -224,7 +224,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     /* Configure SPI SCK as alternate function  */
     HAL_GPIO_DeInit(SPI2_SCK_GPIO_PORT, SPI2_SCK_GPIO_PIN);
     /* Configure SPI MISO as alternate function  */
-    HAL_GPIO_DeInit(SPI2_MISO_GPIO_PORT, SPI2_MISO_GPIO_PIN);
+    // HAL_GPIO_DeInit(SPI2_MISO_GPIO_PORT, SPI2_MISO_GPIO_PIN);
     /* Configure SPI MOSI as alternate function  */
     HAL_GPIO_DeInit(SPI2_MOSI_GPIO_PORT, SPI2_MOSI_GPIO_PIN);
 
