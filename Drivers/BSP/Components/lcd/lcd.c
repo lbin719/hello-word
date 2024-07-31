@@ -35,7 +35,7 @@ void LCD_WR_REG(uint16_t regval)
 }
 //写LCD数据
 //data:要写入的值
-void LCD_WR_DATA(uint16_t data)
+void lcd_wr_data(uint16_t data)
 {
     uint8_t w_d;
 
@@ -61,7 +61,7 @@ void LCD_WR_DATA8(uint8_t da)   //写8位数据
 void LCD_WR_REG_DATA(uint8_t LCD_Reg, uint16_t LCD_RegValue)
 {
 	LCD_WR_REG(LCD_Reg);
-	LCD_WR_DATA(LCD_RegValue);
+	lcd_wr_data(LCD_RegValue);
 }
 //开始写GRAM
 void lcd_write_gram(void)
@@ -104,12 +104,12 @@ void LCD_DrawPoint(uint16_t x,uint16_t y)
 {
 	lcd_setcursor(x,y);		//设置光标位置 
 	lcd_write_gram();	//开始写入GRAM
-	LCD_WR_DATA(POINT_COLOR); 
+	lcd_wr_data(POINT_COLOR); 
 } 
   
 //清屏函数
 //color:要清屏的填充色
-void LCD_Clear(uint16_t color)
+void lcd_clear(uint16_t color)
 {
 	uint32_t index=0;      
 	uint32_t totalpoint=LCD_WIDTH;
@@ -118,9 +118,8 @@ void LCD_Clear(uint16_t color)
 	lcd_write_gram();     //开始写入GRAM	 	  
 	for(index = 0; index < totalpoint; index++)
 	{
-		LCD_WR_DATA(color);
+		lcd_wr_data(color);
 	}
-
 }  
 //在指定区域内填充单个颜色
 //(sx,sy),(ex,ey):填充矩形对角坐标,区域大小为:(ex-sx+1)*(ey-sy+1)   
@@ -134,7 +133,7 @@ void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color)
 	// {									   
 	//  	lcd_setcursor(sx,i);      				//设置光标位置 
 	// 	lcd_write_gram();     			//开始写入GRAM	  
-	// 	for(j=0;j<xlen;j++)LCD_WR_DATA(color);	//设置光标位置 	    
+	// 	for(j=0;j<xlen;j++)lcd_wr_data(color);	//设置光标位置 	    
 	// }
 }  
 //在指定区域内填充指定颜色块			 
@@ -152,7 +151,7 @@ void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *co
 		lcd_write_gram();     //开始写入GRAM
 		for(j=0;j<width;j++){
 					// LCD->LCD_RAM=color[i*height+j];//写入数据 
-			LCD_WR_DATA(*color);
+			lcd_wr_data(*color);
 		}
 	}	  
 }  
@@ -234,29 +233,29 @@ void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r)
 //在指定位置显示一个汉字(16*16大小)
 void showhanzi16(unsigned int x,unsigned int y,unsigned char index)	
 {  
-//	unsigned char i,j,k;
-//	const unsigned char *temp=hanzi16;
-//	temp+=index*32;
-//	for(j=0;j<16;j++)
-//	{
-//		lcd_setcursor(x,y+j);
-//		lcd_write_gram();	//开始写入GRAM
-//		for(k=0;k<2;k++)
-//		{
-//			for(i=0;i<8;i++)
-//			{
-//			 	if((*temp&(1<<i))!=0)
-//				{
-//					LCD_WR_DATA(POINT_COLOR);
-//				}
-//				else
-//				{
-//					LCD_WR_DATA(BACK_COLOR);
-//				}
-//			}
-//			temp++;
-//		}
-//	 }
+	unsigned char i,j,k;
+	const unsigned char *temp=hanzi16;
+	temp+=index*32;
+	for(j=0;j<16;j++)
+	{
+		lcd_setcursor(x,y+j);
+		lcd_write_gram();	//开始写入GRAM
+		for(k=0;k<2;k++)
+		{
+			for(i=0;i<8;i++)
+			{
+			 	if((*temp&(1<<i))!=0)
+				{
+					lcd_wr_data(POINT_COLOR);
+				}
+				else
+				{
+					lcd_wr_data(BACK_COLOR);
+				}
+			}
+			temp++;
+		}
+	 }
 }	
 //在指定位置显示一个汉字(32*32大小)
 void showhanzi32(unsigned int x,unsigned int y,unsigned char index)	
@@ -274,11 +273,11 @@ void showhanzi32(unsigned int x,unsigned int y,unsigned char index)
 			{
 			 	if((*temp&(1<<i))!=0)
 				{
-					LCD_WR_DATA(POINT_COLOR);
+					lcd_wr_data(POINT_COLOR);
 				}
 				else
 				{
-					LCD_WR_DATA(BACK_COLOR);
+					lcd_wr_data(BACK_COLOR);
 				}
 			}
 			temp++;
@@ -428,22 +427,22 @@ void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t
 
 void showimage(uint16_t x,uint16_t y) //显示40*40图片
 {  
-	// uint16_t i,j,k;
-	// uint16_t da;
-	// k=0;
-	// for(i=0;i<40;i++)
-	// {
-	// 	lcd_setcursor(x,y+i);
-	// 	lcd_write_gram();     			//开始写入GRAM
-	// 	for(j=0;j<40;j++)
-	// 	{
-	// 		da=qqimage[k*2+1];
-	// 		da<<=8;
-	// 		da|=qqimage[k*2];
-	// 		LCD_WR_DATA(da);
-	// 		k++;
-	// 	}
-	// }
+	 uint16_t i,j,k;
+	 uint16_t da;
+	 k=0;
+	 for(i=0;i<40;i++)
+	 {
+	 	lcd_setcursor(x,y+i);
+	 	lcd_write_gram();     			//开始写入GRAM
+	 	for(j=0;j<40;j++)
+	 	{
+	 		da=qqimage[k*2+1];
+	 		da<<=8;
+	 		da|=qqimage[k*2];
+	 		lcd_wr_data(da);
+	 		k++;
+	 	}
+	 }
 }
 
 
@@ -516,32 +515,25 @@ void lcd_setcursor(uint16_t xpos, uint16_t ypos)
 	lcd_write_cmd((const uint8_t *)setcursor_ypos_cmd, sizeof(setcursor_ypos_cmd));
 } 	
 
-void xianshi()//ÏÔÊ¾ÐÅÏ¢
+void showqq()
 { 
-	BACK_COLOR=WHITE;
-	POINT_COLOR=RED;   
-	//ÏÔÊ¾32*32ºº×Ö
-	// showhanzi32(0,0,0);	 //ÌÔ
-	// showhanzi32(40,0,1);	 //¾§
-	// showhanzi32(80,0,2);    //³Û
-	// //ÏÔÊ¾16*16ºº×Ö
-	// showhanzi16(0,35,0);	  //×¨
-	// showhanzi16(20,35,1);	  //×¢
-	// showhanzi16(40,35,2);	  //ÏÔ
-	// showhanzi16(60,35,3);	  //Ê¾
-	// showhanzi16(80,35,4);	  //·½
-	// showhanzi16(100,35,5);	  //°¸	   
-//	LCD_ShowString(0,55,200,16,16,"1.8 TFT SPI");
+	uint16_t x,y;
+	x=0;
+	y=75;
+	while(y < LCD_HEIGHT - 39)
+	{
+		x=0;
+		while(x < LCD_WIDTH - 39)
+		{
+			showimage(x, y);	
+			x+=40;
+		}
+		y+=40;
+	 }	  
 }
 
 void lcd_init(void)
 {
-	// LCD_WIDTH=128;
-	// LCD_HEIGHT=160;
-	// lcddev.wramcmd=0X2C;
-	// lcddev.setxcmd=0X2A;
-	// lcddev.setycmd=0X2B; 	
-
     GPIO_InitTypeDef gpio_init_struct = {0};
 
     LCD_RST_GPIO_CLK_ENABLE();
@@ -567,20 +559,33 @@ void lcd_init(void)
     spi2_init();
 
     lcd_reset();
-    // lcd_init_config();
 	lcd_panel_exec_cmd(st7735s_128x160_init_cmd, sizeof(st7735s_128x160_init_cmd));
+	lcd_clear(WHITE);
 
-//	lcd_setcursor(0x00, 0x50);
-	LCD_Clear(RED);
  	POINT_COLOR=GREEN;
+//	LCD_Color_Fill(20, 20, 60, 60, &POINT_COLOR);
 
-	LCD_Color_Fill(40, 90, 100, 100, &POINT_COLOR);
-	// xianshi();	   //显示信息
+	BACK_COLOR=WHITE;
+	POINT_COLOR=RED;   
+
+	// showhanzi32(0,0,0);	 //
+	// showhanzi32(40,0,1);	 //
+	// showhanzi32(80,0,2);    //
+
+	showhanzi16(0,35,6);	  //
+	showhanzi16(20,35,7);	  //
+	showhanzi16(40,35,8);	  //
+	showhanzi16(60,35,9);	  //
+	showhanzi16(80,35,10);	  //
+	showhanzi16(100,35,11);	  //   
+	LCD_ShowString(0,55,200,16,16,"Yifeichongtian");
+
 	// showqq();	   //显示QQ
 
 	while(1) {
-		// LCD_Clear(RED); 
-		// LCD_Clear(GREEN); 
-		// LCD_Clear(BLUE); 
+		// lcd_clear(RED); 
+		// lcd_clear(GREEN); 
+		// lcd_clear(BLUE); 
+		LCD_ShowString(0,75,200,16,16,"test");
 	}
 }

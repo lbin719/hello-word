@@ -68,17 +68,17 @@ int main(void)
 
   fs_init();
 
-  // usbd_port_config(0);    /* USB先断开 */
-  // HAL_Delay(500);
-  // usbd_port_config(1);    /* USB再次连接 */
-  // HAL_Delay(500);
-  // USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初始化USB */
-  // USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加类 */
-  // USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函数 */
-  // USBD_Start(&USBD_Device);                                           /* 开启USB */
-  // HAL_Delay(1800);
-
   lcd_init();
+
+  usbd_port_config(0);    /* USB先断开 */
+  HAL_Delay(500);
+  usbd_port_config(1);    /* USB再次连接 */
+  HAL_Delay(500);
+  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初始化USB */
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加类 */
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函数 */
+  USBD_Start(&USBD_Device);                                           /* 开启USB */
+  HAL_Delay(1800);
 
   while (1)
   {
