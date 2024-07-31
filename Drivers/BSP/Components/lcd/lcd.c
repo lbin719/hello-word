@@ -112,9 +112,9 @@ void LCD_DrawPoint(uint16_t x,uint16_t y)
 void LCD_Clear(uint16_t color)
 {
 	uint32_t index=0;      
-	uint32_t totalpoint=lcddev.width;
-	totalpoint *= lcddev.height; 	//得到总点数
-	lcd_setcursor(0x00,0x0000);	//设置光标位置 
+	uint32_t totalpoint=LCD_WIDTH;
+	totalpoint *= LCD_HEIGHT; 	//得到总点数
+	lcd_setcursor(0, 0);	//设置光标位置
 	lcd_write_gram();     //开始写入GRAM	 	  
 	for(index = 0; index < totalpoint; index++)
 	{
@@ -142,16 +142,19 @@ void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color)
 //color:要填充的颜色
 void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *color)
 {  
-	// uint16_t height,width;
-	// uint16_t i,j;
-	// width=ex-sx+1; 		//得到填充的宽度
-	// height=ey-sy+1;		//高度
- 	// for(i=0;i<height;i++)
-	// {
- 	// 	lcd_setcursor(sx,sy+i);   	//设置光标位置 
-	// 	lcd_write_gram();     //开始写入GRAM
-	// 	for(j=0;j<width;j++)LCD->LCD_RAM=color[i*height+j];//写入数据 
-	// }	  
+	uint16_t height,width;
+	uint16_t i,j;
+	width=ex-sx+1; 		//得到填充的宽度
+	height=ey-sy+1;		//高度
+ 	for(i=0;i<height;i++)
+	{
+ 		lcd_setcursor(sx,sy+i);   	//设置光标位置 
+		lcd_write_gram();     //开始写入GRAM
+		for(j=0;j<width;j++){
+					// LCD->LCD_RAM=color[i*height+j];//写入数据 
+			LCD_WR_DATA(*color);
+		}
+	}	  
 }  
 //画线
 //x1,y1:起点坐标
@@ -307,12 +310,12 @@ void LCD_ShowChar(uint16_t x,uint16_t y,uint8_t num,uint8_t size,uint8_t mode)
 				LCD_DrawPoint(x,y);
 				temp<<=1;
 				y++;
-				if(y>=lcddev.height){POINT_COLOR=colortemp;return;}//超区域了
+				if(y>=LCD_HEIGHT){POINT_COLOR=colortemp;return;}//超区域了
 				if((y-y0)==size)
 				{
 					y=y0;
 					x++;
-					if(x>=lcddev.width){POINT_COLOR=colortemp;return;}//超区域了
+					if(x>=LCD_WIDTH){POINT_COLOR=colortemp;return;}//超区域了
 					break;
 				}
 			}
@@ -328,12 +331,12 @@ void LCD_ShowChar(uint16_t x,uint16_t y,uint8_t num,uint8_t size,uint8_t mode)
 		        if(temp&0x80)LCD_DrawPoint(x,y);
 				temp<<=1;
 				y++;
-				if(y>=lcddev.height){POINT_COLOR=colortemp;return;}//超区域了
+				if(y>=LCD_HEIGHT){POINT_COLOR=colortemp;return;}//超区域了
 				if((y-y0)==size)
 				{
 					y=y0;
 					x++;
-					if(x>=lcddev.width){POINT_COLOR=colortemp;return;}//超区域了
+					if(x>=LCD_WIDTH){POINT_COLOR=colortemp;return;}//超区域了
 					break;
 				}
 			}
@@ -495,6 +498,8 @@ static const uint8_t st7735s_128x160_init_cmd[] =
 	DISP_WR_CMD(0xE0, 0x04, 0x22, 0x07, 0x0A, 0x2E, 0x30, 0x25, 0x2A, 0x28, 0x26, 0x2E, 0x3A, 0x00, 0x01, 0x03, 0x13),
 	DISP_WR_CMD(0xE1, 0x04, 0x16, 0x06, 0x0D, 0x2D, 0x26, 0x23, 0x27, 0x27, 0x25, 0x2D, 0x3B, 0x00, 0x01, 0x04, 0x13),
 	//------------------------------------End ST7735S Gamma Sequence-----------------------------------------//
+	DISP_WR_CMD(0x2A, 0x00, 0x00, 0x00, 0x7F),
+	DISP_WR_CMD(0x2B, 0x00, 0x00, 0x00, 0x9F),
 	DISP_WR_CMD(0x3A, 0x05), //65k mode
 	DISP_WR_CMD(0x29), //Display on
 };
@@ -504,8 +509,11 @@ static const uint8_t st7735s_128x160_init_cmd[] =
 //ypos:纵坐标
 void lcd_setcursor(uint16_t xpos, uint16_t ypos)
 {
-	DISP_WR_CMD(0x2A, (uint8_t)(xpos>>8), (uint8_t)(xpos&0XFF));
-	DISP_WR_CMD(0x2B, (uint8_t)(ypos>>8), (uint8_t)(ypos&0XFF));
+	uint8_t setcursor_xpos_cmd[] = {0x2A, (uint8_t)(xpos>>8), (uint8_t)(xpos&0XFF), (uint8_t)((LCD_WIDTH - 1)>>8), (uint8_t)((LCD_WIDTH - 1)&0XFF)};
+	uint8_t setcursor_ypos_cmd[] = {0x2B, (uint8_t)(ypos>>8), (uint8_t)(ypos&0XFF), (uint8_t)((LCD_HEIGHT - 1)>>8), (uint8_t)((LCD_HEIGHT - 1)&0XFF)};
+
+	lcd_write_cmd((const uint8_t *)setcursor_xpos_cmd, sizeof(setcursor_xpos_cmd));
+	lcd_write_cmd((const uint8_t *)setcursor_ypos_cmd, sizeof(setcursor_ypos_cmd));
 } 	
 
 void xianshi()//ÏÔÊ¾ÐÅÏ¢
@@ -513,23 +521,23 @@ void xianshi()//ÏÔÊ¾ÐÅÏ¢
 	BACK_COLOR=WHITE;
 	POINT_COLOR=RED;   
 	//ÏÔÊ¾32*32ºº×Ö
-	showhanzi32(0,0,0);	 //ÌÔ
-	showhanzi32(40,0,1);	 //¾§
-	showhanzi32(80,0,2);    //³Û
-	//ÏÔÊ¾16*16ºº×Ö
-	showhanzi16(0,35,0);	  //×¨
-	showhanzi16(20,35,1);	  //×¢
-	showhanzi16(40,35,2);	  //ÏÔ
-	showhanzi16(60,35,3);	  //Ê¾
-	showhanzi16(80,35,4);	  //·½
-	showhanzi16(100,35,5);	  //°¸	   
-	LCD_ShowString(0,55,200,16,16,"1.8 TFT SPI");
+	// showhanzi32(0,0,0);	 //ÌÔ
+	// showhanzi32(40,0,1);	 //¾§
+	// showhanzi32(80,0,2);    //³Û
+	// //ÏÔÊ¾16*16ºº×Ö
+	// showhanzi16(0,35,0);	  //×¨
+	// showhanzi16(20,35,1);	  //×¢
+	// showhanzi16(40,35,2);	  //ÏÔ
+	// showhanzi16(60,35,3);	  //Ê¾
+	// showhanzi16(80,35,4);	  //·½
+	// showhanzi16(100,35,5);	  //°¸	   
+//	LCD_ShowString(0,55,200,16,16,"1.8 TFT SPI");
 }
 
 void lcd_init(void)
 {
-	lcddev.width=128;
-	lcddev.height=160;
+	// LCD_WIDTH=128;
+	// LCD_HEIGHT=160;
 	// lcddev.wramcmd=0X2C;
 	// lcddev.setxcmd=0X2A;
 	// lcddev.setycmd=0X2B; 	
@@ -562,8 +570,11 @@ void lcd_init(void)
     // lcd_init_config();
 	lcd_panel_exec_cmd(st7735s_128x160_init_cmd, sizeof(st7735s_128x160_init_cmd));
 
-	LCD_Clear(RED); 
- 	// POINT_COLOR=GREEN;//设置字体为红色 
+//	lcd_setcursor(0x00, 0x50);
+	LCD_Clear(RED);
+ 	POINT_COLOR=GREEN;
+
+	LCD_Color_Fill(40, 90, 100, 100, &POINT_COLOR);
 	// xianshi();	   //显示信息
 	// showqq();	   //显示QQ
 
