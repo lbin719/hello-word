@@ -31,9 +31,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
 		</link>
 		<link>
-			<name>Application/SW4STM32/startup_stm32f103xb.s</name>
+			<name>Application/SW4STM32/startup_stm32f103rctx.s</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f103xb.s</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f103rctx.s</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>
@@ -181,6 +181,31 @@
 			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/unicode.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/emWin/Config/GUIConf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/emWin/Config/GUIConf.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/Config/GUIDRV_Template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/emWin/Config/GUIDRV_Template.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/Config/LCDConf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/emWin/Config/LCDConf.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/Lib/GUI_CM3_L.lib</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/emWin/Lib/ARM/GUI_CM3_L.lib</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/OS/GUI_X.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/emWin/OS/GUI_X.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/flash/norflash.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/flash/norflash.c</locationURI>
@@ -204,6 +229,11 @@
 			<name>Drivers/BSP/Components/lcd/lcd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/lcd/lcd.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lcd/st7735s.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/lcd/st7735s.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/spi/spi.c</name>

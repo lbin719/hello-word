@@ -42,7 +42,7 @@ Purpose     : Display controller initialization
 */
 
 #include "GUI.h"
-#include "./MALLOC/malloc.h"
+//#include "./MALLOC/malloc.h"
 
 /*********************************************************************
 *
@@ -53,9 +53,9 @@ Purpose     : Display controller initialization
 //
 // Define the available number of bytes available for the GUI
 //
-#define USE_EXRAM      1             /* ¸ù¾İ¿ª·¢°åÑ¡Ôñ£¬0Îª²»Ê¹ÓÃÍâ²¿ SRAM  */
-#define GUI_NUMBYTES (32*1024)       /* ¸ù¾İ¿ª·¢°åÑ¡Ôñ£¬ÉèÖÃ EMWIN ÄÚ´æ´óĞ¡ */
-#define GUI_BLOCKSIZE 0X80           /* ¿é´óĞ¡ */
+#define USE_EXRAM      0             /* æ ¹æ®å¼€å‘æ¿é€‰æ‹©ï¼Œ0ä¸ºä¸ä½¿ç”¨å¤–éƒ¨ SRAM  */
+#define GUI_NUMBYTES (20*1024)       /* æ ¹æ®å¼€å‘æ¿é€‰æ‹©ï¼Œè®¾ç½® EMWIN å†…å­˜å¤§å° */
+#define GUI_BLOCKSIZE 0X80           /* å—å¤§å° */
 
 
 /*********************************************************************
@@ -75,7 +75,7 @@ Purpose     : Display controller initialization
 void GUI_X_Config(void) {
 
 #if (USE_EXRAM)
-    /* ´ÓÍâ²¿ SRAM ÖĞ·ÖÅä GUI_NUMBYTES ×Ö½ÚµÄÄÚ´æ */
+    /* ä»å¤–éƒ¨ SRAM ä¸­åˆ†é… GUI_NUMBYTES å­—èŠ‚çš„å†…å­˜ */
     U32 *aMemory = mymalloc(SRAMEX, GUI_NUMBYTES);
     
 #else

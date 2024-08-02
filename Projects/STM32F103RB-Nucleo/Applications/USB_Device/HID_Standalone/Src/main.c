@@ -62,23 +62,29 @@ int main(void)
   /* Configure the system clock to 72 MHz */
   SystemClock_Config();
 
+  //PA15 PB3 PB4 use gpio
+  __HAL_RCC_AFIO_CLK_ENABLE();
+  __HAL_AFIO_REMAP_SWJ_NOJTAG();
+
   ulog_init();
 
-  norflash_init();
+  // norflash_init();
 
-  fs_init();
+  // fs_init();
 
-  lcd_init();
+  // lcd_init();
+  // BSP_LCD_Init();
+  st7735s_Init();
 
-  usbd_port_config(0);    /* USB先断开 */
-  HAL_Delay(500);
-  usbd_port_config(1);    /* USB再次连接 */
-  HAL_Delay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初始化USB */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加类 */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函数 */
-  USBD_Start(&USBD_Device);                                           /* 开启USB */
-  HAL_Delay(1800);
+  // usbd_port_config(0);    /* USB先断开 */
+  // HAL_Delay(500);
+  // usbd_port_config(1);    /* USB再次连接 */
+  // HAL_Delay(500);
+  // USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初始化USB */
+  // USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加类 */
+  // USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函数 */
+  // USBD_Start(&USBD_Device);                                           /* 开启USB */
+  // HAL_Delay(1800);
 
   while (1)
   {

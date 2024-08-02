@@ -48,14 +48,15 @@ Purpose     : Template driver, could be used as starting point for new
 #include "GUI_Private.h"
 #include "LCD_SIM.h"
 #include "LCD_ConfDefaults.h"
-#include "./SYSTEM/sys/sys.h"
-#include "./BSP/LCD/lcd.h"
-#include "./BSP/TOUCH/touch.h"
+#include "lcd.h"
+//#include "./SYSTEM/sys/sys.h"
+#include "st7735s.h"
+// #include "./BSP/TOUCH/touch.h"
 
 
-/* ¶¨ÒåLCDµÄÃüÁîºÍÊý¾ÝÎ». */
-#define UCGUI_LCD_CMD   LCD_BASE                     /* µØÖ·ÎªLCDµÄCMD */
-#define UCGUI_LCD_DATA  (((LCD_BASE >> 1) + 1) << 1) /* µØÖ·ÎªLCDµÄRAM */
+/* å®šä¹‰LCDçš„å‘½ä»¤å’Œæ•°æ®ä½. */
+//#define UCGUI_LCD_CMD   LCD_BASE                     /* åœ°å€ä¸ºLCDçš„CMD */
+//#define UCGUI_LCD_DATA  (((LCD_BASE >> 1) + 1) << 1) /* åœ°å€ä¸ºLCDçš„RAM */
 
 /*********************************************************************
 *
@@ -166,7 +167,9 @@ static void _SetPixelIndex(GUI_DEVICE * pDevice, int x, int y, LCD_PIXELINDEX Pi
       //
       // TBD by customer...
       //
-        lcd_draw_point(x,y,PixelIndex);
+//        lcd_draw_point(x,y,PixelIndex);
+//        BSP_LCD_DrawPixel(x,y,PixelIndex);
+        st7735s_WritePixel(x,y,PixelIndex);
     }
     #if (LCD_MIRROR_X == 0) && (LCD_MIRROR_Y == 0) && (LCD_SWAP_XY == 0)
       #undef xPhys
@@ -210,7 +213,8 @@ static LCD_PIXELINDEX _GetPixelIndex(GUI_DEVICE * pDevice, int x, int y) {
       //
       // TBD by customer...
       //
-      PixelIndex = lcd_read_point(x,y);
+      //liaobin todu
+      // PixelIndex = lcd_read_point(x,y);
     }
     #if (LCD_MIRROR_X == 0) && (LCD_MIRROR_Y == 0) && (LCD_SWAP_XY == 0)
       #undef xPhys
@@ -252,7 +256,9 @@ static void _FillRect(GUI_DEVICE * pDevice, int x0, int y0, int x1, int y1) {
     }
     else
     {
-        lcd_fill(x0,y0,x1,y1,LCD_COLORINDEX);
+//        lcd_fill(x0,y0,x1,y1,LCD_COLORINDEX);
+    	BSP_LCD_SetTextColor(LCD_COLORINDEX);
+    	BSP_LCD_FillRect(x0,y0,x1,y1);
     }
 }
 
@@ -508,13 +514,16 @@ static void  _DrawBitLine8BPP(GUI_DEVICE * pDevice, int x, int y, U8 const * p, 
 *   Only required for 16bpp color depth of target. Should be removed otherwise.
 */
 static void _DrawBitLine16BPP(GUI_DEVICE * pDevice, int x, int y, U16 const * p, int xsize) {
-    LCD_PIXELINDEX pixel;
-    lcd_set_cursor(x,y);
-    *(__IO uint16_t *)(UCGUI_LCD_CMD) = lcddev.wramcmd; /* Ð´ÈëÑÕÉ«Öµ */
+    // LCD_PIXELINDEX pixel;
+//    extern void st7735s_SetCursor(uint16_t Xpos, uint16_t Ypos);
+    st7735s_SetCursor(x, y);
+//    lcd_set_cursor(x,y);
+//    *(__IO uint16_t *)(UCGUI_LCD_CMD) = lcddev.wramcmd; /* å†™å…¥é¢œè‰²å€¼ */
     for (;xsize > 0; xsize --, x++, p++)
     {
-      pixel = *p;
-      *(__IO uint16_t *)(UCGUI_LCD_DATA) = pixel;
+      // pixel = *p;
+//      *(__IO uint16_t *)(UCGUI_LCD_DATA) = pixel;
+      st7735s_Write_Gram(*p);
     }
 }
 

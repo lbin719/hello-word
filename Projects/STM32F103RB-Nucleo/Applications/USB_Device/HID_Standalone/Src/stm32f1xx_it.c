@@ -39,6 +39,7 @@ extern PCD_HandleTypeDef hpcd;
 // extern UART_HandleTypeDef Uart1Handle;
 extern SPI_HandleTypeDef Spi1Handle; /* SPI1句柄 */
 extern SPI_HandleTypeDef Spi2Handle; /* SPI2句柄 */
+extern SPI_HandleTypeDef Spi3Handle; /* SPI3句柄 */
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -167,12 +168,23 @@ void DMA1_Channel3_IRQHandler(void)
 
 void DMA1_Channel4_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(Spi2Handle.hdmatx);
+  HAL_DMA_IRQHandler(Spi2Handle.hdmarx);
 }
 
 void DMA1_Channel5_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(Spi2Handle.hdmarx);
+  HAL_DMA_IRQHandler(Spi2Handle.hdmatx);
+}
+
+
+void DMA2_Channel1_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(Spi3Handle.hdmarx);
+}
+
+void DMA2_Channel2_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(Spi3Handle.hdmatx);
 }
 
 /**

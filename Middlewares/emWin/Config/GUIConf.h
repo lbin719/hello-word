@@ -48,34 +48,34 @@ Purpose     : Configures emWins abilities, fonts etc.
 *
 *       Multi layer/display support
 */
-#define GUI_NUM_LAYERS            1    /* ÏÔÊ¾µÄ×î´ó²ãÊı */
+#define GUI_NUM_LAYERS            1    /* æ˜¾ç¤ºçš„æœ€å¤§å±‚æ•° */
 
 /*********************************************************************
 *
 *       Multi tasking support
 */
-#define GUI_OS                    (0)  /* 0:²»Ê¹ÓÃ²Ù×÷ÏµÍ³ */
+#define GUI_OS                    (0)  /* 0:ä¸ä½¿ç”¨æ“ä½œç³»ç»Ÿ */
 
 /*********************************************************************
 *
 *       Configuration of touch support
 */
-#define GUI_SUPPORT_TOUCH         (1)  /* 0:²»Ö§³Ö´¥Ãş */
+#define GUI_SUPPORT_TOUCH         (0)  /* 0:ä¸æ”¯æŒè§¦æ‘¸ */
 
 /*********************************************************************
 *
 *       Default font
 */
-#define GUI_DEFAULT_FONT          &GUI_Font6x8  /* Ä¬ÈÏ×ÖÌå */
+#define GUI_DEFAULT_FONT          &GUI_Font6x8  /* é»˜è®¤å­—ä½“ */
 
 /*********************************************************************
 *
 *         Configuration of available packages
 */
-#define GUI_SUPPORT_MOUSE    1    /* Ö§³ÖÊó±ê */
-#define GUI_WINSUPPORT       1    /* Ö§³Ö´°¿Ú¹ÜÀí */
-#define GUI_SUPPORT_MEMDEV   1    /* Ö§³Ö´æ´¢Éè±¸ */
-#define GUI_SUPPORT_DEVICES  1    /* Ê¹ÓÃÉè±¸Ö¸Õë */
+#define GUI_SUPPORT_MOUSE    0    /* æ”¯æŒé¼ æ ‡ */
+#define GUI_WINSUPPORT       0    /* æ”¯æŒçª—å£ç®¡ç† */
+#define GUI_SUPPORT_MEMDEV   0    /* æ”¯æŒå­˜å‚¨è®¾å¤‡ */
+#define GUI_SUPPORT_DEVICES  1    /* ä½¿ç”¨è®¾å¤‡æŒ‡é’ˆ */
 
 #endif  // Avoid multiple inclusion
 

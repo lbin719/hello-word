@@ -23,8 +23,8 @@ static void norflash_wait_busy(void)
     do{
         NORFLASH_CS(0);
         uint8_t  write_data = SPIF_READSTATUSREG1;
-        spi1_bytes_write(&write_data, 1);
-        spi1_bytes_read(&breadbyte, sizeof(breadbyte));
+        spi2_bytes_write(&write_data, 1);
+        spi2_bytes_read(&breadbyte, sizeof(breadbyte));
         NORFLASH_CS(1);
     }while((breadbyte & 0x01) == 0x01);
 }
@@ -33,7 +33,7 @@ static void norflash_write_enable(void)
 {
     NORFLASH_CS(0);
     uint8_t  write_data = SPIF_WRITEENABLE;
-    spi1_bytes_write(&write_data, 1);
+    spi2_bytes_write(&write_data, 1);
     NORFLASH_CS(1);
 }
 
@@ -43,8 +43,8 @@ static uint16_t norflash_read_id(void)
   uint8_t wreceivedata[2];
 
   NORFLASH_CS(0);
-  spi1_bytes_write(readid_cmd, sizeof(readid_cmd));
-  spi1_bytes_read(wreceivedata, sizeof(wreceivedata));
+  spi2_bytes_write(readid_cmd, sizeof(readid_cmd));
+  spi2_bytes_read(wreceivedata, sizeof(wreceivedata));
   NORFLASH_CS(1);
 
   return (uint16_t)(wreceivedata[0] << 8 | wreceivedata[1]);
@@ -57,7 +57,7 @@ static void norflash_chip_erase(void)
 
     NORFLASH_CS(0);
     uint8_t erase_cmd[] = {SPIF_CHIPERASE};
-    spi1_bytes_write(erase_cmd, sizeof(erase_cmd));
+    spi2_bytes_write(erase_cmd, sizeof(erase_cmd));
     NORFLASH_CS(1);
 
     norflash_wait_busy();
@@ -78,7 +78,7 @@ static void norflash_sector_erase(uint32_t erase_addr)
     erase_data[3] = (uint8_t)erase_addr;
 
     NORFLASH_CS(0);
-    spi1_bytes_write(erase_data, sizeof(erase_data));
+    spi2_bytes_write(erase_data, sizeof(erase_data));
     NORFLASH_CS(1);
     norflash_wait_busy();
 }
@@ -99,12 +99,12 @@ static void norflash_page_write(uint8_t *pbuffer, uint32_t write_addr, uint32_t 
     write_cmd_addr[1] = (uint8_t)(write_addr >> 16);
     write_cmd_addr[2] = (uint8_t)(write_addr >> 8);
     write_cmd_addr[3] = (uint8_t)write_addr;
-    spi1_bytes_write(write_cmd_addr, sizeof(write_cmd_addr));
+    spi2_bytes_write(write_cmd_addr, sizeof(write_cmd_addr));
 #if NORFLASH_USE_DMA
-    spi1_dma_write(pbuffer, length);
-    spi1_dma_wait_finsh();
+    spi2_dma_write(pbuffer, length);
+    spi2_dma_wait_finsh();
 #else
-    spi1_bytes_write(pbuffer, length);
+    spi2_bytes_write(pbuffer, length);
 #endif
     NORFLASH_CS(1);
 
@@ -260,12 +260,12 @@ void norflash_read(uint8_t *pbuffer, uint32_t read_addr, uint32_t length)
     read_data[3] = (uint8_t)read_addr;
 
     NORFLASH_CS(0);
-    spi1_bytes_write(read_data, sizeof(read_data));
+    spi2_bytes_write(read_data, sizeof(read_data));
 #if NORFLASH_USE_DMA
-    spi1_dma_read(pbuffer, length);
-    spi1_dma_wait_finsh();
+    spi2_dma_read(pbuffer, length);
+    spi2_dma_wait_finsh();
 #else
-    spi1_bytes_read(pbuffer, length);
+    spi2_bytes_read(pbuffer, length);
 #endif
 
     NORFLASH_CS(1);
@@ -274,7 +274,7 @@ void norflash_read(uint8_t *pbuffer, uint32_t read_addr, uint32_t length)
 
 bool norflash_init(void)
 {
-    NORFLASH_GPIO_CLK_ENABLE();      /* SPI1 CS脚 时钟使能 */
+    NORFLASH_GPIO_CLK_ENABLE();      /* spi2 CS脚 时钟使能 */
     GPIO_InitTypeDef gpio_init_struct;
     gpio_init_struct.Pin = NORFLASH_CS_GPIO_PIN;
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -283,7 +283,7 @@ bool norflash_init(void)
     HAL_GPIO_Init(NORFLASH_CS_GPIO_PORT, &gpio_init_struct);
     NORFLASH_CS(1);
 
-    spi1_init();
+    spi2_init();
 
     uint16_t flash_id = norflash_read_id();
     if(GD25Q16 == flash_id)

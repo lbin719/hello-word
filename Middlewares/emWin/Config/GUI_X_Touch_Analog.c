@@ -58,20 +58,20 @@ int  GUI_TOUCH_X_MeasureX(void) {
     int32_t xvalue;
     uint16_t x,y; 
     
-    /* ÅĞ¶Ïµç×èÆÁ»¹ÊÇµçÈİÆÁ */
+    /* åˆ¤æ–­ç”µé˜»å±è¿˜æ˜¯ç”µå®¹å± */
     if ((tp_dev.touchtype & 0x80) == 0)
     {
         tp_dev.scan(0);
         
-        if (tp_dev.sta & TP_PRES_DOWN)                              /* ´¥ÃşÆÁ±»°´ÏÂ */
+        if (tp_dev.sta & TP_PRES_DOWN)                              /* è§¦æ‘¸å±è¢«æŒ‰ä¸‹ */
         {
-            /* µç×èÆÁ³öÏÖ´¥ÃşÃ»ÓĞÄÇÃ´Ë³³©µÄÎÊÌâ£¬Çë°Ñtouch.cÎÄ¼şÏÂµÄTP_ERR_RANGEºê¶¨ÒåÉèÖÃ´óÒ»µã */
+            /* ç”µé˜»å±å‡ºç°è§¦æ‘¸æ²¡æœ‰é‚£ä¹ˆé¡ºç•…çš„é—®é¢˜ï¼Œè¯·æŠŠtouch.cæ–‡ä»¶ä¸‹çš„TP_ERR_RANGEå®å®šä¹‰è®¾ç½®å¤§ä¸€ç‚¹ */
             tp_read_xy2(&x,&y); 
             return (4095 - x); 
 //            return tp_read_xoy(0X90);                             /* CMD_RDX=0XD0  */
         }
     }
-    else        /* µçÈİÆÁ */
+    else        /* ç”µå®¹å± */
     {
         tp_dev.scan(0);
         xvalue = tp_dev.x[0];
@@ -86,21 +86,21 @@ int  GUI_TOUCH_X_MeasureY(void)
     int32_t yvalue;
     uint16_t x,y;
     
-    /* ÅĞ¶Ïµç×èÆÁ»¹ÊÇµçÈİÆÁ */
+    /* åˆ¤æ–­ç”µé˜»å±è¿˜æ˜¯ç”µå®¹å± */
     if ((tp_dev.touchtype & 0x80) == 0)
     {
-        /* ½â¾ö¿ìËÙ°´ÏÂµÄÊó±êÂÒÆÁÎÊÌâ */
+        /* è§£å†³å¿«é€ŸæŒ‰ä¸‹çš„é¼ æ ‡ä¹±å±é—®é¢˜ */
         tp_dev.scan(0);
         
-        if (tp_dev.sta & TP_PRES_DOWN)                              /* ´¥ÃşÆÁ±»°´ÏÂ */
+        if (tp_dev.sta & TP_PRES_DOWN)                              /* è§¦æ‘¸å±è¢«æŒ‰ä¸‹ */
         {
-            /* µç×èÆÁ³öÏÖ´¥ÃşÃ»ÓĞÄÇÃ´Ë³³©µÄÎÊÌâ£¬Çë°Ñtouch.cÎÄ¼şÏÂµÄTP_ERR_RANGEºê¶¨ÒåÉèÖÃ´óÒ»µã */
+            /* ç”µé˜»å±å‡ºç°è§¦æ‘¸æ²¡æœ‰é‚£ä¹ˆé¡ºç•…çš„é—®é¢˜ï¼Œè¯·æŠŠtouch.cæ–‡ä»¶ä¸‹çš„TP_ERR_RANGEå®å®šä¹‰è®¾ç½®å¤§ä¸€ç‚¹ */
             tp_read_xy2(&x,&y); 
             return y; 
 //            return tp_read_xoy(0XD0);                             /*CMD_RDX=0XD0  */
         }
     }
-    else        /* µçÈİÆÁ */
+    else        /* ç”µå®¹å± */
     {
         yvalue = tp_dev.y[0];
         return yvalue;

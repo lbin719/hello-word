@@ -50,6 +50,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
+/* jlink PA13 PA14 */
 /* usb PA11 PA12*/
 
 /* uart1 TX:PA9 RX:PA10 */
@@ -120,10 +121,6 @@
 #define SPI1_RX_DMA_IRQn                 DMA1_Channel2_IRQn
 
 
-#define NORFLASH_CS_GPIO_PORT           GPIOA
-#define NORFLASH_CS_GPIO_PIN            GPIO_PIN_4
-#define NORFLASH_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
-
 /* spi2 */
 // #define SPI2_SPI                        SPI2
 #define SPI2_SPI_CLK_ENABLE()           __HAL_RCC_SPI2_CLK_ENABLE()
@@ -132,9 +129,9 @@
 #define SPI2_SCK_GPIO_PIN               GPIO_PIN_13
 #define SPI2_SCK_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
 
-// #define SPI2_MISO_GPIO_PORT             GPIOB
-// #define SPI2_MISO_GPIO_PIN              GPIO_PIN_14
-// #define SPI2_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
+#define SPI2_MISO_GPIO_PORT             GPIOB
+#define SPI2_MISO_GPIO_PIN              GPIO_PIN_14
+#define SPI2_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
 
 #define SPI2_MOSI_GPIO_PORT             GPIOB
 #define SPI2_MOSI_GPIO_PIN              GPIO_PIN_15
@@ -148,19 +145,48 @@
 #define SPI2_TX_DMA_IRQn                 DMA1_Channel5_IRQn
 #define SPI2_RX_DMA_IRQn                 DMA1_Channel4_IRQn
 
+
+#define NORFLASH_CS_GPIO_PORT           GPIOB
+#define NORFLASH_CS_GPIO_PIN            GPIO_PIN_12
+#define NORFLASH_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
+
+
+
+/* spi3 */
+// #define SPI3_SPI                        SPI3
+#define SPI3_SPI_CLK_ENABLE()           __HAL_RCC_SPI3_CLK_ENABLE()
+
+#define SPI3_SCK_GPIO_PORT              GPIOB
+#define SPI3_SCK_GPIO_PIN               GPIO_PIN_3
+#define SPI3_SCK_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
+
+// #define SPI3_MISO_GPIO_PORT             GPIOB
+// #define SPI3_MISO_GPIO_PIN              GPIO_PIN_4
+// #define SPI3_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define SPI3_MOSI_GPIO_PORT             GPIOB
+#define SPI3_MOSI_GPIO_PIN              GPIO_PIN_5
+#define SPI3_MOSI_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define SPI3_TX_DMA_CHANNEL              DMA2_Channel2
+#define SPI3_RX_DMA_CHANNEL              DMA2_Channel1
+#define SPI3_DMA_CLK_ENABLE()            __HAL_RCC_DMA2_CLK_ENABLE()
+
+#define SPI3_TX_DMA_IRQn                 DMA2_Channel2_IRQn
+#define SPI3_RX_DMA_IRQn                 DMA2_Channel1_IRQn
+
 #define LCD_CS_GPIO_PORT                 GPIOB
-#define LCD_CS_GPIO_PIN                  GPIO_PIN_12
+#define LCD_CS_GPIO_PIN                  GPIO_PIN_4
 #define LCD_CS_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
-// usb 
-#define LCD_RST_GPIO_PORT                 GPIOA
-#define LCD_RST_GPIO_PIN                  GPIO_PIN_8
-#define LCD_RST_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
 
 #define LCD_DC_GPIO_PORT                 GPIOB
-#define LCD_DC_GPIO_PIN                  GPIO_PIN_14
+#define LCD_DC_GPIO_PIN                  GPIO_PIN_6
 #define LCD_DC_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
+#define LCD_RST_GPIO_PORT                 GPIOB
+#define LCD_RST_GPIO_PIN                  GPIO_PIN_7
+#define LCD_RST_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
 /* uart1 log  PA9 PA10 */
 // DMA1_Channel4
@@ -187,6 +213,8 @@
 
 /* i2c 12bit adc ic */
 /* i2c yuyin mode */
+
+/* qrcode */
 
 
 

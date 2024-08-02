@@ -33,6 +33,19 @@ void spi2_init(void);
 #define spi2_dma_read(pbuffer, length)     HAL_SPI_Receive_DMA(&Spi2Handle, pbuffer, length)
 #define spi2_dma_wait_finsh()              while(HAL_SPI_GetState(&Spi2Handle) != HAL_SPI_STATE_READY){}
 
+
+extern SPI_HandleTypeDef Spi3Handle; /* SPI2句柄 */
+
+void spi3_init(void);
+
+#define spi3_bytes_write(pbuffer, length)  HAL_SPI_Transmit(&Spi3Handle, pbuffer, length, SPI_FLASH_TIMEOUT)
+#define spi3_bytes_read(pbuffer, length)   HAL_SPI_Receive(&Spi3Handle, pbuffer, length, SPI_FLASH_TIMEOUT)
+
+#define spi3_dma_write(pbuffer, length)    HAL_SPI_Transmit_DMA(&Spi3Handle, pbuffer, length)
+#define spi3_dma_read(pbuffer, length)     HAL_SPI_Receive_DMA(&Spi3Handle, pbuffer, length)
+#define spi3_dma_wait_finsh()              while(HAL_SPI_GetState(&Spi3Handle) != HAL_SPI_STATE_READY){}
+
+
 #ifdef __cplusplus
  }
 #endif
