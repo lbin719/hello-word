@@ -52,11 +52,12 @@ void update_details_file(void)
     f_close(&File);
 }
 
+FATFS FLASHDISKFatFs;
+char FLASHDISKPath[4];
+
 void fs_init()
 {
     FRESULT res;
-    FATFS FLASHDISKFatFs;
-    char FLASHDISKPath[4];
 
     if (FATFS_LinkDriver(&FLASHDISK_Driver, FLASHDISKPath) == 0)
     {
@@ -94,5 +95,5 @@ void fs_init()
     }
 
     /* 卸载驱动，防止和USB MSC冲突 */
-    FATFS_UnLinkDriver(FLASHDISKPath);
+    // FATFS_UnLinkDriver(FLASHDISKPath);
 }

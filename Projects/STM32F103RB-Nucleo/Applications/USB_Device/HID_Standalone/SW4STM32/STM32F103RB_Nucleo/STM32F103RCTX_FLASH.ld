@@ -38,7 +38,7 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = ORIGIN(RAM) + LENGTH(RAM); /* end of "RAM" Ram type memory */
 
-_Min_Heap_Size = 0x200; /* required amount of heap */
+_Min_Heap_Size = 0x1000; /* required amount of heap */
 _Min_Stack_Size = 0x1000; /* required amount of stack */
 
 /* Memories definition */
@@ -169,6 +169,8 @@ SECTIONS
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
+    . = ALIGN(8);
+    _sstack = .;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
@@ -182,4 +184,11 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
+
+    _vStackBase = _sstack;
+    _vStackTop = _estack;
+
+    _image_start = LOADADDR (.text);
+    _image_end = _etext;
+    _image_size = _image_end - _image_start;
 }

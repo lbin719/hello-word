@@ -19,14 +19,14 @@
   ******************************************************************************/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef _VERSION_H
+#define _VERSION_H
 
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define PRODUCT_DEVICE_NAME               "STM32 Demo"
+#define PRODUCT_DEVICE_NAME               "STM32F103RB_Nucleo"
 
 #define TOSTRING(s) #s
 #define STRINGIZE(s) TOSTRING(s)
@@ -40,11 +40,14 @@
                                           STRINGIZE(MCU_FW_VERSION_MINOR) "." \
                                           STRINGIZE(MCU_FW_VERSION_REVISION)
 
-const char CodeBuildDate[] = {__DATE__};
-const char CodeBuildTime[] = {__TIME__};
+#define MCU_HW_VERSION                    "1.0.0.0"
+
+
+extern const char CodeBuildDate[];
+extern const char CodeBuildTime[];
 
 /* Exported functions ------------------------------------------------------- */
 
-#endif /* VERSION_H */
+#endif /* _VERSION_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -1,5 +1,5 @@
-#ifndef _LCD_H
-#define _LCD_H
+#ifndef _ST7735S_H
+#define _ST7735S_H
 
 // #include "stm32f1xx.h"
 #include <stdbool.h>
@@ -67,23 +67,7 @@ typedef struct
 }_lcd_dev;
 
 //LCD参数
-extern _lcd_dev lcddev;	//管理LCD重要参数
-//LCD的画笔颜色和背景色
-extern uint16_t  POINT_COLOR;//默认红色
-extern uint16_t  BACK_COLOR; //背景颜色.默认为白色
-
-
-//LCD地址结构体
-typedef struct
-{
-	uint16_t LCD_REG;
-	uint16_t LCD_RAM;
-} LCD_TypeDef;
-//使用NOR/SRAM的 Bank1.sector4,地址位HADDR[27,26]=11 A10作为数据命令区分线
-//注意设置时STM32内部会右移一位对其! 111110=0X3E
-// #define LCD_BASE        ((uint32_t)(0x60000000 | 0x0007FFFE))
-// #define LCD             ((LCD_TypeDef *) LCD_BASE)
-//////////////////////////////////////////////////////////////////////////////////
+extern _lcd_dev st7735s_dev;	//管理LCD重要参数
 
 //画笔颜色
 #define WHITE         	 0xFFFF
@@ -114,24 +98,24 @@ typedef struct
 #define LGRAYBLUE        0XA651 //浅灰蓝色(中间层颜色)
 #define LBBLUE           0X2B12 //浅棕蓝色(选择条目的反色)
 
-// void lcd_init(void);
-// void LCD_Init(void);													   	//初始化
-void LCD_DisplayOn(void);													//开显示
-void LCD_DisplayOff(void);													//关显示
-void lcd_clear(uint16_t Color);	 												//清屏
-void LCD_DrawPoint(uint16_t x,uint16_t y);											//画点
-void LCD_Fast_DrawPoint(uint16_t x,uint16_t y,uint16_t color);								//快速画点
-void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r);										//画圆
-void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);							//画线
-void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);		   				//画矩形
-void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color);		   				//填充单色
-void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *color);				//填充指定颜色
-void LCD_ShowChar(uint16_t x,uint16_t y,uint8_t num,uint8_t size,uint8_t mode);						//显示一个字符
-void LCD_ShowNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size);  						//显示一个数字
-void LCD_ShowxNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size,uint8_t mode);				//显示 数字
-void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t size,uint8_t *p);		//显示一个字符串,12/16字体
 
-void showimage(uint16_t x,uint16_t y); //显示40*40图片
+// void LCD_Init(void);													   	//初始化
+// void LCD_DisplayOn(void);													//开显示
+// void LCD_DisplayOff(void);													//关显示
+// void lcd_clear(uint16_t Color);	 												//清屏
+// void LCD_DrawPoint(uint16_t x,uint16_t y);											//画点
+// void LCD_Fast_DrawPoint(uint16_t x,uint16_t y,uint16_t color);								//快速画点
+// void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r);										//画圆
+// void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);							//画线
+// void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);		   				//画矩形
+// void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color);		   				//填充单色
+// void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *color);				//填充指定颜色
+// void LCD_ShowChar(uint16_t x,uint16_t y,uint8_t num,uint8_t size,uint8_t mode);						//显示一个字符
+// void LCD_ShowNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size);  						//显示一个数字
+// void LCD_ShowxNum(uint16_t x,uint16_t y,uint32_t num,uint8_t len,uint8_t size,uint8_t mode);				//显示 数字
+// void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t size,uint8_t *p);		//显示一个字符串,12/16字体
+
+// void showimage(uint16_t x,uint16_t y); //显示40*40图片
 
 
 // void showhanzi16(unsigned int x,unsigned int y,unsigned char index);//16*16汉字
@@ -142,8 +126,10 @@ void st7735s_Write_Gram(uint16_t RGBCode);
 void st7735s_SetCursor(uint16_t Xpos, uint16_t Ypos);
 void st7735s_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode);
 
+void st7735s_test(void);
+
 #ifdef __cplusplus
  }
 #endif
 
-#endif /* _LCD_H */
+#endif /* _ST7735S_H */

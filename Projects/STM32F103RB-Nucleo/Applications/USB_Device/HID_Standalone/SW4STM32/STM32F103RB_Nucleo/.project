@@ -56,6 +56,16 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f1xx.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/CmBacktrace/cm_backtrace.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Drivers/CmBacktrace/cm_backtrace.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/CmBacktrace/gcc</name>
+			<type>2</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Drivers/CmBacktrace/fault_handler/gcc</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c</locationURI>
@@ -239,6 +249,16 @@
 			<name>Drivers/BSP/Components/spi/spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/spi/spi.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/text/fonts.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/text/fonts.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/text/text.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/text/text.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/uart/uart.c</name>

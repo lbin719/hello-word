@@ -4,7 +4,7 @@
 #include "main.h"
 #include "spi.h"
 
-#define NORFLASH_USE_DMA         1
+#define NORFLASH_USE_DMA         0
 
 
 uint32_t chip_size = GD25Q16_CHIP_SIZE;

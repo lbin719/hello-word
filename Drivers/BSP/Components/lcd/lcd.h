@@ -7,7 +7,8 @@
 
 // /* Includes ------------------------------------------------------------------*/
 #include "stdint.h"
-#include "st7735s.h"
+#include "stdbool.h"
+// #include "st7735s.h"
 // // #include "fonts.h"
 
 
@@ -141,6 +142,10 @@ typedef struct
 // void     BSP_LCD_DisplayOff(void);
 // void     BSP_LCD_DisplayOn(void);
 
+extern uint32_t g_back_color;
+
+void lcd_init(void);
+void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode, uint16_t color);
   
 #ifdef __cplusplus
 }

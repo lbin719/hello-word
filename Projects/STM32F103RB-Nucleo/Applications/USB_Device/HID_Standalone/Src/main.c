@@ -25,7 +25,14 @@
 #include "fs.h"
 #include "stmflash.h"
 #include "lcd.h"
+#include "fonts.h"
+#include "version.h"
+#include "st7735s.h"
+#include "text.h"
 
+
+const char CodeBuildDate[] = {__DATE__};
+const char CodeBuildTime[] = {__TIME__};
 /** @addtogroup STM32F1xx_HAL_Validation
   * @{
   */
@@ -40,8 +47,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-USBD_HandleTypeDef USBD_Device;             /* USB Deviceå¤„ç†ç»“æ„ä½“ */
-extern volatile uint8_t g_usb_state_reg;    /* USBçŠ¶æ€ */
+USBD_HandleTypeDef USBD_Device;             /* USB Deviceå¤„ç†ç»“æ„ä½? */
+extern volatile uint8_t g_usb_state_reg;    /* USBçŠ¶æ€? */
 extern volatile uint8_t g_device_state;     /* USBè¿æ¥ æƒ…å†µ */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,26 +75,50 @@ int main(void)
 
   ulog_init();
 
-  // norflash_init();
+  /* CmBacktrace initialize */
+  cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
+  // cm_backtrace_set_callback(NULL);
 
-  // fs_init();
+  norflash_init();
 
-  // lcd_init();
-  // BSP_LCD_Init();
-  st7735s_Init();
+  fs_init();
+  fonts_init();
 
-  // usbd_port_config(0);    /* USBå…ˆæ–­å¼€ */
-  // HAL_Delay(500);
-  // usbd_port_config(1);    /* USBå†æ¬¡è¿æ¥ */
-  // HAL_Delay(500);
-  // USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* åˆå§‹åŒ–USB */
-  // USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* æ·»åŠ ç±» */
-  // USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* ä¸ºMSCç±»æ·»åŠ å›è°ƒå‡½æ•° */
-  // USBD_Start(&USBD_Device);                                           /* å¼€å¯USB */
-  // HAL_Delay(1800);
+  lcd_init();
+
+#if 0
+  usbd_port_config(0);    /* USBå…ˆæ–­å¼€ */
+  HAL_Delay(500);
+  usbd_port_config(1);    /* USBå†æ?¡è¿æ? */
+  HAL_Delay(500);
+  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* åˆå?‹åŒ–USB */
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* æ·»åŠ ç±? */
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* ä¸ºMSCç±»æ·»åŠ å›è°ƒå‡½æ•? */
+  USBD_Start(&USBD_Device);                                           /* å¼€å¯USB */
+  HAL_Delay(1800);
+#endif
+
+  // text_show_string(0, 32, 160, 16, "Òí·É³åÌì¿Æ¼¼", 16, 0, RED);
+    text_show_string(0, 0, 200, 16, "ÕıµãÔ­×ÓSTM32¿ª·¢°å", 16, 0, RED);
+    text_show_string(0, 16, 200, 16, "GBK×Ö¿â²âÊÔ³ÌĞò", 16, 0, RED);
+    // text_show_string(30, 70, 200, 16, "ÕıµãÔ­×Ó@ALIENTEK", 16, 0, RED);
+    // text_show_string(30, 90, 200, 16, "°´KEY0,¸üĞÂ×Ö¿â", 16, 0, RED);
+    
+    // text_show_string(30, 110, 200, 16, "ÄÚÂë¸ß×Ö½Ú:", 16, 0, BLUE);
+    // text_show_string(30, 130, 200, 16, "ÄÚÂëµÍ×Ö½Ú:", 16, 0, BLUE);
+    // text_show_string(30, 150, 200, 16, "ºº×Ö¼ÆÊıÆ÷:", 16, 0, BLUE);
+    
+    text_show_string(0, 32, 200, 24, "¶ÔÓ¦ºº×ÖÎª:", 24, 0, BLUE);
+    // text_show_string(30, 204, 200, 16, "¶ÔÓ¦ºº×Ö(16*16)Îª:", 16, 0, BLUE);
+    text_show_string(0, 64, 200, 16, "¶ÔÓ¦ºº×Ö(12*12)Îª:", 12, 0, BLUE);
+
+
 
   while (1)
   {
+		snprintf(test_buf, sizeof(test_buf), "Tick: %ld", HAL_GetTick());
+		text_show_string(0, 16, 160, 16, test_buf, 16, 0, RED);
+
     LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
     HAL_Delay(1000);

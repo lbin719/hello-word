@@ -28,6 +28,7 @@
 #include "stm32f1xx_hal_pcd.h"
 #include "usbd_desc.h"
 #include "usbd_hid.h"
+#include "cm_backtrace.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
