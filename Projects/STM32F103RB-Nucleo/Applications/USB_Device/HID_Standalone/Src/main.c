@@ -100,7 +100,7 @@ int main(void)
 
   // text_show_string(0, 32, 160, 16, "翼飞冲天科技", 16, 0, RED);
     text_show_string(0, 0, 200, 16, "正点原子STM32开发板", 16, 0, RED);
-    text_show_string(0, 16, 200, 16, "GBK字库测试程序", 16, 0, RED);
+    // text_show_string(0, 16, 200, 16, "GBK字库测试程序", 16, 0, RED);
     // text_show_string(30, 70, 200, 16, "正点原子@ALIENTEK", 16, 0, RED);
     // text_show_string(30, 90, 200, 16, "按KEY0,更新字库", 16, 0, RED);
     
@@ -113,7 +113,7 @@ int main(void)
     text_show_string(0, 64, 200, 16, "对应汉字(12*12)为:", 12, 0, BLUE);
 
 
-
+  uint8_t test_buf[64];
   while (1)
   {
 		snprintf(test_buf, sizeof(test_buf), "Tick: %ld", HAL_GetTick());
