@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/HID_Standalone/Src/stm32f1xx_it.c
+  * @file    HID_Standalone/Src/stm32f1xx_it.c
   * @author  MCD Application Team
   * @brief   Main Interrupt Service Routines.
   *          This file provides template for all exceptions handler and

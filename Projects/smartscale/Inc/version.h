@@ -26,7 +26,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define PRODUCT_DEVICE_NAME               "STM32F103RB_Nucleo"
+#define PRODUCT_DEVICE_NAME               "smartscale"
 
 #define TOSTRING(s) #s
 #define STRINGIZE(s) TOSTRING(s)

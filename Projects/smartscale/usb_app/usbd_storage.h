@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/MSC_Standalone/Inc/usbd_storage.h
+  * @file    MSC_Standalone/Inc/usbd_storage.h
   * @author  MCD Application Team
   * @brief   Header for usbd_storage.c module
   ******************************************************************************
@@ -24,7 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_msc.h"
 
-#define FLASH_DISK_BLOCK_SIZE    8 /* 每个 BLOCK 有 8 个扇区 */
+#define FLASH_DISK_BLOCK_SIZE    8 /* 每个 BLOCK �? 8 �?���? */
 #define FLASH_DISK_SECTOR_SIZE   (SPIF_SECTOR_SIZE / FLASH_DISK_BLOCK_SIZE) /* 扇区大小 */
 #define FLASH_DISK_SECTOR_COUNT  (SPIF_CHIP_SIZE / FLASH_DISK_SECTOR_SIZE) /* 扇区数目 */
 

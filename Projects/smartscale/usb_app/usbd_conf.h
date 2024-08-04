@@ -40,8 +40,8 @@
 /* MSC Class Config */
 #define MSC_MEDIA_PACKET                      512   /* 定义包大小为2KB,越大,速度越快 */
 
-/* 最大支持的设备数,3个 */
-#define STORAGE_LUN_NBR                       1         /* 设置最大支持的设备数 */
+/* 最大支持的设�?�?,3�? */
+#define STORAGE_LUN_NBR                       1         /* 设置最大支持的设�?�? */
 
 #define MAX_STATIC_ALLOC_SIZE                 1*1024 /* HID Class Driver Structure size */
 /* Exported macro ------------------------------------------------------------*/

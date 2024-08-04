@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/HID_Standalone/Src/main.c
+  * @file    HID_Standalone/Src/main.c
   * @author  MCD Application Team
   * @brief   USB device HID application main file.
   ******************************************************************************

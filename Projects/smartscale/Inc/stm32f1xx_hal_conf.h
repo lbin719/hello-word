@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/HID_Standalone/Inc/stm32f1xx_hal_conf.h
+  * @file    HID_Standalone/Inc/stm32f1xx_hal_conf.h
   * @author  MCD Application Team
   * @brief   HAL configuration template file.
   *          This file should be copied to the application folder and renamed

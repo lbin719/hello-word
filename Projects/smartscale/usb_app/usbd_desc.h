@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/MSC_Standalone/Inc/usbd_desc.h
+  * @file    MSC_Standalone/Inc/usbd_desc.h
   * @author  MCD Application Team
   * @brief   Header for usbd_desc.c module
   ******************************************************************************

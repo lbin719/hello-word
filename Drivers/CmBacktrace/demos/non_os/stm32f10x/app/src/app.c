@@ -14,7 +14,7 @@ int main(void){
     BSP_Init();
     
     /* CmBacktrace initialize */
-    cm_backtrace_init("STM32F103RB_Nucleo", HARDWARE_VERSION, SOFTWARE_VERSION);
+    cm_backtrace_init("smartscale", HARDWARE_VERSION, SOFTWARE_VERSION);
     
 //    fault_test_by_unalign();
     fault_test_by_div0();
