@@ -29,7 +29,7 @@
 #include "version.h"
 #include "st7735s.h"
 #include "text.h"
-
+#include "stmencrypt.h"
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -75,6 +75,8 @@ int main(void)
 
   ulog_init();
 
+  stm_encrypt_init();
+
   /* CmBacktrace initialize */
   cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
   // cm_backtrace_set_callback(NULL);
@@ -82,6 +84,7 @@ int main(void)
   norflash_init();
 
   fs_init();
+
   fonts_init();
 
   lcd_init();

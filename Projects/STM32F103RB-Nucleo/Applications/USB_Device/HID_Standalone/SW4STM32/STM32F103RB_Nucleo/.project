@@ -216,6 +216,11 @@
 			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/emWin/OS/GUI_X.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/encrypt/stmencrypt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/encrypt/stmencrypt.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/flash/norflash.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/Drivers/BSP/Components/flash/norflash.c</locationURI>

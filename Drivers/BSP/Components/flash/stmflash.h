@@ -2,17 +2,25 @@
 #define __STMFLASH_H
 #include "stdint.h"
 
-/* FLASH起始地址 */
-#define STM32_FLASH_SIZE        0x10000         /* STM32 FLASH 总大小 */
-#define STM32_FLASH_BASE        0x08000000      /* STM32 FLASH 起始地址 */
+/* FLASH��ʼ��ַ */
+#define STM32_FLASH_SIZE        0x40000         /* STM32 FLASH �ܴ�С */
+#define STM32_FLASH_BASE        0x08000000      /* STM32 FLASH ��ʼ��ַ */
 #define STM32_FLASH_END_ADDRESS (0x08000000 + 0x80000)
 
- /* STM32F103 扇区大小 */
+ /* STM32F103 ������С */
 #if STM32_FLASH_SIZE < 256 * 1024
-#define STM32_SECTOR_SIZE   1024                /* 容量小于256K的 F103, 扇区大小为1K字节 */
+#define STM32_SECTOR_SIZE   1024                /* ����С��256K�� F103, ������СΪ1K�ֽ� */
 #else
-#define STM32_SECTOR_SIZE   2048                /* 容量大于等于于256K的 F103, 扇区大小为2K字节 */
+#define STM32_SECTOR_SIZE   2048                /* �������ڵ���256K�� F103, ������СΪ2K�ֽ� */
 #endif
+
+
+#define STM32_FLASH_EN_ID_START_ADDR    (STM32_FLASH_END_ADDRESS - 2*STM32_SECTOR_SIZE)
+#define STM32_FLASH_EN_ID_SIZE          (STM32_SECTOR_SIZE) 
+
+#define STM32_FLASH_NVMS_START_ADDR     (STM32_FLASH_EN_ID_START_ADDR + STM32_FLASH_EN_ID_SIZE)
+#define STM32_FLASH_NVMS_SIZE           (STM32_SECTOR_SIZE)
+
 
 /* Error code */
 enum

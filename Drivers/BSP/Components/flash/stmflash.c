@@ -6,14 +6,14 @@ uint32_t stmflash_write(uint32_t waddr, uint32_t* pbuf ,uint32_t length)
 {
     if (waddr < STM32_FLASH_BASE || (waddr >= (STM32_FLASH_BASE + STM32_FLASH_SIZE)))
     {
-        return FLASHIF_WRITING_ERROR;     /* éæ³•åœ°å€ */
+        return FLASHIF_WRITING_ERROR;     /* ·Ç·¨µØÖ· */
     }
     if (waddr % 4)
     {
-        return FLASHIF_WRITING_ERROR;     /* éæ³•åœ°å€ */
+        return FLASHIF_WRITING_ERROR;     /* ·Ç·¨µØÖ· */
     }
 
-    HAL_FLASH_Unlock();     /* FLASHè§£é” */
+    HAL_FLASH_Unlock();     /* FLASH½âËø */
     for (uint32_t i = 0; (i < length) && (waddr <= (STM32_FLASH_END_ADDRESS - 4)); i++)
     {
         /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
@@ -24,7 +24,7 @@ uint32_t stmflash_write(uint32_t waddr, uint32_t* pbuf ,uint32_t length)
             if (*(uint32_t*)waddr != *(uint32_t*)(pbuf+i))
             {
                 /* Flash content doesn't match SRAM content */
-                HAL_FLASH_Lock(); /* ä¸Šé” */
+                HAL_FLASH_Lock(); /* ÉÏËø */
                 return(FLASHIF_WRITINGCTRL_ERROR);
             }
             /* Increment FLASH destination address */
@@ -33,36 +33,36 @@ uint32_t stmflash_write(uint32_t waddr, uint32_t* pbuf ,uint32_t length)
         else
         {
             /* Error occurred while writing data in Flash memory */
-            HAL_FLASH_Lock(); /* ä¸Šé” */
+            HAL_FLASH_Lock(); /* ÉÏËø */
             return (FLASHIF_WRITING_ERROR);
         }
     }
-    HAL_FLASH_Lock(); /* ä¸Šé” */
+    HAL_FLASH_Lock(); /* ÉÏËø */
     return (FLASHIF_OK);
 }
 
 uint32_t stmflash_erase(uint32_t addr, uint32_t size)
 {
     FLASH_EraseInitTypeDef flash_eraseop;
-    uint32_t erase_addr;    /* æ“¦é™¤é”™è¯¯ï¼Œè¿™ä¸ªå€¼ä¸ºå‘ç”Ÿé”™è¯¯çš„æ‰‡åŒºåœ°å€ */
+    uint32_t erase_addr;    /* ²Á³ı´íÎó£¬Õâ¸öÖµÎª·¢Éú´íÎóµÄÉÈÇøµØÖ· */
 
     if (addr < STM32_FLASH_BASE || (addr >= (STM32_FLASH_BASE + STM32_FLASH_SIZE)))
     {
-        return FLASHIF_WRITING_ERROR;     /* éæ³•åœ°å€ */
+        return FLASHIF_WRITING_ERROR;     /* ·Ç·¨µØÖ· */
     }
 
     if ((addr % STM32_FLASH_SIZE) || (size % STM32_FLASH_SIZE))
     {
-        return FLASHIF_WRITING_ERROR;     /* éæ³•åœ°å€ */
+        return FLASHIF_WRITING_ERROR;     /* ·Ç·¨µØÖ· */
     }
 
-    flash_eraseop.TypeErase = FLASH_TYPEERASE_PAGES;     /* é€‰æ‹©é¡µæ“¦é™¤ */
+    flash_eraseop.TypeErase = FLASH_TYPEERASE_PAGES;     /* Ñ¡ÔñÒ³²Á³ı */
     flash_eraseop.NbPages = size / STM32_FLASH_SIZE;
-    flash_eraseop.PageAddress = addr;  /* è¦æ“¦é™¤çš„æ‰‡åŒº */
+    flash_eraseop.PageAddress = addr;  /* Òª²Á³ıµÄÉÈÇø */
 
-    HAL_FLASH_Unlock(); /* FLASHè§£é” */
+    HAL_FLASH_Unlock(); /* FLASH½âËø */
     HAL_FLASHEx_Erase( &flash_eraseop, &erase_addr);
-    HAL_FLASH_Lock(); /* ä¸Šé” */
+    HAL_FLASH_Lock(); /* ÉÏËø */
 
     return FLASHIF_OK;
 }
