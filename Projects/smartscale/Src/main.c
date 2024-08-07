@@ -27,9 +27,9 @@
 #include "lcd.h"
 #include "fonts.h"
 #include "version.h"
-#include "st7735s.h"
 #include "text.h"
 #include "stmencrypt.h"
+#include "hx711.h"
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -47,8 +47,8 @@ const char CodeBuildTime[] = {__TIME__};
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-USBD_HandleTypeDef USBD_Device;             /* USB Deviceå¤„ç†ç»“æž„ä½? */
-extern volatile uint8_t g_usb_state_reg;    /* USBçŠ¶æ€? */
+USBD_HandleTypeDef USBD_Device;             /* USB Deviceå¤„ç†ç»“æž„ï¿????? */
+extern volatile uint8_t g_usb_state_reg;    /* USBçŠ¶ï¿½? */
 extern volatile uint8_t g_device_state;     /* USBè¿žæŽ¥ æƒ…å†µ */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,19 +69,37 @@ int main(void)
   /* Configure the system clock to 72 MHz */
   SystemClock_Config();
 
+  delay_init(72);                         /* ï¿½ï¿½Ê±ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµ72 MHz */
+
   //PA15 PB3 PB4 use gpio
   __HAL_RCC_AFIO_CLK_ENABLE();
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
   ulog_init();
 
-  stm_encrypt_init();
+//  stm_encrypt_init();
 
   /* CmBacktrace initialize */
   cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
   // cm_backtrace_set_callback(NULL);
 
+  // hx711_init();
+
   norflash_init();
+
+#if 0
+  usbd_port_config(0);    /* USBå…ˆæ–­å¼€ */
+  HAL_Delay(500);
+  usbd_port_config(1);    /* USBå†ï¿½?ï¿½è¿žï¿????? */
+  HAL_Delay(500);
+  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* åˆï¿½?ï¿½åŒ–USB */
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* æ·»åŠ ï¿????? */
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* ä¸ºMSCç±»æ·»åŠ å›žè°ƒå‡½ï¿????? */
+  USBD_Start(&USBD_Device);                                           /* å¼€å¯USB */
+  // while(1);
+  HAL_Delay(5000);
+#endif
+
 
   fs_init();
 
@@ -89,31 +107,10 @@ int main(void)
 
   lcd_init();
 
-#if 0
-  usbd_port_config(0);    /* USBå…ˆæ–­å¼€ */
-  HAL_Delay(500);
-  usbd_port_config(1);    /* USBå†æ?¡è¿žæŽ? */
-  HAL_Delay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* åˆå?‹åŒ–USB */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* æ·»åŠ ç±? */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* ä¸ºMSCç±»æ·»åŠ å›žè°ƒå‡½æ•? */
-  USBD_Start(&USBD_Device);                                           /* å¼€å¯USB */
-  HAL_Delay(1800);
-#endif
 
-  // text_show_string(0, 32, 160, 16, "Òí·É³åÌì¿Æ¼¼", 16, 0, RED);
-    text_show_string(0, 0, 200, 16, "ÕýµãÔ­×ÓSTM32¿ª·¢°å", 16, 0, RED);
-    // text_show_string(0, 16, 200, 16, "GBK×Ö¿â²âÊÔ³ÌÐò", 16, 0, RED);
-    // text_show_string(30, 70, 200, 16, "ÕýµãÔ­×Ó@ALIENTEK", 16, 0, RED);
-    // text_show_string(30, 90, 200, 16, "°´KEY0,¸üÐÂ×Ö¿â", 16, 0, RED);
-    
-    // text_show_string(30, 110, 200, 16, "ÄÚÂë¸ß×Ö½Ú:", 16, 0, BLUE);
-    // text_show_string(30, 130, 200, 16, "ÄÚÂëµÍ×Ö½Ú:", 16, 0, BLUE);
-    // text_show_string(30, 150, 200, 16, "ºº×Ö¼ÆÊýÆ÷:", 16, 0, BLUE);
-    
-    text_show_string(0, 32, 200, 24, "¶ÔÓ¦ºº×ÖÎª:", 24, 0, BLUE);
-    // text_show_string(30, 204, 200, 16, "¶ÔÓ¦ºº×Ö(16*16)Îª:", 16, 0, BLUE);
-    text_show_string(0, 64, 200, 16, "¶ÔÓ¦ºº×Ö(12*12)Îª:", 12, 0, BLUE);
+  text_show_string(0, 32, 160, 16, "²âÊÔ", 16, 0, RED);
+    // text_show_string(0, 0, 200, 16, "ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½STM32ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", 16, 0, RED);
+
 
 
   uint8_t test_buf[64];

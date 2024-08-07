@@ -26,7 +26,6 @@
 #ifndef __FONTS_H
 #define __FONTS_H
 
-// #include "./SYSTEM/sys/sys.h"
 #include "stdint.h"
 #include "stdbool.h"
 

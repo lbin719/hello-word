@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-#include "smartscale_board.h"
+#include "board.h"
 #include "usbd_core.h"
 #include "stm32f1xx_hal_pcd.h"
 #include "usbd_desc.h"

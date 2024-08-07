@@ -175,8 +175,14 @@
 
 /* qrcode */
 
+//HX711
+#define HX711_SCK_GPIO_PORT                 GPIOB
+#define HX711_SCK_GPIO_PIN                  GPIO_PIN_0
+#define HX711_SCK_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
-
+#define HX711_DOUT_GPIO_PORT                 GPIOB
+#define HX711_DOUT_GPIO_PIN                  GPIO_PIN_1
+#define HX711_DOUT_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
 
 #ifdef __cplusplus

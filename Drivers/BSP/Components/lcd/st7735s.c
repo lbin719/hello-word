@@ -1,9 +1,13 @@
-#include "stm32f1xx_hal.h"
-#include "ulog.h"
-#include "main.h"
-#include "spi.h"
 #include "st7735s.h"
 #include "lcd.h"
+
+#if LCD_HORIZONTAL==0 || LCD_HORIZONTAL==1
+#define  ST7735S_LCD_PIXEL_WIDTH    ((uint16_t)128)
+#define  ST7735S_LCD_PIXEL_HEIGHT   ((uint16_t)160)
+#else
+#define  ST7735S_LCD_PIXEL_WIDTH    ((uint16_t)160)
+#define  ST7735S_LCD_PIXEL_HEIGHT   ((uint16_t)128)
+#endif
 
 #define LCD_RST_HIGH()      (LCD_RST_GPIO_PORT->BSRR = LCD_RST_GPIO_PIN)
 #define LCD_RST_LOW()       (LCD_RST_GPIO_PORT->BSRR = (uint32_t)(LCD_RST_GPIO_PIN  << 16u))
@@ -22,65 +26,9 @@ _lcd_dev st7735s_dev = {
     .id = 0x0000,
     .wramcmd = 0x2C,
     .setxcmd = 0x2A,
-    .setycmd = 0x2B	
+    .setycmd = 0x2B
 };
 
-
-void lcd_write_data(uint8_t *data, uint16_t len)
-{
-	LCD_DC_HIGH();// data
-
- 	LCD_CS_LOW();  //LCD_CS=0
-//	if(len > 10)
-//	{
-//		spi3_dma_write(data, len);
-//		spi3_dma_wait_finsh();
-//	}
-//	else
-		spi3_bytes_write(data, len);
-	LCD_CS_HIGH();  //LCD_CS=1
-}
-
-void lcd_write_cmddata(uint8_t *data, uint16_t len)
-{
-    LCD_DC_LOW();// cmd
-
-	LCD_CS_LOW();  //LCD_CS=0
-
-	spi3_bytes_write(&data[0], 1);
-
-	if(len > 1)
-	{
-		LCD_DC_HIGH();
-		spi3_bytes_write(&data[1], (len - 1));
-	}
-
-	LCD_CS_HIGH();  //LCD_CS=1
-}
-
-void lcd_read_cmddata(uint8_t cmd, uint8_t *data, uint16_t len)
-{
-    LCD_DC_LOW();
-
-	LCD_CS_LOW();  //LCD_CS=0
-	spi3_bytes_write(cmd, 1);
-
-	LCD_DC_HIGH();
-	spi3_bytes_read(data, len);
-
-	LCD_CS_HIGH();  //LCD_CS=1
-}
-
-//写LCD数据
-//data:要写入的值
-void lcd_wr_data(uint16_t RGBCode)
-{
-	uint8_t data[] = {RGBCode >> 8, RGBCode};
-	lcd_write_data(data, sizeof(data));
-}
-
-
-//LCD开启显示
 void st7735s_DisplayOn(void)
 {
 //   uint8_t data = 0;
@@ -92,39 +40,14 @@ void st7735s_DisplayOn(void)
 //   data = 0xC0;
 //   LCD_IO_WriteMultipleData(&data, 1);
 }
-//LCD关闭显示
+
 void st7735s_DisplayOff(void)
 {
 
 }
 
-
-//清屏函数
-//color:要清屏的填充色
-void lcd_clear(uint16_t color)
-{
-	st7735s_SetCursor(0, 0);
-
-	uint32_t totalpoint=ST7735S_LCD_PIXEL_WIDTH;
-	totalpoint *= ST7735S_LCD_PIXEL_HEIGHT; 	//得到总点数
-	for(uint32_t index = 0; index < totalpoint; index++)
-	{
-		lcd_wr_data(color);
-	}
-
-	// for(uint32_t i = 0; i < sizeof(framebuff); i += 2)
-	// {
-	// 	framebuff[i] = color >> 8;
-	// 	framebuff[i + 1] = color;
-	// }
-
-	// for(uint32_t index = 0; index < ST7735S_LCD_PIXEL_HEIGHT/80; index++)
-	// 	lcd_write_data(framebuff, sizeof(framebuff));
-
-
-}
-//在指定区域内填充单个颜色
-//(sx,sy),(ex,ey):填充矩形对角坐标,区域大小为:(ex-sx+1)*(ey-sy+1)
+//在指定区域内�?充单�?颜色
+//(sx,sy),(ex,ey):�?充矩形�?��?�坐�?,区域大小�?:(ex-sx+1)*(ey-sy+1)
 //color:要填充的颜色
 void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color)
 {
@@ -137,23 +60,23 @@ void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color)
 	// 	for(j=0;j<xlen;j++)lcd_wr_data(color);	//设置光标位置
 	// }
 }
-//在指定区域内填充指定颜色块
-//(sx,sy),(ex,ey):填充矩形对角坐标,区域大小为:(ex-sx+1)*(ey-sy+1)
+//在指定区域内�?充指定�?�色�?
+//(sx,sy),(ex,ey):�?充矩形�?��?�坐�?,区域大小�?:(ex-sx+1)*(ey-sy+1)
 //color:要填充的颜色
 void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *color)
 {
-	uint16_t height,width;
-	uint16_t i,j;
-	width=ex-sx+1; 		//得到填充的宽度
-	height=ey-sy+1;		//高度
- 	for(i=0;i<height;i++)
-	{
- 		st7735s_SetCursor(sx,sy+i);   	//设置光标位置
-		for(j=0;j<width;j++){
-					// LCD->LCD_RAM=color[i*height+j];//写入数据
-			lcd_wr_data(*color);
-		}
-	}
+	// uint16_t height,width;
+	// uint16_t i,j;
+	// width=ex-sx+1; 		//得到�?充的宽度
+	// height=ey-sy+1;		//高度
+ 	// for(i=0;i<height;i++)
+	// {
+ 	// 	st7735s_SetCursor(sx,sy+i);   	//设置光标位置
+	// 	for(j=0;j<width;j++){
+	// 				// LCD->LCD_RAM=color[i*height+j];//写入数据
+	// 		lcd_wr_data(*color);
+	// 	}
+	// }
 }
 //画线
 //x1,y1:起点坐标
@@ -167,13 +90,13 @@ void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 	// delta_y=y2-y1;
 	// uRow=x1;
 	// uCol=y1;
-	// if(delta_x>0)incx=1; //设置单步方向
-	// else if(delta_x==0)incx=0;//垂直线
+	// if(delta_x>0)incx=1; //设置单�?�方�?
+	// else if(delta_x==0)incx=0;//垂直�?
 	// else {incx=-1;delta_x=-delta_x;}
 	// if(delta_y>0)incy=1;
-	// else if(delta_y==0)incy=0;//水平线
+	// else if(delta_y==0)incy=0;//水平�?
 	// else{incy=-1;delta_y=-delta_y;}
-	// if( delta_x>delta_y)distance=delta_x; //选取基本增量坐标轴
+	// if( delta_x>delta_y)distance=delta_x; //选取基本增量坐标�?
 	// else distance=delta_y;
 	// for(t=0;t<=distance+1;t++ )//画线输出
 	// {
@@ -192,8 +115,8 @@ void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 	// 	}
 	// }
 }
-//画矩形
-//(x1,y1),(x2,y2):矩形的对角坐标
+//画矩�?
+//(x1,y1),(x2,y2):矩形的�?��?�坐�?
 void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
 	// LCD_DrawLine(x1,y1,x2,y1);
@@ -201,15 +124,15 @@ void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 	// LCD_DrawLine(x1,y2,x2,y2);
 	// LCD_DrawLine(x2,y1,x2,y2);
 }
-//在指定位置画一个指定大小的圆
-//(x,y):中心点
+//在指定位�?画一�?指定大小的圆
+//(x,y):�?心点
 //r    :半径
 void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r)
 {
 	// int a,b;
 	// int di;
 	// a=0;b=r;
-	// di=3-(r<<1);             //判断下个点位置的标志
+	// di=3-(r<<1);             //判断下个点位�?的标�?
 	// while(a<=b)
 	// {
 	// 	LCD_DrawPoint(x0+a,y0-b);             //5
@@ -269,17 +192,17 @@ static const uint8_t st7735s_128x160_init_cmd[] =
 	DISP_WR_CMD(0xC4, 0x8D, 0xEE),
 	//---------------------------------End ST7735S Power Sequence-----------------------------)--------//
 	DISP_WR_CMD(0xC5, 0x1A), //VCO
-#if USE_HORIZONTAL == 0
+#if LCD_HORIZONTAL == 0
 	// DISP_WR_CMD(0x36, 0xC0), // MX, MY, RGB mode 1100
 	DISP_WR_CMD(0x36, 0x40), // MX, MY, RGB mode 0100
-#elif USE_HORIZONTAL == 1
+#elif LCD_HORIZONTAL == 1
 	DISP_WR_CMD(0x36, 0x80), // MX, MY, RGB mode 1000
-#elif USE_HORIZONTAL == 2
+#elif LCD_HORIZONTAL == 2
 	// DISP_WR_CMD(0x36, 0xE0), // MX, MY, RGB mode 1110
 	// DISP_WR_CMD(0x36, 0xA0), // MX, MY, RGB mode 1010
 	// DISP_WR_CMD(0x36, 0x20), // MX, MY, RGB mode 0010
 	DISP_WR_CMD(0x36, 0x60), // MX, MY, RGB mode 0110
-#elif USE_HORIZONTAL == 3
+#elif LCD_HORIZONTAL == 3
 	DISP_WR_CMD(0x36, 0x20), // MX, MY, RGB mode 0010
 #endif
 
@@ -320,7 +243,6 @@ void st7735s_SetCursor(uint16_t Xpos, uint16_t Ypos)
   */
 void st7735s_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode)
 {
-  uint8_t data = 0;
   if((Xpos >= ST7735S_LCD_PIXEL_WIDTH) || (Ypos >= ST7735S_LCD_PIXEL_HEIGHT))
   {
     return;
@@ -442,7 +364,7 @@ void st7735s_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pbmp)
   lcd_write_cmddata(write_cmd, sizeof(write_cmd));
 
   /* Set Cursor */
-  st7735_SetCursor(Xpos, Ypos);
+  st7735s_SetCursor(Xpos, Ypos);
 
   lcd_write_data((uint8_t*)pbmp, size*2);
 
@@ -468,58 +390,34 @@ void st7735s_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pbmp)
 // 		y+=40;
 // 	 }
 // }
-
-void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
+//清屏函数
+//color:要清屏的�?充色
+void lcd_clear(uint16_t color)
 {
-    const uint8_t *cmd = cmd_table;
-    uint32_t offset     = 0;
+	st7735s_SetCursor(0, 0);
 
-    if (!cmd_table || 0 == len)
-        return ;
+	uint32_t totalpoint=ST7735S_LCD_PIXEL_WIDTH;
+	totalpoint *= ST7735S_LCD_PIXEL_HEIGHT; 	//得到总点�?
+	for(uint32_t index = 0; index < totalpoint; index++)
+	{
+		lcd_wr_data(color);
+	}
 
-    while (offset < len)
-    {
-        if (CMD_TYPE_WR_CMD == cmd[CMD_IDX_TYPE])
-            lcd_write_cmddata(&cmd[CMD_IDX_CODE], cmd[CMD_IDX_LEN]);
-        else if (CMD_TYPE_DLY_MS == cmd[CMD_IDX_TYPE])
-        	HAL_Delay(cmd[CMD_IDX_CODE]);
+	// for(uint32_t i = 0; i < sizeof(framebuff); i += 2)
+	// {
+	// 	framebuff[i] = color >> 8;
+	// 	framebuff[i + 1] = color;
+	// }
 
-        offset += (cmd[CMD_IDX_LEN] + CMD_HEADER_LEN);
-        cmd = cmd_table + offset;
-    }
-    return ;
+	// for(uint32_t index = 0; index < ST7735S_LCD_PIXEL_HEIGHT/80; index++)
+	// 	lcd_write_data(framebuff, sizeof(framebuff));
+
+
 }
+
 
 void st7735s_Init(void)
 {
-    GPIO_InitTypeDef gpio_init_struct = {0};
-
-    LCD_RST_GPIO_CLK_ENABLE();
-    LCD_DC_GPIO_CLK_ENABLE();
-    LCD_CS_GPIO_CLK_ENABLE();      /* CS脚 时钟使能 */
-
-    gpio_init_struct.Pin = LCD_RST_GPIO_PIN;
-    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio_init_struct.Pull = GPIO_NOPULL;
-    gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(LCD_RST_GPIO_PORT, &gpio_init_struct);
-
-    gpio_init_struct.Pin = LCD_DC_GPIO_PIN;
-    HAL_GPIO_Init(LCD_DC_GPIO_PORT, &gpio_init_struct);
-
-    gpio_init_struct.Pin = LCD_CS_GPIO_PIN;
-    HAL_GPIO_Init(LCD_CS_GPIO_PORT, &gpio_init_struct);
-
-    LCD_RST_HIGH();
-    LCD_DC_HIGH();
-    LCD_CS_HIGH();
-
-    spi3_init();
-
-	LCD_RST_LOW();	//LCD_RST=0	 //SPI接口复位
-	HAL_Delay(20);   // delay 20 ms
-    LCD_RST_HIGH();	//LCD_RST=1
-	HAL_Delay(20);
 	lcd_panel_exec_cmd(st7735s_128x160_init_cmd, sizeof(st7735s_128x160_init_cmd));
 	st7735s_SetDisplayWindow(0, 0, ST7735S_LCD_PIXEL_WIDTH, ST7735S_LCD_PIXEL_HEIGHT);
 	lcd_clear(WHITE);
@@ -557,19 +455,24 @@ void st7735s_test(void)
 }
 
 
-// LCD_DrvTypeDef   st7735s_drv =
-// {
-//   st7735s_Init,
-//   0,
-//   st7735s_DisplayOn,
-//   st7735s_DisplayOff,
-//   st7735s_SetCursor,
-//   st7735s_WritePixel,
-//   0,
-//   st7735s_SetDisplayWindow,
-//   st7735s_DrawHLine,
-//   st7735s_DrawVLine,
-//   st7735s_GetLcdPixelWidth,
-//   st7735s_GetLcdPixelHeight,
-//   st7735s_DrawBitmap,
-// };
+LCD_DrvTypeDef   st7735s_drv =
+{
+  st7735s_Init,
+  0,
+  st7735s_DisplayOn,
+  st7735s_DisplayOff,
+  st7735s_SetCursor,
+  st7735s_WritePixel,
+  0,
+  st7735s_SetDisplayWindow,
+  st7735s_DrawHLine,
+  st7735s_DrawVLine,
+  st7735s_GetLcdPixelWidth,
+  st7735s_GetLcdPixelHeight,
+  st7735s_DrawBitmap,
+};
+
+LCD_DrvTypeDef* st7735s_probe(void)
+{
+	return &st7735s_drv;
+}

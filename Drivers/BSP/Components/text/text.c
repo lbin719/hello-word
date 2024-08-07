@@ -28,6 +28,7 @@
 #include "ff.h"
 #include "lcd.h"
 #include "ulog.h"
+#include "font.h"
 
 /**
  * @brief       获取汉字点阵数据
@@ -43,7 +44,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
     unsigned char i;
     unsigned long foffset;
     uint8_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size); /* 得到字体一个字符对应点阵集所占的字节数 */
-    qh = *code; 
+    qh = *code;
     ql = *(++code);
 #if 0
     LOG_I("text qh:%02x ql:%02x\r\n", qh, ql);
@@ -76,17 +77,17 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
     switch (size)
     {
         case 12:
-            f_open(&File, "/SYSTEM/FONT/GBK12.FON", FA_READ);
+            f_open(&File, "GBK12.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f12addr, csize);
             break;
 
         case 16:
-            f_open(&File, "/SYSTEM/FONT/GBK16.FON", FA_READ);
+            f_open(&File, "GBK16.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f16addr, csize);
             break;
 
-        case 24:    
-            f_open(&File, "/SYSTEM/FONT/GBK24.FON", FA_READ);
+        case 24:
+            f_open(&File, "GBK24.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f24addr, csize);
             break;
     }
@@ -270,7 +271,79 @@ void text_show_string_middle(uint16_t x, uint16_t y, char *str, uint8_t size, ui
     // }
 }
 
+/**
+ * @brief       在指定位置显示一个字符
+ * @param       x,y  : 坐标
+ * @param       chr  : 要显示的字符:" "--->"~"
+ * @param       size : 字体大小 12/16/24/32
+ * @param       mode : 叠加方式(1); 非叠加方式(0);
+ * @param       color : 字符的颜色;
+ * @retval      无
+ */
+void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode, uint16_t color)
+{
+    uint8_t temp, t1, t;
+    uint16_t y0 = y;
+    uint8_t csize = 0;
+    uint8_t *pfont = 0;
 
+    csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size / 2); /* 得到字体一个字符对应点阵集所占的字节数 */
+    chr = chr - ' ';    /* 得到偏移后的值（ASCII字库是从空格开始取模，所以-' '就是对应字符的字库） */
+
+    switch (size)
+    {
+        case 12:
+            pfont = (uint8_t *)asc2_1206[chr];  /* 调用1206字体 */
+            break;
+
+        case 16:
+            pfont = (uint8_t *)asc2_1608[chr];  /* 调用1608字体 */
+            break;
+
+        case 24:
+            pfont = (uint8_t *)asc2_2412[chr];  /* 调用2412字体 */
+            break;
+
+        case 32:
+            pfont = (uint8_t *)asc2_3216[chr];  /* 调用3216字体 */
+            break;
+
+        default:
+            return ;
+    }
+
+    for (t = 0; t < csize; t++)
+    {
+        temp = pfont[t];    /* 获取字符的点阵数据 */
+
+        for (t1 = 0; t1 < 8; t1++)   /* 一个字节8个点 */
+        {
+            if (temp & 0x80)        /* 有效点,需要显示 */
+            {
+                lcd_draw_point(x, y, color);        /* 画点出来,要显示这个点 */
+            }
+            else if (mode == 0)     /* 无效点,不显示 */
+            {
+                lcd_draw_point(x, y, g_back_color); /* 画背景色,相当于这个点不显示(注意背景色由全局变量控制) */
+            }
+
+            temp <<= 1; /* 移位, 以便获取下一个位的状态 */
+            y++;
+
+            if (y >= lcd_dev.height)return;  /* 超区域了 */
+
+            if ((y - y0) == size)   /* 显示完一列了? */
+            {
+                y = y0; /* y坐标复位 */
+                x++;    /* x坐标递增 */
+
+                if (x >= lcd_dev.width)return;   /* x坐标超区域了 */
+
+                break;
+            }
+        }
+    }
+}
 
 
 

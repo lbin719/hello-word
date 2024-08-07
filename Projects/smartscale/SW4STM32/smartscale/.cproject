@@ -57,6 +57,8 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/text"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/encrypt"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/board"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/delay"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/hx711"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Core/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Class/HID/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc"/>

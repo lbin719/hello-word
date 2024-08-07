@@ -70,6 +70,7 @@
 /** @defgroup EPD_Driver_structure  E Paper Display Driver structure
   * @{
   */
+ #error "55"
 typedef struct
 {
   void     (*Init)(void);

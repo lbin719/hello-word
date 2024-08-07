@@ -211,6 +211,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/emWin/OS/GUI_X.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/delay/delay.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/delay/delay.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/encrypt/stmencrypt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/encrypt/stmencrypt.c</locationURI>
@@ -234,6 +239,16 @@
 			<name>Drivers/BSP/Components/fs/norflash_diskio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/fs/norflash_diskio.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hx711/hx711.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hx711/hx711.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lcd/ili9488.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/ili9488.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lcd/lcd.c</name>

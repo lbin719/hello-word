@@ -1,104 +1,150 @@
-#include "st7735s.h"
 #include "lcd.h"
-#include "font.h"
-//#include "types.h"
+#include "st7735s.h"
+#include "ili9488.h"
+#include "stm32f1xx_hal.h"
+#include "ulog.h"
+#include "main.h"
+#include "spi.h"
 
-/* LCD的画笔颜色和背景色 */
-uint32_t g_point_color = 0XF800;    /* 画笔颜色 */
-uint32_t g_back_color  = 0XFFFF;    /* 背景色 */
+LCD_DrvTypeDef *lcd_drv;
 
-/* 管理LCD重要参数 */
-_lcd_dev *lcd_dev = 0;
+_lcd_dev lcd_dev;
+
+/* LCD�Ļ�����ɫ�ͱ���ɫ */
+uint32_t g_point_color = 0XF800;    /* ������ɫ */
+uint32_t g_back_color  = 0XFFFFFF;    /* ����ɫ */
+
+void lcd_write_data(uint8_t *data, uint16_t len)
+{
+	LCD_DC_HIGH();// data
+
+ 	LCD_CS_LOW();  //LCD_CS=0
+//	if(len > 10)
+//	{
+//		spi3_dma_write(data, len);
+//		spi3_dma_wait_finsh();
+//	}
+//	else
+		spi3_bytes_write(data, len);
+	LCD_CS_HIGH();  //LCD_CS=1
+}
+
+void lcd_write_cmddata(uint8_t *data, uint16_t len)
+{
+    LCD_DC_LOW();// cmd
+
+	LCD_CS_LOW();  //LCD_CS=0
+
+	spi3_bytes_write(&data[0], 1);
+
+	if(len > 1)
+	{
+		LCD_DC_HIGH();
+		spi3_bytes_write(&data[1], (len - 1));
+	}
+
+	LCD_CS_HIGH();  //LCD_CS=1
+}
+
+void lcd_read_cmddata(uint8_t cmd, uint8_t *data, uint16_t len)
+{
+    LCD_DC_LOW();
+
+	LCD_CS_LOW();  //LCD_CS=0
+	spi3_bytes_write(&cmd, 1);
+
+	LCD_DC_HIGH();
+	spi3_bytes_read(data, len);
+
+	LCD_CS_HIGH();  //LCD_CS=1
+}
+
+#if LCD_DRIVER_IC_ST7735S
+void lcd_wr_data(uint16_t RGBCode)
+{
+	uint8_t data[] = {RGBCode >> 8, RGBCode};
+	lcd_write_data(data, sizeof(data));
+}
+#else
+void lcd_wr_data(uint32_t RGBCode)
+{
+	uint8_t data[] = {RGBCode >> 16, RGBCode >> 8, RGBCode};
+	lcd_write_data(data, sizeof(data));
+}
+#endif
+
+void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
+{
+    const uint8_t *cmd = cmd_table;
+    uint32_t offset     = 0;
+
+    if (!cmd_table || 0 == len)
+        return ;
+
+    while (offset < len)
+    {
+        if (CMD_TYPE_WR_CMD == cmd[CMD_IDX_TYPE])
+            lcd_write_cmddata(&cmd[CMD_IDX_CODE], cmd[CMD_IDX_LEN]);
+        else if (CMD_TYPE_DLY_MS == cmd[CMD_IDX_TYPE])
+        	HAL_Delay(cmd[CMD_IDX_CODE]);
+
+        offset += (cmd[CMD_IDX_LEN] + CMD_HEADER_LEN);
+        cmd = cmd_table + offset;
+    }
+    return ;
+}
+
 
 /**
- * @brief       画点
- * @param       x,y: 坐标
- * @param       color: 点的颜色(32位颜色,方便兼容LTDC)
- * @retval      无
+ * @brief       ����
+ * @param       x,y: ����
+ * @param       color: ������?(32λ��ɫ,�������LTDC)
+ * @retval      ��
  */
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color)
 {
-  st7735s_WritePixel(x, y, color);
-}
-
-/**
- * @brief       在指定位置显示一个字符
- * @param       x,y  : 坐标
- * @param       chr  : 要显示的字符:" "--->"~"
- * @param       size : 字体大小 12/16/24/32
- * @param       mode : 叠加方式(1); 非叠加方式(0);
- * @param       color : 字符的颜色;
- * @retval      无
- */
-void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode, uint16_t color)
-{
-    uint8_t temp, t1, t;
-    uint16_t y0 = y;
-    uint8_t csize = 0;
-    uint8_t *pfont = 0;
-
-    csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size / 2); /* 得到字体一个字符对应点阵集所占的字节数 */
-    chr = chr - ' ';    /* 得到偏移后的值（ASCII字库是从空格开始取模，所以-' '就是对应字符的字库） */
-
-    switch (size)
-    {
-        case 12:
-            pfont = (uint8_t *)asc2_1206[chr];  /* 调用1206字体 */
-            break;
-
-        case 16:
-            pfont = (uint8_t *)asc2_1608[chr];  /* 调用1608字体 */
-            break;
-
-        case 24:
-            pfont = (uint8_t *)asc2_2412[chr];  /* 调用2412字体 */
-            break;
-
-        case 32:
-            pfont = (uint8_t *)asc2_3216[chr];  /* 调用3216字体 */
-            break;
-
-        default:
-            return ;
-    }
-
-//    LOG_I("chr:%d", chr, temp)
-    for (t = 0; t < csize; t++)
-    {
-        temp = pfont[t];    /* 获取字符的点阵数据 */
-
-        for (t1 = 0; t1 < 8; t1++)   /* 一个字节8个点 */
-        {
-            if (temp & 0x80)        /* 有效点,需要显示 */
-            {
-                lcd_draw_point(x, y, color);        /* 画点出来,要显示这个点 */
-            }
-            else if (mode == 0)     /* 无效点,不显示 */
-            {
-                lcd_draw_point(x, y, g_back_color); /* 画背景色,相当于这个点不显示(注意背景色由全局变量控制) */
-            }
-
-            temp <<= 1; /* 移位, 以便获取下一个位的状态 */
-            y++;
-
-            if (y >= lcd_dev->height)return;  /* 超区域了 */
-
-            if ((y - y0) == size)   /* 显示完一列了? */
-            {
-                y = y0; /* y坐标复位 */
-                x++;    /* x坐标递增 */
-
-                if (x >= lcd_dev->width)return;   /* x坐标超区域了 */
-
-                break;
-            }
-        }
-    }
+    if(lcd_drv->WritePixel)
+        lcd_drv->WritePixel(x, y, color);
 }
 
 void lcd_init(void)
 {
-  lcd_dev = &st7735s_dev;
-//  st7735s_register(&lcddev);
-  st7735s_Init();  
+#if LCD_DRIVER_IC_ST7735S
+    lcd_drv = st7735s_probe();
+#elif LCD_DRIVER_IC_ILI9488
+    lcd_drv = ili9488_probe();
+#endif
+    lcd_dev.width =  lcd_drv->GetLcdPixelWidth();
+    lcd_dev.height = lcd_drv->GetLcdPixelHeight();
+
+    GPIO_InitTypeDef gpio_init_struct = {0};
+
+    LCD_RST_GPIO_CLK_ENABLE();
+    LCD_DC_GPIO_CLK_ENABLE();
+    LCD_CS_GPIO_CLK_ENABLE();      /* CS�?? 时钟使能 */
+
+    gpio_init_struct.Pin = LCD_RST_GPIO_PIN;
+    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio_init_struct.Pull = GPIO_NOPULL;
+    gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(LCD_RST_GPIO_PORT, &gpio_init_struct);
+
+    gpio_init_struct.Pin = LCD_DC_GPIO_PIN;
+    HAL_GPIO_Init(LCD_DC_GPIO_PORT, &gpio_init_struct);
+
+    gpio_init_struct.Pin = LCD_CS_GPIO_PIN;
+    HAL_GPIO_Init(LCD_CS_GPIO_PORT, &gpio_init_struct);
+
+    LCD_RST_HIGH();
+    LCD_DC_HIGH();
+    LCD_CS_HIGH();
+
+    spi3_init();
+
+	LCD_RST_LOW();	//LCD_RST=0	 //SPI接口复位
+	HAL_Delay(100);   // delay 20 ms
+    LCD_RST_HIGH();	//LCD_RST=1
+	HAL_Delay(100);
+
+    lcd_drv->Init();
 }
