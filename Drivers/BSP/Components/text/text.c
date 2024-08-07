@@ -110,7 +110,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
  */
 #define DZK_LENGTH      255
 static uint8_t dzk[DZK_LENGTH];
-void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t mode, uint16_t color)
+void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t mode, uint32_t color)
 {
     uint8_t temp, t, t1;
     uint16_t y0 = y;
@@ -176,7 +176,7 @@ void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t
  * @param       color : 字体颜色
  * @retval      无
  */
-void text_show_string(uint16_t x, uint16_t y, uint16_t width, uint16_t height, char *str, uint8_t size, uint8_t mode, uint16_t color)
+void text_show_string(uint16_t x, uint16_t y, uint16_t width, uint16_t height, char *str, uint8_t size, uint8_t mode, uint32_t color)
 {
     uint16_t x0 = x;
     uint16_t y0 = y;
@@ -254,7 +254,7 @@ void text_show_string(uint16_t x, uint16_t y, uint16_t width, uint16_t height, c
  * @param       color : 字体颜色
  * @retval      无
  */
-void text_show_string_middle(uint16_t x, uint16_t y, char *str, uint8_t size, uint16_t width, uint16_t color)
+void text_show_string_middle(uint16_t x, uint16_t y, char *str, uint8_t size, uint16_t width, uint32_t color)
 {
     // uint16_t strlenth = 0;
     // strlenth = strlen((const char *)str);
@@ -280,7 +280,7 @@ void text_show_string_middle(uint16_t x, uint16_t y, char *str, uint8_t size, ui
  * @param       color : 字符的颜色;
  * @retval      无
  */
-void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode, uint16_t color)
+void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode, uint32_t color)
 {
     uint8_t temp, t1, t;
     uint16_t y0 = y;

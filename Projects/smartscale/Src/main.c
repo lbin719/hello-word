@@ -47,7 +47,7 @@ const char CodeBuildTime[] = {__TIME__};
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-USBD_HandleTypeDef USBD_Device;             /* USB Deviceå¤„ç†ç»“æ„ï¿????? */
+USBD_HandleTypeDef USBD_Device;             /* USB Deviceå¤„ç†ç»“æ„ï¿?????? */
 extern volatile uint8_t g_usb_state_reg;    /* USBçŠ¶ï¿½? */
 extern volatile uint8_t g_device_state;     /* USBè¿æ¥ æƒ…å†µ */
 
@@ -90,11 +90,11 @@ int main(void)
 #if 0
   usbd_port_config(0);    /* USBå…ˆæ–­å¼€ */
   HAL_Delay(500);
-  usbd_port_config(1);    /* USBå†ï¿½?ï¿½è¿ï¿????? */
+  usbd_port_config(1);    /* USBå†ï¿½?ï¿½è¿ï¿?????? */
   HAL_Delay(500);
   USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* åˆï¿½?ï¿½åŒ–USB */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* æ·»åŠ ï¿????? */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* ä¸ºMSCç±»æ·»åŠ å›è°ƒå‡½ï¿????? */
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* æ·»åŠ ï¿?????? */
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* ä¸ºMSCç±»æ·»åŠ å›è°ƒå‡½ï¿?????? */
   USBD_Start(&USBD_Device);                                           /* å¼€å¯USB */
   // while(1);
   HAL_Delay(5000);
@@ -108,20 +108,20 @@ int main(void)
   lcd_init();
 
 
-  text_show_string(0, 32, 160, 16, "²âÊÔ", 16, 0, RED);
-    // text_show_string(0, 0, 200, 16, "ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½STM32ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", 16, 0, RED);
-
+  text_show_string(128, 0, 160, 16, "µç×Ó³Æ", 16, 0, RED);
+  text_show_string(128, 16, 160, 16, "µ¥¼Û£º", 16, 0, RED);
+  text_show_string(128, 32, 160, 16, "ÖØÁ¿£º", 16, 0, RED);
 
 
   uint8_t test_buf[64];
   while (1)
   {
 		snprintf(test_buf, sizeof(test_buf), "Tick: %ld", HAL_GetTick());
-		text_show_string(0, 16, 160, 16, test_buf, 16, 0, RED);
+		text_show_string(128, 68, 160, 16, test_buf, 16, 0, RED);
 
     LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
-    HAL_Delay(1000);
+    HAL_Delay(100);
   }
 }
 

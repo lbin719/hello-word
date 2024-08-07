@@ -48,7 +48,7 @@ static const uint8_t ili9488_init_cmd[] =
 #else
 	DISP_WR_CMD(0x36, 0xE8),
 #endif
-	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control，�?��?�ILI9486�?????0X55
+	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control，�?��?�ILI9486�??????0X55
 	DISP_WR_CMD(0XB0, 0x00), //Interface Mode Control
 	DISP_WR_CMD(0xB1, 0xB0, 0x11),    //Frame rate 70Hz
 	DISP_WR_CMD(0xB4, 0x02),
@@ -77,8 +77,10 @@ void ili9488_DisplayOff(void)
   */
 void ili9488_SetCursor(uint16_t Xpos, uint16_t Ypos)
 {
-	uint8_t setcursor_xpos_cmd[] = {0x2A, (uint8_t)(Xpos>>8), (uint8_t)(Xpos&0XFF)};
-	uint8_t setcursor_ypos_cmd[] = {0x2B, (uint8_t)(Ypos>>8), (uint8_t)(Ypos&0XFF)};
+	// uint8_t setcursor_xpos_cmd[] = {0x2A, (uint8_t)(Xpos>>8), (uint8_t)(Xpos&0XFF)};
+	// uint8_t setcursor_ypos_cmd[] = {0x2B, (uint8_t)(Ypos>>8), (uint8_t)(Ypos&0XFF)};
+	uint8_t setcursor_xpos_cmd[] = {0x2A, (uint8_t)(Xpos>>8), (uint8_t)(Xpos&0XFF), (uint8_t)((ili9488_dev.width - 1)>>8), (uint8_t)((ili9488_dev.width - 1)&0XFF)};
+	uint8_t setcursor_ypos_cmd[] = {0x2B, (uint8_t)(Ypos>>8), (uint8_t)(Ypos&0XFF), (uint8_t)((ili9488_dev.height - 1)>>8), (uint8_t)((ili9488_dev.height - 1)&0XFF)};
 
 	lcd_write_cmddata(setcursor_xpos_cmd, sizeof(setcursor_xpos_cmd));
 	lcd_write_cmddata(setcursor_ypos_cmd, sizeof(setcursor_ypos_cmd));
@@ -196,7 +198,7 @@ void ili9488_Clear(uint32_t color)
 	ili9488_SetCursor(0, 0);
 
 	// uint32_t totalpoint= ili9488_dev.width;
-	// totalpoint *= ili9488_dev.height; 	//得到总点�????
+	// totalpoint *= ili9488_dev.height; 	//得到总点�?????
   uint32_t i,j;
   for(i = 0; i < ili9488_dev.height; i++)
   {
@@ -253,24 +255,24 @@ void ili9488_Init(void)
   lcd_panel_exec_cmd(ili9488_init_cmd, sizeof(ili9488_init_cmd));
   ili9488_SetDisplayWindow(0, 0, ili9488_dev.width, ili9488_dev.height);
   ili9488_DisplayOn();
-  ili9488_Clear(BLUE);
+  ili9488_Clear(WHITE);
 }
 
 LCD_DrvTypeDef   ili9488_drv =
 {
-  ili9488_Init,
-  0,
-  ili9488_DisplayOn,
-  ili9488_DisplayOff,
-  ili9488_SetCursor,
-  ili9488_WritePixel,
-  0,
-  ili9488_SetDisplayWindow,
-  ili9488_DrawHLine,
-  ili9488_DrawVLine,
-  ili9488_GetLcdPixelWidth,
-  ili9488_GetLcdPixelHeight,
-  ili9488_DrawBitmap,
+  .Init = ili9488_Init,
+  .ReadID = 0,
+  .DisplayOn = ili9488_DisplayOn,
+  .DisplayOff = ili9488_DisplayOff,
+  .SetCursor = ili9488_SetCursor,
+  .WritePixel = ili9488_WritePixel,
+  .ReadPixel = 0,
+  .SetDisplayWindow = ili9488_SetDisplayWindow,
+  .DrawHLine = ili9488_DrawHLine,
+  .DrawVLine = ili9488_DrawVLine,
+  .GetLcdPixelWidth = ili9488_GetLcdPixelWidth,
+  .GetLcdPixelHeight = ili9488_GetLcdPixelHeight,
+  .DrawBitmap = ili9488_DrawBitmap,
 };
 
 LCD_DrvTypeDef* ili9488_probe(void)
