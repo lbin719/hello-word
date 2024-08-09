@@ -1,10 +1,10 @@
 #ifndef __STMENCRYPT_H
 #define __STMENCRYPT_H
 
-// #include "stdint.h"
+#include "stdbool.h"
 
 
-void stm_encrypt_init(void);
+bool stmencrypt_init(void);
 
 #endif
 

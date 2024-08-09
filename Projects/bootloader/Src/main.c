@@ -22,34 +22,14 @@
 #include "ulog.h"
 #include "usbd_storage.h"
 #include "norflash.h"
-#include "fs.h"
 #include "stmflash.h"
-#include "lcd.h"
-#include "fonts.h"
-#include "version.h"
-#include "text.h"
-#include "stmencrypt.h"
-#include "hx711.h"
+#include "norflash_diskio.h"
+#include "crypto.h"
 
-const char CodeBuildDate[] = {__DATE__};
-const char CodeBuildTime[] = {__TIME__};
-/** @addtogroup STM32F1xx_HAL_Validation
-  * @{
-  */
 
-/** @addtogroup STANDARD_CHECK
-  * @{
-  */
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-#define CURSOR_STEP     5
-
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-USBD_HandleTypeDef USBD_Device;             /* USB Device处理结构�???????? */
-extern volatile uint8_t g_usb_state_reg;    /* USB状�? */
-extern volatile uint8_t g_device_state;     /* USB连接 情况 */
+USBD_HandleTypeDef USBD_Device;
+extern volatile uint8_t g_usb_state_reg;
+extern volatile uint8_t g_device_state;
 
 
 void SystemClock_Config(void);
@@ -79,6 +59,119 @@ void board_init(void)
   HAL_GPIO_Init(KEY_GPIO_PORT, &gpio_init_struct);
 }
 
+#define FLASH_SECTOR_SIZE       (2048)
+#define APP_FW_CRC_SIZE         (4)
+
+static uint8_t  read_buf[FLASH_SECTOR_SIZE];
+
+static bool firmware_upgrade(uint32_t addr)
+{
+  FATFS fs;
+  FIL file;
+  char DISKPath[4];
+  uint32_t firmware_size;
+  uint32_t firmware_crc32;
+  uint32_t read_remain;
+  uint32_t read_bytes, read_words;
+  uint32_t crc_calcu;
+  bool result = true;
+
+  if(FATFS_LinkDriver(&FLASHDISK_Driver, DISKPath) != 0)
+  {
+    FATFS_UnLinkDriver(DISKPath);
+    return true;
+  }
+
+  if(FR_OK != f_mount(&fs, (TCHAR const *)DISKPath, 0))
+  {
+    FATFS_UnLinkDriver(DISKPath);
+    return true;
+  }
+
+  if(FR_OK != f_open(&file, "smartscale_raw.bin", FA_READ))
+  {
+    f_close(&file);
+    FATFS_UnLinkDriver(DISKPath);
+    return true;
+  }
+
+  firmware_size = f_size(&file);
+  if((firmware_size == 0) || (firmware_size > APP_FW_SIZE))
+  {
+    f_close(&file);
+    f_unlink("smartscale_raw.bin.invalid");
+    f_rename("smartscale_raw.bin", "smartscale_raw.bin.invalid");
+    FATFS_UnLinkDriver(DISKPath);
+    return true;
+  }
+
+  read_remain = firmware_size - APP_FW_CRC_SIZE;
+  crc_calcu = 0;
+  while(read_remain)
+  {
+    f_read(&file, read_buf, MIN(read_remain, sizeof(read_buf)), (UINT *)&read_bytes);
+    crc_calcu = crypto_crc32_calc(crc_calcu, read_buf, read_bytes);
+    read_remain -= read_bytes;
+  }
+  f_read(&file, (uint8_t*)&firmware_crc32, APP_FW_CRC_SIZE, (UINT *)&read_bytes);
+  if((read_bytes != APP_FW_CRC_SIZE) || (firmware_crc32 != crc_calcu))
+  {
+    //对文件校验失败
+    f_close(&file);
+    f_unlink("smartscale_raw.bin.invalid");
+    f_rename("smartscale_raw.bin", "smartscale_raw.bin.invalid");
+    FATFS_UnLinkDriver(DISKPath);
+    return true;
+  }
+
+  read_remain = firmware_size - APP_FW_CRC_SIZE;
+  crc_calcu = crypto_crc32_calc(0, (uint8_t*)(APP_FW_START_ADDR), read_remain);// 读出当前固件计算crc32
+  if(firmware_crc32 == crc_calcu)
+  {
+    // 不需要更新固件
+    f_close(&file);
+    FATFS_UnLinkDriver(DISKPath);
+    return true;
+  }
+
+  //update fw
+  stmflash_erase(APP_FW_START_ADDR, firmware_size);
+
+  uint32_t write_addr = addr;
+  f_lseek(&file, 0);
+  while(read_remain)
+  {
+    f_read(&file, read_buf, MIN(read_remain, sizeof(read_buf)), (UINT *)&read_bytes);
+    read_words = (read_bytes % 4) ? (read_bytes / 4) : ((read_bytes + 3) / 4);
+    stmflash_write(write_addr, (uint32_t *)read_buf, read_words);
+    write_addr += read_bytes;
+    read_remain -= read_bytes;
+  }
+
+  //crc check
+  read_remain = firmware_size - APP_FW_CRC_SIZE;
+  crc_calcu = crypto_crc32_calc(0, (uint8_t*)(APP_FW_START_ADDR), read_remain);// 读出当前固件计算crc32
+  if(firmware_crc32 != crc_calcu)
+  {
+    result = false;//更新失败
+  }
+
+	f_close(&file);
+  FATFS_UnLinkDriver(DISKPath);
+
+  return result;
+}
+
+void jump_to_app(uint32_t address)
+{
+  SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;//disable systick
+
+	void (*pftarget)(void) = (void (*)(void))(*(uint32_t *)(address + 4));
+  __set_MSP(*(uint32_t *)address);
+  pftarget();
+  while(1);
+}
+
 int main(void)
 {
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -87,7 +180,7 @@ int main(void)
   /* Configure the system clock to 72 MHz */
   SystemClock_Config();
 
-  delay_init(72);                         /* ��ʱ��ʼ������Ƶ72 MHz */
+  // delay_init(72);
 
   //PA15 PB3 PB4 use gpio
   __HAL_RCC_AFIO_CLK_ENABLE();
@@ -97,58 +190,50 @@ int main(void)
   ulog_init();
 #endif
 
-//  stmencrypt_init();
+  // stmencrypt_init();
 
-  /* CmBacktrace initialize */
-  cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
-  // cm_backtrace_set_callback(NULL);
-
-  // hx711_init();
   board_init();
 
   norflash_init();
 
-#if 0
-  usbd_port_config(0);    /* USB先断开 */
+  // fs_init();
+
+  bool key_press = false;
+  //按键检测
+  if(!HAL_GPIO_ReadPin(KEY_GPIO_PORT, KEY_GPIO_PIN))
+  {
+    HAL_Delay(20);
+    if(!HAL_GPIO_ReadPin(KEY_GPIO_PORT, KEY_GPIO_PIN))
+    {
+      key_press = true;
+    }
+  }
+
+  //未按按键上电
+  if(!key_press)
+  {
+    if(firmware_upgrade(APP_FW_START_ADDR))
+    {
+      jump_to_app(APP_FW_START_ADDR);
+    }
+  }
+
+  //按住按键启动或者固件更新失败，启动u盘
+  usbd_port_config(0);
   HAL_Delay(500);
-  usbd_port_config(1);    /* USB再�?�连�???????? */
+  usbd_port_config(1);
   HAL_Delay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初�?�化USB */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加�???????? */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函�???????? */
-  USBD_Start(&USBD_Device);                                           /* 开启USB */
-   while(1);
-  HAL_Delay(5000);
-#endif
+  USBD_Init(&USBD_Device, &MSC_Desc, 0);
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);
+  USBD_Start(&USBD_Device);
 
-
-  fs_init();
-
-  fonts_init();
-
-  lcd_init();
-
-
-  text_show_font(200, 100, "��", 12, 0, RED);
-  text_show_font(200, 112, "��", 16, 0, RED);
-  text_show_font(200, 128, "��", 24, 0, RED);
-  text_show_font(200, 152, "��", 32, 0, RED);
-
-  // text_show_string(128, 0, 24*3, 24, "���ӳ�", 24, 0, RED);
-  // // text_show_string(128, 16, 160, 16, "���ۣ�", 16, 0, RED);
-  // // text_show_string(128, 32, 160, 16, "������", 16, 0, RED);
-
-  // text_show_string(200, 0, 0, 32*3, "���ӳ�", 32, 0, RED);
-
-  uint8_t test_buf[64];
   while (1)
   {
-		snprintf(test_buf, sizeof(test_buf), "Tick: %ld", HAL_GetTick());
-		text_show_string(128, 68, 160, 16, test_buf, 16, 0, RED);
-
-    LOG_I("Hello world\r\n");
-    /* Insert delay 100 ms */
-    HAL_Delay(100);
+    HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_GPIO_PIN, GPIO_PIN_RESET);
+    HAL_Delay(10);
+    HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_GPIO_PIN, GPIO_PIN_SET);
+    HAL_Delay(90);
   }
 }
 

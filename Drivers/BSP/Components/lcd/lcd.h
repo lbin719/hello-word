@@ -22,6 +22,8 @@
 #define LCD_CS_HIGH()      (LCD_CS_GPIO_PORT->BSRR = LCD_CS_GPIO_PIN)
 #define LCD_CS_LOW()       (LCD_CS_GPIO_PORT->BSRR = (uint32_t)(LCD_CS_GPIO_PIN  << 16u))
 
+#define LCD_BLK_HIGH()      (LCD_BLK_GPIO_PORT->BSRR = LCD_BLK_GPIO_PIN)
+#define LCD_BLK_LOW()       (LCD_BLK_GPIO_PORT->BSRR = (uint32_t)(LCD_BLK_GPIO_PIN  << 16u))
 
 typedef enum
 {

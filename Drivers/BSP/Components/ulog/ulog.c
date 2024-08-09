@@ -1,15 +1,12 @@
 
 #include "uart.h"
-// #include "SEGGER_RTT.h"
-// #include "flash_if.h"
 #include "ulog.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-// #include "stm32g0xx_hal.h"
-// #include "cmsis_os.h"
 
+#ifdef  LOG_DEBUG_ENABLE
 
 #define ULOGGER_BUFFER_SIZE (256)
 
@@ -47,43 +44,4 @@ int ulog_sync_output(bool output_tick, const char* format, ...)
     return cnt;
 }
 
-
-#define MAX_HEX_STR         4
-#define MAX_HEX_STR_LENGTH  128
-char hexStr[MAX_HEX_STR][MAX_HEX_STR_LENGTH];
-uint8_t hexStrIdx = 0;
-
-char* hex2Str(unsigned char * data, size_t dataLen)
-{
-  unsigned char *pin = data;
-  const char *hex = "0123456789ABCDEF";
-  char *pout = hexStr[hexStrIdx];
-  uint8_t i = 0;
-  uint8_t idx = hexStrIdx;
-
-  if( dataLen > (MAX_HEX_STR_LENGTH/2) )
-  {
-    dataLen = (MAX_HEX_STR_LENGTH/2);
-  }
-
-  if(dataLen == 0)
-  {
-    pout[0] = 0;
-  }
-  else
-  {
-    for(; i < dataLen - 1; ++i)
-    {
-        *pout++ = hex[(*pin>>4)&0xF];
-        *pout++ = hex[(*pin++)&0xF];
-    }
-    *pout++ = hex[(*pin>>4)&0xF];
-    *pout++ = hex[(*pin)&0xF];
-    *pout = 0;
-  }
-
-  hexStrIdx++;
-  hexStrIdx %= MAX_HEX_STR;
-
-  return hexStr[idx];
-}
+#endif

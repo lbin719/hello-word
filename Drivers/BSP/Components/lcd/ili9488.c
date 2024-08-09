@@ -48,7 +48,7 @@ static const uint8_t ili9488_init_cmd[] =
 #else
 	DISP_WR_CMD(0x36, 0xE8),
 #endif
-	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control，�?��?�ILI9486�??????0X55
+	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control，�?��?�ILI9486�??????0X55
 	DISP_WR_CMD(0XB0, 0x00), //Interface Mode Control
 	DISP_WR_CMD(0xB1, 0xB0, 0x11),    //Frame rate 70Hz
 	DISP_WR_CMD(0xB4, 0x02),
@@ -197,21 +197,11 @@ void ili9488_Clear(uint32_t color)
 {
 	ili9488_SetCursor(0, 0);
 
-	// uint32_t totalpoint= ili9488_dev.width;
-	// totalpoint *= ili9488_dev.height; 	//得到总点�?????
-  uint32_t i,j;
-  for(i = 0; i < ili9488_dev.height; i++)
-  {
-    for(j = 0; j < ili9488_dev.width; j++)
-    {
-      lcd_wr_data(color);
-    }
-  }
-//  while(1);
-	// for(uint32_t index = 0; index < totalpoint; index++)
-	// {
-	// 	lcd_wr_data(color);
-	// }
+	uint32_t totalpoint= ili9488_dev.width * ili9488_dev.height;
+	for(uint32_t index = 0; index < totalpoint; index++)
+	{
+		lcd_wr_data(color);
+	}
 
 	// for(uint32_t i = 0; i < sizeof(framebuff); i += 2)
 	// {
@@ -219,39 +209,12 @@ void ili9488_Clear(uint32_t color)
 	// 	framebuff[i + 1] = color;
 	// }
 
-	// for(uint32_t index = 0; index < ST7735S_LCD_PIXEL_HEIGHT/80; index++)
+	// for(uint32_t index = 0; index < ili9488_dev.height/80; index++)
 	// 	lcd_write_data(framebuff, sizeof(framebuff));
 }
 
 void ili9488_Init(void)
 {
-  // GPIO_InitTypeDef gpio_init_struct = {0};
-
-  // LCD_RST_GPIO_CLK_ENABLE();
-  // LCD_DC_GPIO_CLK_ENABLE();
-  // LCD_CS_GPIO_CLK_ENABLE();
-  // gpio_init_struct.Pin = LCD_RST_GPIO_PIN;
-  // gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
-  // gpio_init_struct.Pull = GPIO_NOPULL;
-  // gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;
-  // HAL_GPIO_Init(LCD_RST_GPIO_PORT, &gpio_init_struct);
-
-  // gpio_init_struct.Pin = LCD_DC_GPIO_PIN;
-  // HAL_GPIO_Init(LCD_DC_GPIO_PORT, &gpio_init_struct);
-
-  // gpio_init_struct.Pin = LCD_CS_GPIO_PIN;
-  // HAL_GPIO_Init(LCD_CS_GPIO_PORT, &gpio_init_struct);
-
-  // LCD_RST_HIGH();
-  // LCD_DC_HIGH();
-  // LCD_CS_HIGH();
-
-  // spi3_init();
-
-  // LCD_RST_LOW();	//LCD_RST=0	 //SPI接口复位
-  // HAL_Delay(20);
-  // LCD_RST_HIGH();	//LCD_RST=1
-  // HAL_Delay(20);
   lcd_panel_exec_cmd(ili9488_init_cmd, sizeof(ili9488_init_cmd));
   ili9488_SetDisplayWindow(0, 0, ili9488_dev.width, ili9488_dev.height);
   ili9488_DisplayOn();

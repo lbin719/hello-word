@@ -460,8 +460,8 @@ void USBD_LL_Delay(uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-  static uint32_t mem[MAX_STATIC_ALLOC_SIZE];
-  return mem;
+  static uint32_t usb_mem[MAX_STATIC_ALLOC_SIZE];
+  return usb_mem;
 }
 
 /**

@@ -147,6 +147,10 @@
 #define LCD_RST_GPIO_PIN                  GPIO_PIN_7
 #define LCD_RST_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
+#define LCD_BLK_GPIO_PORT                 GPIOD
+#define LCD_BLK_GPIO_PIN                  GPIO_PIN_2
+#define LCD_BLK_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOD_CLK_ENABLE()
+
 /* uart1 log  PA9 PA10 */
 // DMA1_Channel4
 // DMA1_Channel5
@@ -180,10 +184,22 @@
 #define HX711_SCK_GPIO_PIN                  GPIO_PIN_0
 #define HX711_SCK_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 
-#define HX711_DOUT_GPIO_PORT                 GPIOB
-#define HX711_DOUT_GPIO_PIN                  GPIO_PIN_1
-#define HX711_DOUT_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
+#define HX711_DOUT_GPIO_PORT                GPIOB
+#define HX711_DOUT_GPIO_PIN                 GPIO_PIN_1
+#define HX711_DOUT_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOB_CLK_ENABLE()
 
+//LED & KEY
+#define LED_GREEN_GPIO_PORT                 GPIOC
+#define LED_GREEN_GPIO_PIN                  GPIO_PIN_0
+#define LED_GREEN_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOC_CLK_ENABLE()
+
+#define LED_BLUE_GPIO_PORT                  GPIOC
+#define LED_BLUE_GPIO_PIN                   GPIO_PIN_1
+#define LED_BLUE_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
+
+#define KEY_GPIO_PORT                       GPIOC
+#define KEY_GPIO_PIN                        GPIO_PIN_2
+#define KEY_GPIO_CLK_ENABLE()               __HAL_RCC_GPIOC_CLK_ENABLE()
 
 #ifdef __cplusplus
 }

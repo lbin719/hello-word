@@ -41,7 +41,7 @@
  */
 #define FONTINFOADDR        4.2 * 1024 * 1024
 
- 
+
 /* 用来保存字库基本信息，地址，大小等 */
 _font_info ftinfo;
 
@@ -52,15 +52,7 @@ char *const FONT_GBK_PATH[] =
     "GBK12.FON",       /* GBK12的存放位�? */
     "GBK16.FON",       /* GBK16的存放位�? */
     "GBK24.FON",       /* GBK24的存放位�? */
-};
-
-/* 更新时的提示信息 */
-char *const FONT_UPDATE_REMIND_TBL[] =
-{
-    // "Updating UNIGBK.BIN",          /* 提示正在更新UNIGBK.bin */
-    "Updating GBK12.FON ",          /* 提示正在更新GBK12 */
-    "Updating GBK16.FON ",          /* 提示正在更新GBK16 */
-    "Updating GBK24.FON ",          /* 提示正在更新GBK24 */
+    "GBK32.FON",       /* GBK24的存放位�? */
 };
 
 
@@ -82,7 +74,7 @@ bool fonts_init(void)
     //     {
     //         break;
     //     }
-        
+
     //     delay_ms(20);
     // }
 

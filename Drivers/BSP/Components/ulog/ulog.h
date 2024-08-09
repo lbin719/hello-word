@@ -8,14 +8,19 @@
  extern "C" {
 #endif
 
+
+#ifdef LOG_DEBUG_ENABLE
 #define LOG_I(...)               ulog_sync_output(true,  __VA_ARGS__)
 #define LOG_I_NOTICK(...)        ulog_sync_output(false,  __VA_ARGS__)
+#else
+#define LOG_I(...)
+#define LOG_I_NOTICK(...)
+#endif
 
+#ifdef LOG_DEBUG_ENABLE
 void ulog_init(void);
 int ulog_sync_output(bool output_tick, const char* format, ...);
-
-
-char* hex2Str(unsigned char * data, size_t dataLen);
+#endif
 
 #ifdef __cplusplus
  }

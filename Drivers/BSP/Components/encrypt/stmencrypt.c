@@ -7,21 +7,21 @@ const char encrypt_key[32] = {
 0X45, 0X29, 0XB6, 0XB5, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF
 };
 
-#define STM32_ID_D  852468   //ÈÎÒâµÄÒ»¸öÊı 
+#define STM32_ID_D  852468   //ä»»æ„çš„ä¸€ä¸ªæ•°
 
-//stm32Ğ¾Æ¬µÄIDµØÖ·£¬°ÑµØÖ·¼õÈ¥Ò»¸öÊı£¬±ÜÃâ»ã±àÀïÃæÖ±½Ó³öÏÖIDµÄµØÖ·£¬²»È»ºÜÈİÒ×±©Â¶¼ÓÃÜÓëIDºÅÓĞ¹Ø
+//stm32èŠ¯ç‰‡çš„IDåœ°å€ï¼ŒæŠŠåœ°å€å‡å»ä¸€ä¸ªæ•°ï¼Œé¿å…æ±‡ç¼–é‡Œé¢ç›´æ¥å‡ºç°IDçš„åœ°å€ï¼Œä¸ç„¶å¾ˆå®¹æ˜“æš´éœ²åŠ å¯†ä¸IDå·æœ‰å…³
 volatile uint32_t stm32_id_addr[]={
-    UID_BASE - STM32_ID_D, 
+    UID_BASE - STM32_ID_D,
     UID_BASE + 4 + STM32_ID_D,
     UID_BASE + 8 - STM32_ID_D
 };
- 
 
-volatile void stm32_readid(volatile uint32_t *p)
+
+volatile void stm_read_uuid(volatile uint32_t *p)
 {
    volatile uint32_t Addr;
-// ÒòÎª²»ÏëÈÃ³ÌĞòÔÚ·´»ã±àºóÖ±½ÓÕÒµ½Õâ¸öµØÖ·£¬ËùÒÔÕâ¸öµØÖ·ÊÇÔËËã³öÀ´µÄ£¬
-// ¸ústm32_id_addr·´ÔËËã£¬µ±È»ÁËÒ²¿ÉÒÔÓÃ¸ß¼¶µÄËã·¨£¬×¢Òâ²»ÄÜÈÃ±àÒëÆ÷ÓÅ»¯Õâ¸öµØÖ·
+// å› ä¸ºä¸æƒ³è®©ç¨‹åºåœ¨åæ±‡ç¼–åç›´æ¥æ‰¾åˆ°è¿™ä¸ªåœ°å€ï¼Œæ‰€ä»¥è¿™ä¸ªåœ°å€æ˜¯è¿ç®—å‡ºæ¥çš„ï¼Œ
+// è·Ÿstm32_id_addråè¿ç®—ï¼Œå½“ç„¶äº†ä¹Ÿå¯ä»¥ç”¨é«˜çº§çš„ç®—æ³•ï¼Œæ³¨æ„ä¸èƒ½è®©ç¼–è¯‘å™¨ä¼˜åŒ–è¿™ä¸ªåœ°å€
    Addr = stm32_id_addr[0] + STM32_ID_D;
    p[0] = *(uint32_t*)(Addr);
    Addr = stm32_id_addr[1] - STM32_ID_D;
@@ -30,72 +30,90 @@ volatile void stm32_readid(volatile uint32_t *p)
    p[2] = *(uint32_t*)(Addr);
 }
 
-uint32_t stm32_generate_key(void)
+uint32_t stm_generate_key(void)
 {
-   uint32_t stm32ID[4], dat;   
-   stm32_readid(stm32ID);
-   stm32ID[3] = STM32_ID_D;  
+   uint32_t stm32ID[4], dat;
+   stm_read_uuid(stm32ID);
+   stm32ID[3] = STM32_ID_D;
 
-   //ÕâÀï¿ÉÒÔÓÃÆäËüÒ»Ğ©¸ß¼¶µÄËã·¨£¬µ«½âºÍ¼ÓÒªÒ»Ñù
-   //°ÑIDºÅ´¦Àí³ÉÒ»¸ö32Î»Êı£¬Ò²¿ÉÒÔÓÃ×Ô¼ºµÄËã·¨£¬´¦Àí³ÉÆäËûÊı¾İ£¬¶àÉÙÎ»¶¼ĞĞ
-   dat = stm32ID[0] ^ stm32ID[1] - (stm32ID[2] / stm32ID[3]); //´¦Àí³ÉÒ»¸ö32Î»Êı
-
+   //è¿™é‡Œå¯ä»¥ç”¨å…¶å®ƒä¸€äº›é«˜çº§çš„ç®—æ³•ï¼Œä½†è§£å’ŒåŠ è¦ä¸€æ ·
+   //æŠŠIDå·å¤„ç†æˆä¸€ä¸ª32ä½æ•°ï¼Œä¹Ÿå¯ä»¥ç”¨è‡ªå·±çš„ç®—æ³•ï¼Œå¤„ç†æˆå…¶ä»–æ•°æ®ï¼Œå¤šå°‘ä½éƒ½è¡Œ
+   dat = (stm32ID[0] ^ stm32ID[1]) - (stm32ID[2] / stm32ID[3]); //å¤„ç†æˆä¸€ä¸ª32ä½æ•°
+   LOG_I("id: 0x%08x 0x%08x 0x%08x 0x%08x key: 0x%08x\r\n", stm32ID[0], stm32ID[1], stm32ID[2], stm32ID[3], dat);
    return dat;
 }
 
 /********************************************************************
-º¯Êı¹¦ÄÜ£º¼ÓÃÜID²¢±£´æ
-Èë¿Ú²ÎÊı£º
-·µ    »Ø£º
-±¸    ×¢£º
+å‡½æ•°åŠŸèƒ½ï¼šåŠ å¯†IDå¹¶ä¿å­˜
+å…¥å£å‚æ•°ï¼š
+è¿”    å›ï¼š
+å¤‡    æ³¨ï¼š
 ********************************************************************/
-void stm_encrypted_id(void)
+void stmencrypt_write_key(void)
 {
-    // uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //¶Á³ö¼ÓÃÜÊ±£¬±£´æÔÚflashÖĞµÄÊı
-    // if(flash_key == 0xFFFFFFFF)//Î´Ğ´Èë
-    // {
-        uint32_t key = stm32_generate_key();
+    uint32_t ret = FLASHIF_OK;
+    uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //è¯»å‡ºåŠ å¯†æ—¶ï¼Œä¿å­˜åœ¨flashä¸­çš„æ•°
+    // if(flash_key == 0xFFFFFFFF)//æœªå†™å…¥
+    {
+        uint32_t key = stm_generate_key();
         stmflash_erase(STM32_FLASH_EN_ID_START_ADDR, STM32_FLASH_EN_ID_SIZE);
-        stmflash_write(STM32_FLASH_EN_ID_START_ADDR, key, sizeof(key)); //±£´æÕâ¸öÊı£¬Ğ´½ø32Î» 
-    // }
+        if(ret != FLASHIF_OK)
+        {
+            LOG_I("stmflash_erase error ret:%d\r\n", ret);
+        }
+        stmflash_write(STM32_FLASH_EN_ID_START_ADDR, &key, sizeof(key)); //ä¿å­˜è¿™ä¸ªæ•°ï¼Œå†™è¿›32ä½
+        if(ret != FLASHIF_OK)
+        {
+            LOG_I("stmflash_write error ret:%d\r\n", ret);
+        }
+        //check
+        uint32_t read_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //è¯»å‡ºåŠ å¯†æ—¶ï¼Œä¿å­˜åœ¨flashä¸­çš„æ•°
+        if(read_key != key)
+        {
+            LOG_I("write key fail. key: 0x%08x, read_key: 0x%08x\r\n", key, read_key);
+        }
+    }
 }
- 
+
 /********************************************************************
-º¯Êı¹¦ÄÜ£º±È½Ï¼ÓÃÜID£¬ÕıÈ··µ»Ø0
-Èë¿Ú²ÎÊı£º
-·µ    »Ø£º1£º²»ÕıÈ·£¬0£ºÕıÈ·
-±¸    ×¢£º
+å‡½æ•°åŠŸèƒ½ï¼šæ¯”è¾ƒåŠ å¯†IDï¼Œæ­£ç¡®è¿”å›0
+å…¥å£å‚æ•°ï¼š
+è¿”    å›ï¼š1ï¼šä¸æ­£ç¡®ï¼Œ0ï¼šæ­£ç¡®
+å¤‡    æ³¨ï¼š
 ********************************************************************/
-bool stm_cmp_encryped_id(void)
+bool stmencrypt_cmp_key(void)
 {
-    uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //¶Á³ö¼ÓÃÜÊ±£¬±£´æÔÚflashÖĞµÄÊı
-    uint32_t key = stm32_generate_key();
+    uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //è¯»å‡ºåŠ å¯†æ—¶ï¼Œä¿å­˜åœ¨flashä¸­çš„æ•°
+    uint32_t key = stm_generate_key();
 
     if(flash_key == key)
-        return true;
-    else
-        return false;
-}
- 
-void stm_encrypt_init(void)
-{
-    if(stm_cmp_encryped_id() == false)
     {
-        LOG_I("stm encrypt no write\r\n");     // IDÕıÈ·£¬Õı³£ÔËĞĞ
-        //Á¿²úÊ±¸øÒ»Ğ©Ìõ¼ş£¬Ìõ¼şÂú×ã¾Í¶ÔID¼ÓÃÜ£¬È»ºó°Ñ¼ÓÃÜ½á¹û±£´æµ½flashÖĞ£¬°Ñ¸Ã³ÌĞòÓëĞ¾Æ¬µÄID£¬Î¨Ò»¶ÔÓ¦ÆğÀ´£¬¼ÓÃÜÍêºó£¬ÄãÒ²¿ÉÒÔÈÃËü×Ô¹¬¡£	  
+        LOG_I("stmencrypt success. key: 0x%08x\r\n", key);     // IDæ­£ç¡®ï¼Œæ­£å¸¸è¿è¡Œ
+        return true;
+    }
+    else
+    {
+        LOG_I("stmencrypt fail. flash_key: 0x%08x, key: 0x%08x\r\n", flash_key, key);     // IDæ­£ç¡®ï¼Œæ­£å¸¸è¿è¡Œ
+        return false;
+    }
+}
+
+bool stmencrypt_init(void)
+{
+    if(stmencrypt_cmp_key() == false)
+    {
+        //é‡äº§æ—¶ç»™ä¸€äº›æ¡ä»¶ï¼Œæ¡ä»¶æ»¡è¶³å°±å¯¹IDåŠ å¯†ï¼Œç„¶åæŠŠåŠ å¯†ç»“æœä¿å­˜åˆ°flashä¸­ï¼ŒæŠŠè¯¥ç¨‹åºä¸èŠ¯ç‰‡çš„IDï¼Œå”¯ä¸€å¯¹åº”èµ·æ¥ï¼ŒåŠ å¯†å®Œåï¼Œä½ ä¹Ÿå¯ä»¥è®©å®ƒè‡ªå®«ã€‚
         if(true)
-        { 
-            stm_encrypted_id();   //¼ÓÃÜID
-            //  ×Ô¹¬                    //¼´°Ñ¼ÓÃÜÕâ¶Î´úÂë´ÓflashÀïÃæ²Á³ı£¬Ö±½ÓÌø³öÈ¥¼ÌĞøÖ´ĞĞ
+        {
+            stmencrypt_write_key();   //åŠ å¯†ID
+            //  è‡ªå®«                    //å³æŠŠåŠ å¯†è¿™æ®µä»£ç ä»flashé‡Œé¢æ“¦é™¤ï¼Œç›´æ¥è·³å‡ºå»ç»§ç»­æ‰§è¡Œ
         }
         else
         {
-            while(1);
+            return false;
         }
     }
-    else
-    {
-        LOG_I("stm encrypt ok\r\n");     // IDÕıÈ·£¬Õı³£ÔËĞĞ
-    }
+
+    return true;
 }
 

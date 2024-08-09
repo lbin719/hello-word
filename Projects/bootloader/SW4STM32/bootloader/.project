@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>smartscale</name>
+	<name>bootloader</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -41,24 +41,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f1xx_it.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/stm32f1xx_msp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f1xx_msp.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/system_stm32f1xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f1xx.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CmBacktrace/cm_backtrace.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/CmBacktrace/cm_backtrace.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CmBacktrace/gcc</name>
-			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/CmBacktrace/fault_handler/gcc</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal.c</name>
@@ -111,16 +96,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_rtc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_rtc_ex.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc_ex.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c</locationURI>
@@ -171,14 +146,9 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/unicode.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/delay/delay.c</name>
+			<name>Drivers/BSP/Components/crypto/crypto.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/delay/delay.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/encrypt/stmencrypt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/encrypt/stmencrypt.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/crypto/crypto.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/flash/norflash.c</name>
@@ -191,49 +161,14 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/flash/stmflash.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/fs/fs.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/fs/fs.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/Components/fs/norflash_diskio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/fs/norflash_diskio.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/hx711/hx711.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hx711/hx711.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/lcd/ili9488.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/ili9488.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/lcd/lcd.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/lcd.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/lcd/st7735s.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/st7735s.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/Components/spi/spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/spi/spi.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/text/fonts.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/text/fonts.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/Components/text/text.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/text/text.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/uart/uart.c</name>
@@ -259,11 +194,6 @@
 			<name>Drivers/BSP/Components/usb/usbd_storage.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/usb/usbd_storage.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/STM32_USBD_Library/Class/HID/usbd_hid.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/ST/STM32_USB_Device_Library/Class/HID/Src/usbd_hid.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/STM32_USBD_Library/Class/MSC/usbd_msc.c</name>

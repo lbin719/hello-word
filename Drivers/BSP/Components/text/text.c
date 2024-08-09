@@ -90,6 +90,10 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
             f_open(&File, "GBK24.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f24addr, csize);
             break;
+        case 32:
+            f_open(&File, "GBK32.FON", FA_READ);
+            // norflash_read(mat, foffset + ftinfo.f24addr, csize);
+            break;
     }
 
     f_lseek(&File, foffset);
@@ -108,7 +112,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
  * @param       color : 字体颜色
  * @retval      无
  */
-#define DZK_LENGTH      255
+#define DZK_LENGTH      256
 static uint8_t dzk[DZK_LENGTH];
 void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t mode, uint32_t color)
 {

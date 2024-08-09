@@ -98,7 +98,7 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
 /**
  * @brief       ����
  * @param       x,y: ����
- * @param       color: ������?(32λ��ɫ,�������LTDC)
+ * @param       color: ������?(32λ��ɫ,�������LTDC)
  * @retval      ��
  */
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color)
@@ -121,7 +121,8 @@ void lcd_init(void)
 
     LCD_RST_GPIO_CLK_ENABLE();
     LCD_DC_GPIO_CLK_ENABLE();
-    LCD_CS_GPIO_CLK_ENABLE();      /* CS�?? 时钟使能 */
+    LCD_CS_GPIO_CLK_ENABLE();
+    LCD_BLK_GPIO_CLK_ENABLE();
 
     gpio_init_struct.Pin = LCD_RST_GPIO_PIN;
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -135,15 +136,19 @@ void lcd_init(void)
     gpio_init_struct.Pin = LCD_CS_GPIO_PIN;
     HAL_GPIO_Init(LCD_CS_GPIO_PORT, &gpio_init_struct);
 
+    gpio_init_struct.Pin = LCD_BLK_GPIO_PIN;
+    HAL_GPIO_Init(LCD_BLK_GPIO_PORT, &gpio_init_struct);
+
     LCD_RST_HIGH();
     LCD_DC_HIGH();
     LCD_CS_HIGH();
+    LCD_BLK_HIGH();
 
     spi3_init();
 
-	LCD_RST_LOW();	//LCD_RST=0	 //SPI接口复位
-	HAL_Delay(100);   // delay 20 ms
-    LCD_RST_HIGH();	//LCD_RST=1
+	LCD_RST_LOW();
+	HAL_Delay(100);
+    LCD_RST_HIGH();
 	HAL_Delay(100);
 
     lcd_drv->Init();
