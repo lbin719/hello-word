@@ -48,7 +48,7 @@ static const uint8_t ili9488_init_cmd[] =
 #else
 	DISP_WR_CMD(0x36, 0xE8),
 #endif
-	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control，�?��?�ILI9486�??????0X55
+	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control锛岋拷?锟斤拷?锟絀LI9486锟�??????0X55
 	DISP_WR_CMD(0XB0, 0x00), //Interface Mode Control
 	DISP_WR_CMD(0xB1, 0xB0, 0x11),    //Frame rate 70Hz
 	DISP_WR_CMD(0xB4, 0x02),
@@ -106,12 +106,8 @@ void ili9488_WritePixel(uint16_t Xpos, uint16_t Ypos, uint32_t RGBCode)
   /* Set Cursor */
   ili9488_SetCursor(Xpos, Ypos);
 
-  lcd_wr_data(RGBCode);
-}
-
-void ili9488_Write_Gram(uint32_t RGBCode)
-{
-  lcd_wr_data(RGBCode);
+	uint8_t data[] = {RGBCode >> 16, RGBCode >> 8, RGBCode};
+	lcd_write_data(data, sizeof(data));
 }
 
 void ili9488_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height)
@@ -132,10 +128,11 @@ void ili9488_DrawHLine(uint32_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t 
   /* Set Cursor */
   ili9488_SetCursor(Xpos, Ypos);
 
+  uint8_t data[] = {RGBCode >> 16, RGBCode >> 8, RGBCode};
   for(counter = 0; counter < Length; counter++)
   {
 //    ArrayRGB[counter] = RGBCode;
-	  lcd_wr_data(RGBCode);
+	  lcd_write_data(data, sizeof(data));
   }
 
 //  lcd_write_data((uint8_t*)&ArrayRGB[0], Length * 2);
@@ -198,9 +195,10 @@ void ili9488_Clear(uint32_t color)
 	ili9488_SetCursor(0, 0);
 
 	uint32_t totalpoint= ili9488_dev.width * ili9488_dev.height;
+	uint8_t data[] = {color >> 16, color >> 8, color};
 	for(uint32_t index = 0; index < totalpoint; index++)
 	{
-		lcd_wr_data(color);
+	  lcd_write_data(data, sizeof(data));
 	}
 
 	// for(uint32_t i = 0; i < sizeof(framebuff); i += 2)

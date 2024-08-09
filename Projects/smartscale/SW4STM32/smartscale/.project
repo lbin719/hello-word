@@ -221,6 +221,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/st7735s.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/lcd/st7796.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/st7796.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/spi/spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/spi/spi.c</locationURI>

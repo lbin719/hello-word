@@ -1,6 +1,7 @@
 #include "lcd.h"
 #include "st7735s.h"
 #include "ili9488.h"
+#include "st7796.h"
 #include "stm32f1xx_hal.h"
 #include "ulog.h"
 #include "main.h"
@@ -10,9 +11,8 @@ LCD_DrvTypeDef *lcd_drv;
 
 _lcd_dev lcd_dev;
 
-/* LCD�Ļ�����ɫ�ͱ���ɫ */
-uint32_t g_point_color = 0XF800;    /* ������ɫ */
-uint32_t g_back_color  = 0XFFFFFF;    /* ����ɫ */
+uint32_t g_point_color = 0XF800;
+uint32_t g_back_color  = 0XFFFFFF;
 
 void lcd_write_data(uint8_t *data, uint16_t len)
 {
@@ -59,20 +59,6 @@ void lcd_read_cmddata(uint8_t cmd, uint8_t *data, uint16_t len)
 	LCD_CS_HIGH();  //LCD_CS=1
 }
 
-#if LCD_DRIVER_IC_ST7735S
-void lcd_wr_data(uint16_t RGBCode)
-{
-	uint8_t data[] = {RGBCode >> 8, RGBCode};
-	lcd_write_data(data, sizeof(data));
-}
-#else
-void lcd_wr_data(uint32_t RGBCode)
-{
-	uint8_t data[] = {RGBCode >> 16, RGBCode >> 8, RGBCode};
-	lcd_write_data(data, sizeof(data));
-}
-#endif
-
 void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
 {
     const uint8_t *cmd = cmd_table;
@@ -94,13 +80,6 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
     return ;
 }
 
-
-/**
- * @brief       ����
- * @param       x,y: ����
- * @param       color: ������?(32λ��ɫ,�������LTDC)
- * @retval      ��
- */
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color)
 {
     if(lcd_drv->WritePixel)
@@ -111,6 +90,8 @@ void lcd_init(void)
 {
 #if LCD_DRIVER_IC_ST7735S
     lcd_drv = st7735s_probe();
+#elif LCD_DRIVER_IC_ST7796
+    lcd_drv = st7796_probe();
 #elif LCD_DRIVER_IC_ILI9488
     lcd_drv = ili9488_probe();
 #endif
@@ -123,6 +104,11 @@ void lcd_init(void)
     LCD_DC_GPIO_CLK_ENABLE();
     LCD_CS_GPIO_CLK_ENABLE();
     LCD_BLK_GPIO_CLK_ENABLE();
+
+    LCD_RST_HIGH();
+    LCD_DC_HIGH();
+    LCD_CS_HIGH();
+    LCD_BLK_DISABLE();
 
     gpio_init_struct.Pin = LCD_RST_GPIO_PIN;
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -139,11 +125,6 @@ void lcd_init(void)
     gpio_init_struct.Pin = LCD_BLK_GPIO_PIN;
     HAL_GPIO_Init(LCD_BLK_GPIO_PORT, &gpio_init_struct);
 
-    LCD_RST_HIGH();
-    LCD_DC_HIGH();
-    LCD_CS_HIGH();
-    LCD_BLK_HIGH();
-
     spi3_init();
 
 	LCD_RST_LOW();
@@ -152,4 +133,6 @@ void lcd_init(void)
 	HAL_Delay(100);
 
     lcd_drv->Init();
+
+    LCD_BLK_ENABLE();
 }

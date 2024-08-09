@@ -9,8 +9,14 @@
 #include "stdbool.h"
 
 #define LCD_DRIVER_IC_ST7735S   0
-#define LCD_DRIVER_IC_ILI9488   1
-#define LCD_HORIZONTAL 3  //ÉèÖÃºáÆÁ»òÕßÊúÆÁÏÔÊ¾ 0»ò1ÎªÊúÆÁ 2»ò3ÎªºáÆÁ
+#define LCD_DRIVER_IC_ST7796    1
+#define LCD_DRIVER_IC_ILI9488   0
+
+#define LCD_HORIZONTAL 2  //ç€¹æ°«ç®Ÿå¨‘å‰æ« çžå¿›ã€Žéƒå •æ‹¡éƒå¬­æµ†é‚ç‘°æ‚œ 	0-0æ´ï¸½æ£†æžî„Šç´1-180æ´ï¸½æ£†æžî„Šç´2-270æ´ï¸½æ£†æžî„Šç´3-90æ´ï¸½æ£†æžï¿½
+
+#if LCD_DRIVER_IC_ILI9488
+#define LCD_PIXEL_RGB666
+#endif
 
 
 #define LCD_RST_HIGH()      (LCD_RST_GPIO_PORT->BSRR = LCD_RST_GPIO_PIN)
@@ -22,8 +28,8 @@
 #define LCD_CS_HIGH()      (LCD_CS_GPIO_PORT->BSRR = LCD_CS_GPIO_PIN)
 #define LCD_CS_LOW()       (LCD_CS_GPIO_PORT->BSRR = (uint32_t)(LCD_CS_GPIO_PIN  << 16u))
 
-#define LCD_BLK_HIGH()      (LCD_BLK_GPIO_PORT->BSRR = LCD_BLK_GPIO_PIN)
-#define LCD_BLK_LOW()       (LCD_BLK_GPIO_PORT->BSRR = (uint32_t)(LCD_BLK_GPIO_PIN  << 16u))
+#define LCD_BLK_ENABLE()   (LCD_BLK_GPIO_PORT->BSRR = LCD_BLK_GPIO_PIN)
+#define LCD_BLK_DISABLE()  (LCD_BLK_GPIO_PORT->BSRR = (uint32_t)(LCD_BLK_GPIO_PIN  << 16u))
 
 typedef enum
 {
@@ -57,21 +63,8 @@ typedef struct
   uint16_t (*ReadID)(void);
   void     (*DisplayOn)(void);
   void     (*DisplayOff)(void);
-  // void     (*SetCursor)(uint16_t, uint16_t);
-  // void     (*WritePixel)(uint16_t, uint16_t, uint16_t);
-  // uint16_t (*ReadPixel)(uint16_t, uint16_t);
 
-  //  /* Optimized operation */
-  // void     (*SetDisplayWindow)(uint16_t, uint16_t, uint16_t, uint16_t);
-  // void     (*DrawHLine)(uint16_t, uint16_t, uint16_t, uint16_t);
-  // void     (*DrawVLine)(uint16_t, uint16_t, uint16_t, uint16_t);
-
-  // uint16_t (*GetLcdPixelWidth)(void);
-  // uint16_t (*GetLcdPixelHeight)(void);
-  // void     (*DrawBitmap)(uint16_t, uint16_t, uint8_t*);
-  // void     (*DrawRGBImage)(uint16_t, uint16_t, uint16_t, uint16_t, uint8_t*);
-  // void     (*DrawBitLine16BPP)(uint16_t, uint16_t, uint16_t*, uint16_t);
-
+#ifdef LCD_PIXEL_RGB666
   void     (*SetCursor)(uint16_t, uint16_t);
   void     (*WritePixel)(uint16_t, uint16_t, uint32_t);
   uint32_t (*ReadPixel)(uint16_t, uint16_t);
@@ -86,98 +79,70 @@ typedef struct
   void     (*DrawBitmap)(uint16_t, uint16_t, uint8_t*);
   void     (*DrawRGBImage)(uint16_t, uint16_t, uint16_t, uint16_t, uint8_t*);
   void     (*DrawBitLine16BPP)(uint16_t, uint16_t, uint16_t*, uint16_t);
+#else
+  void     (*SetCursor)(uint16_t, uint16_t);
+  void     (*WritePixel)(uint16_t, uint16_t, uint16_t);
+  uint16_t (*ReadPixel)(uint16_t, uint16_t);
+
+   /* Optimized operation */
+  void     (*SetDisplayWindow)(uint16_t, uint16_t, uint16_t, uint16_t);
+  void     (*DrawHLine)(uint16_t, uint16_t, uint16_t, uint16_t);
+  void     (*DrawVLine)(uint16_t, uint16_t, uint16_t, uint16_t);
+
+  uint16_t (*GetLcdPixelWidth)(void);
+  uint16_t (*GetLcdPixelHeight)(void);
+  void     (*DrawBitmap)(uint16_t, uint16_t, uint8_t*);
+  void     (*DrawRGBImage)(uint16_t, uint16_t, uint16_t, uint16_t, uint8_t*);
+  void     (*DrawBitLine16BPP)(uint16_t, uint16_t, uint16_t*, uint16_t);
+#endif
 }LCD_DrvTypeDef;
 
 typedef struct
 {
-	uint16_t width;			    //LCD ¿í¶È
-	uint16_t height;			  //LCD ¸ß¶È
-	uint16_t id;				    //LCD ID
-	uint8_t	 wramcmd;		    //¿ªÊ¼Ð´gramÖ¸Áî
-	uint8_t  setxcmd;		    //ÉèÖÃx×ø±êÖ¸Áî
-	uint8_t  setycmd;		    //ÉèÖÃy×ø±êÖ¸Áî
+	uint16_t width;
+	uint16_t height;
+	uint16_t id;
+	uint8_t	 wramcmd;
+	uint8_t  setxcmd;
+	uint8_t  setycmd;
 }_lcd_dev;
 
-//»­±ÊÑÕÉ«
-// #define WHITE         	  0xFFFF
-// #define BLACK         	  0x0000
-// #define BLUE              0x001F
-// #define BRED              0XF81F
-// #define GRED 			        0XFFE0
-// #define GBLUE			        0X07FF
-// #define RED           	  0xF800
-// #define MAGENTA       	  0xF81F
-// #define GREEN         	  0x07E0
-// #define CYAN          	  0x7FFF
-// #define YELLOW        	  0xFFE0
-// #define BROWN 			      0XBC40 //×ØÉ«
-// #define BRRED 			      0XFC07 //×ØºìÉ«
-// #define GRAY  			      0X8430 //»ÒÉ«
-// //GUIÑÕÉ«
 
-// #define DARKBLUE      	  0X01CF	//ÉîÀ¶É«
-// #define LIGHTBLUE      	  0X7D7C	//Ç³À¶É«
-// #define GRAYBLUE       	  0X5458  //»ÒÀ¶É«
-// //ÒÔÉÏÈýÉ«ÎªPANELµÄÑÕÉ«
+#ifdef LCD_PIXEL_RGB666
 
-// #define LIGHTGREEN     	  0X841F //Ç³ÂÌÉ«
-// //#define LIGHTGRAY        0XEF5B //Ç³»ÒÉ«(PANNEL)
-// #define LGRAY             0XC618 //Ç³»ÒÉ«(PANNEL),´°Ìå±³¾°É«
-
-// #define LGRAYBLUE         0XA651 //Ç³»ÒÀ¶É«(ÖÐ¼ä²ãÑÕÉ«)
-// #define LBBLUE            0X2B12 //Ç³×ØÀ¶É«(Ñ¡ÔñÌõÄ¿µÄ·´É«)
-//»­±ÊÑÕÉ«
 #define WHITE         	 0xFCFCFC
 #define BLACK            0X000000
 #define RED           	 0xFC0000
 #define GREEN            0x00FC00
 #define BLUE             0x0000FC
 
-// typedef struct
-// {
-//   uint32_t TextColor;
-//   uint32_t BackColor;
-//   sFONT    *pFont;
+#else
 
-// }LCD_DrawPropTypeDef;
+#define WHITE         	  0xFFFF
+#define BLACK         	  0x0000
+#define BLUE              0x001F
+#define BRED              0XF81F
+#define GRED 			        0XFFE0
+#define GBLUE			        0X07FF
+#define RED           	  0xF800
+#define MAGENTA       	  0xF81F
+#define GREEN         	  0x07E0
+#define CYAN          	  0x7FFF
+#define YELLOW        	  0xFFE0
+#define BROWN 			      0XBC40 //é”Ÿæ–¤æ‹·è‰²
+#define BRRED 			      0XFC07 //é”ŸæˆªçŒ´æ‹·è‰²
+#define GRAY  			      0X8430 //é”Ÿæ–¤æ‹·è‰²
+#define DARKBLUE      	  0X01CF	//é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·è‰²
+#define LIGHTBLUE      	  0X7D7C	//æµ…é”Ÿæ–¤æ‹·è‰²
+#define GRAYBLUE       	  0X5458  //é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·è‰²
+#define LIGHTGREEN     	  0X841F
+//#define LIGHTGRAY        0XEF5B
+#define LGRAY             0XC618
+#define LGRAYBLUE         0XA651
+#define LBBLUE            0X2B12
 
-// /**
-//   * @brief  Point structures definition
-//   */
-// typedef struct
-// {
-//   int16_t X;
-//   int16_t Y;
+#endif
 
-// }Point, * pPoint;
-
-// /**
-//   * @brief  Line mode structures definition
-//   */
-// typedef enum
-// {
-//   CENTER_MODE             = 0x01,    /*!< Center mode */
-//   RIGHT_MODE              = 0x02,    /*!< Right mode  */
-//   LEFT_MODE               = 0x03     /*!< Left mode   */
-
-// }Line_ModeTypdef;
-
-// /**
-//   * @}
-//   */
-
-// /** @defgroup STM32_ADAFRUIT_LCD_Exported_Constants
-//   * @{
-//   */
-
-// #define __IO    volatile
-
-// /**
-//   * @brief  LCD status structure definition
-//   */
-// #define LCD_OK         0x00
-// #define LCD_ERROR      0x01
-// #define LCD_TIMEOUT    0x02
 
 // /**
 //   * @brief  LCD color
@@ -192,51 +157,7 @@ typedef struct
 // #define LCD_COLOR_YELLOW        0xFFE0
 // #define LCD_COLOR_WHITE         0xFFFF
 
-// /**
-//   * @brief LCD default font
-//   */
-// #define LCD_DEFAULT_FONT         Font8
 
-// /**
-//   * @}
-//   */
-
-// /** @defgroup STM32_ADAFRUIT_LCD_Exported_Functions
-//   * @{
-//   */
-// uint8_t  BSP_LCD_Init(void);
-// uint32_t BSP_LCD_GetXSize(void);
-// uint32_t BSP_LCD_GetYSize(void);
-
-// uint16_t BSP_LCD_GetTextColor(void);
-// uint16_t BSP_LCD_GetBackColor(void);
-// void     BSP_LCD_SetTextColor(__IO uint16_t Color);
-// void     BSP_LCD_SetBackColor(__IO uint16_t Color);
-// void     BSP_LCD_SetFont(sFONT *fonts);
-// sFONT    *BSP_LCD_GetFont(void);
-
-// void     BSP_LCD_Clear(uint16_t Color);
-// void     BSP_LCD_ClearStringLine(uint16_t Line);
-// void     BSP_LCD_DisplayStringAtLine(uint16_t Line, uint8_t *ptr);
-// void     BSP_LCD_DisplayStringAt(uint16_t Xpos, uint16_t Ypos, uint8_t *Text, Line_ModeTypdef Mode);
-// void     BSP_LCD_DisplayChar(uint16_t Xpos, uint16_t Ypos, uint8_t Ascii);
-
-// void     BSP_LCD_DrawPixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGB_Code);
-// void     BSP_LCD_DrawHLine(uint16_t Xpos, uint16_t Ypos, uint16_t Length);
-// void     BSP_LCD_DrawVLine(uint16_t Xpos, uint16_t Ypos, uint16_t Length);
-// void     BSP_LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-// void     BSP_LCD_DrawRect(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height);
-// void     BSP_LCD_DrawCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius);
-// void     BSP_LCD_DrawPolygon(pPoint Points, uint16_t PointCount);
-// void     BSP_LCD_DrawEllipse(int Xpos, int Ypos, int XRadius, int YRadius);
-// void     BSP_LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp);
-// void     BSP_LCD_FillRect(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height);
-// void     BSP_LCD_FillCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius);
-// void     BSP_LCD_FillPolygon(pPoint Points, uint16_t PointCount);
-// void     BSP_LCD_FillEllipse(int Xpos, int Ypos, int XRadius, int YRadius);
-
-// void     BSP_LCD_DisplayOff(void);
-// void     BSP_LCD_DisplayOn(void);
 
 extern _lcd_dev lcd_dev;
 extern uint32_t g_back_color;
@@ -244,13 +165,11 @@ extern uint32_t g_back_color;
 void lcd_write_data(uint8_t *data, uint16_t len);
 void lcd_write_cmddata(uint8_t *data, uint16_t len);
 void lcd_read_cmddata(uint8_t cmd, uint8_t *data, uint16_t len);
-#if LCD_DRIVER_IC_ST7735S
-void lcd_wr_data(uint16_t RGBCode);
-#else
-void lcd_wr_data(uint32_t RGBCode);
-#endif
+
 void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len);
 
+
+void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color);
 void lcd_init(void);
 
 

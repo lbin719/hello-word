@@ -31,148 +31,12 @@ _lcd_dev st7735s_dev = {
 
 void st7735s_DisplayOn(void)
 {
-//   uint8_t data = 0;
-//   LCD_IO_WriteReg(LCD_REG_19);
-//   LCD_Delay(10);
-//   LCD_IO_WriteReg(LCD_REG_41);
-//   LCD_Delay(10);
-//   LCD_IO_WriteReg(LCD_REG_54);
-//   data = 0xC0;
-//   LCD_IO_WriteMultipleData(&data, 1);
+
 }
 
 void st7735s_DisplayOff(void)
 {
 
-}
-
-//在指定区域内�?充单�?颜色
-//(sx,sy),(ex,ey):�?充矩形�?��?�坐�?,区域大小�?:(ex-sx+1)*(ey-sy+1)
-//color:要填充的颜色
-void LCD_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t color)
-{
-	// uint16_t i,j;
-	// uint16_t xlen=0;
-	// xlen=ex-sx+1;
-	// for(i=sy;i<=ey;i++)
-	// {
-	//  	st7735s_SetCursor(sx,i);      				//设置光标位置
-	// 	for(j=0;j<xlen;j++)lcd_wr_data(color);	//设置光标位置
-	// }
-}
-//在指定区域内�?充指定�?�色�?
-//(sx,sy),(ex,ey):�?充矩形�?��?�坐�?,区域大小�?:(ex-sx+1)*(ey-sy+1)
-//color:要填充的颜色
-void LCD_Color_Fill(uint16_t sx,uint16_t sy,uint16_t ex,uint16_t ey,uint16_t *color)
-{
-	// uint16_t height,width;
-	// uint16_t i,j;
-	// width=ex-sx+1; 		//得到�?充的宽度
-	// height=ey-sy+1;		//高度
- 	// for(i=0;i<height;i++)
-	// {
- 	// 	st7735s_SetCursor(sx,sy+i);   	//设置光标位置
-	// 	for(j=0;j<width;j++){
-	// 				// LCD->LCD_RAM=color[i*height+j];//写入数据
-	// 		lcd_wr_data(*color);
-	// 	}
-	// }
-}
-//画线
-//x1,y1:起点坐标
-//x2,y2:终点坐标
-void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
-{
-	// uint16_t t;
-	// int xerr=0,yerr=0,delta_x,delta_y,distance;
-	// int incx,incy,uRow,uCol;
-	// delta_x=x2-x1; //计算坐标增量
-	// delta_y=y2-y1;
-	// uRow=x1;
-	// uCol=y1;
-	// if(delta_x>0)incx=1; //设置单�?�方�?
-	// else if(delta_x==0)incx=0;//垂直�?
-	// else {incx=-1;delta_x=-delta_x;}
-	// if(delta_y>0)incy=1;
-	// else if(delta_y==0)incy=0;//水平�?
-	// else{incy=-1;delta_y=-delta_y;}
-	// if( delta_x>delta_y)distance=delta_x; //选取基本增量坐标�?
-	// else distance=delta_y;
-	// for(t=0;t<=distance+1;t++ )//画线输出
-	// {
-	// 	LCD_DrawPoint(uRow,uCol);//画点
-	// 	xerr+=delta_x ;
-	// 	yerr+=delta_y ;
-	// 	if(xerr>distance)
-	// 	{
-	// 		xerr-=distance;
-	// 		uRow+=incx;
-	// 	}
-	// 	if(yerr>distance)
-	// 	{
-	// 		yerr-=distance;
-	// 		uCol+=incy;
-	// 	}
-	// }
-}
-//画矩�?
-//(x1,y1),(x2,y2):矩形的�?��?�坐�?
-void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
-{
-	// LCD_DrawLine(x1,y1,x2,y1);
-	// LCD_DrawLine(x1,y1,x1,y2);
-	// LCD_DrawLine(x1,y2,x2,y2);
-	// LCD_DrawLine(x2,y1,x2,y2);
-}
-//在指定位�?画一�?指定大小的圆
-//(x,y):�?心点
-//r    :半径
-void Draw_Circle(uint16_t x0,uint16_t y0,uint8_t r)
-{
-	// int a,b;
-	// int di;
-	// a=0;b=r;
-	// di=3-(r<<1);             //判断下个点位�?的标�?
-	// while(a<=b)
-	// {
-	// 	LCD_DrawPoint(x0+a,y0-b);             //5
- 	// 	LCD_DrawPoint(x0+b,y0-a);             //0
-	// 	LCD_DrawPoint(x0+b,y0+a);             //4
-	// 	LCD_DrawPoint(x0+a,y0+b);             //6
-	// 	LCD_DrawPoint(x0-a,y0+b);             //1
- 	// 	LCD_DrawPoint(x0-b,y0+a);
-	// 	LCD_DrawPoint(x0-a,y0-b);             //2
-  	// 	LCD_DrawPoint(x0-b,y0-a);             //7
-	// 	a++;
-	// 	//使用Bresenham算法画圆
-	// 	if(di<0)di +=4*a+6;
-	// 	else
-	// 	{
-	// 		di+=10+4*(a-b);
-	// 		b--;
-	// 	}
-	// }
-}
-
-
-
-void showimage(uint16_t x,uint16_t y) //显示40*40图片
-{
-//	 uint16_t i,j,k;
-//	 uint16_t da;
-//	 k=0;
-//	 for(i=0;i<40;i++)
-//	 {
-//	 	st7735s_SetCursor(x,y+i);
-//	 	for(j=0;j<40;j++)
-//	 	{
-//	 		da=qqimage[k*2+1];
-//	 		da<<=8;
-//	 		da|=qqimage[k*2];
-//	 		lcd_wr_data(da);
-//	 		k++;
-//	 	}
-//	 }
 }
 
 static const uint8_t st7735s_128x160_init_cmd[] =
@@ -243,21 +107,18 @@ void st7735s_SetCursor(uint16_t Xpos, uint16_t Ypos)
   */
 void st7735s_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode)
 {
-  if((Xpos >= ST7735S_LCD_PIXEL_WIDTH) || (Ypos >= ST7735S_LCD_PIXEL_HEIGHT))
-  {
-    return;
-  }
+	if((Xpos >= ST7735S_LCD_PIXEL_WIDTH) || (Ypos >= ST7735S_LCD_PIXEL_HEIGHT))
+	{
+		return;
+	}
 
-  /* Set Cursor */
-  st7735s_SetCursor(Xpos, Ypos);
+	/* Set Cursor */
+	st7735s_SetCursor(Xpos, Ypos);
 
-  lcd_wr_data(RGBCode);
+	uint8_t data[] = {RGBCode >> 8, RGBCode};
+	lcd_write_data(data, sizeof(data));
 }
 
-void st7735s_Write_Gram(uint16_t RGBCode)
-{
-  lcd_wr_data(RGBCode);
-}
 /**
   * @brief  Sets a display window
   * @param  Xpos:   specifies the X bottom left position.
@@ -292,10 +153,11 @@ void st7735s_DrawHLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t 
   /* Set Cursor */
   st7735s_SetCursor(Xpos, Ypos);
 
+	uint8_t data[] = {RGBCode >> 8, RGBCode};
   for(counter = 0; counter < Length; counter++)
   {
 //    ArrayRGB[counter] = RGBCode;
-	  lcd_wr_data(RGBCode);
+	lcd_write_data(data, sizeof(data));
   }
 
 //  lcd_write_data((uint8_t*)&ArrayRGB[0], Length * 2);
@@ -390,17 +252,17 @@ void st7735s_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pbmp)
 // 		y+=40;
 // 	 }
 // }
-//清屏函数
-//color:要清屏的�?充色
+//娓呭睆鍑芥暟
+//color:瑕佹竻灞忕殑濉?鍏呰壊
 void lcd_clear(uint16_t color)
 {
 	st7735s_SetCursor(0, 0);
 
-	uint32_t totalpoint=ST7735S_LCD_PIXEL_WIDTH;
-	totalpoint *= ST7735S_LCD_PIXEL_HEIGHT; 	//得到总点�?
+	uint32_t totalpoint=ST7735S_LCD_PIXEL_WIDTH * ST7735S_LCD_PIXEL_HEIGHT;
+	uint8_t data[] = {color >> 8, color};
 	for(uint32_t index = 0; index < totalpoint; index++)
 	{
-		lcd_wr_data(color);
+		lcd_write_data(data, sizeof(data));
 	}
 
 	// for(uint32_t i = 0; i < sizeof(framebuff); i += 2)
