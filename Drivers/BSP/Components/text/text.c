@@ -73,34 +73,42 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
 
 	FIL File;
     uint32_t readbytes;
-
+    FRESULT result;
     switch (size)
     {
         case 12:
-            f_open(&File, "GBK12.FON", FA_READ);
+            result = f_open(&File, "GBK12.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f12addr, csize);
             break;
 
         case 16:
-            f_open(&File, "GBK16.FON", FA_READ);
+            result = f_open(&File, "GBK16.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f16addr, csize);
             break;
 
         case 24:
-            f_open(&File, "GBK24.FON", FA_READ);
+            result = f_open(&File, "GBK24.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f24addr, csize);
             break;
         case 32:
-            f_open(&File, "GBK32.FON", FA_READ);
+            result = f_open(&File, "GBK32.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f24addr, csize);
+            break;
         case 40:
-            f_open(&File, "GBK40.FON", FA_READ);
+            result = f_open(&File, "GBK40.FON", FA_READ);
+            break;
+        default : 
+            result = FR_INVALID_PARAMETER;
             break;
     }
 
-    f_lseek(&File, foffset);
-    f_read(&File, mat, csize, (UINT *)&readbytes);
-    f_close(&File);
+    result += f_lseek(&File, foffset);
+    result += f_read(&File, mat, csize, (UINT *)&readbytes);
+    result += f_close(&File);
+    if(FR_OK != result)
+    {
+        LOG_I("%s, open file failed. result: %d\r\n", __FUNCTION__, result);
+    }
 }
 
 /**
@@ -114,7 +122,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
  * @param       color : 字体颜色
  * @retval      无
  */
-#define DZK_LENGTH      255
+#define DZK_LENGTH      300
 static uint8_t dzk[DZK_LENGTH];
 void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t mode, uint32_t color)
 {
@@ -129,8 +137,8 @@ void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t
     }
 
     // dzk = mymalloc(SRAMIN, size);       /* 申请内存 */ TODO:应该是csize
-
     // if (dzk == 0) return;               /* 内存不够了 */
+
     if(csize > DZK_LENGTH)
     {
         return;

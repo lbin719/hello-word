@@ -92,6 +92,12 @@ void lcd_draw_hline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Len
         lcd_drv->DrawHLine(RGBCode, Xpos, Ypos, Length);
 }
 
+void lcd_draw_vline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
+{
+    if(lcd_drv->DrawVLine)
+        lcd_drv->DrawVLine(RGBCode, Xpos, Ypos, Length);
+}
+
 void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
 {
     // if(lcd_drv->DrawFill)
