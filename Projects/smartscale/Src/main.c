@@ -10,6 +10,7 @@
 #include "text.h"
 #include "stmencrypt.h"
 #include "hx711.h"
+#include "mj8000.h"
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -79,18 +80,20 @@ int main(void)
   // hx711_init();
   board_init();
 
+  mj8000_init();
+
   norflash_init();
 
 #if 0
-  usbd_port_config(0);    /* USB鍏堟柇�??�?? */
+  usbd_port_config(0);   
   HAL_Delay(500);
-  usbd_port_config(1);    /* USB鍐嶏�???锟借繛�??????????? */
+  usbd_port_config(1);   
   HAL_Delay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 鍒濓�???锟藉寲USB */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 娣�?��?�锟????????? */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 涓篗SC�??绘坊鍔犲洖璋冨嚱�??????????? */
-  USBD_Start(&USBD_Device);                                           /* �??�??鍚疷SB */
-   while(1);
+  USBD_Init(&USBD_Device, &MSC_Desc, 0); 
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);           
+  USBD_Start(&USBD_Device);
+  while(1);
   HAL_Delay(5000);
 #endif
 
