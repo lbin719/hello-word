@@ -48,7 +48,7 @@ static const uint8_t ili9488_init_cmd[] =
 #else
 	DISP_WR_CMD(0x36, 0xE8),
 #endif
-	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control锛岋拷?锟斤拷?锟絀LI9486锟�??????0X55
+	DISP_WR_CMD(0x3A, 0x66), //Interface Mode Control闁挎稑鐭夐幏锟�?闁跨喐鏋婚幏锟�?闁跨喓绁I9486闁跨噦鎷�??????0X55
 	DISP_WR_CMD(0XB0, 0x00), //Interface Mode Control
 	DISP_WR_CMD(0xB1, 0xB0, 0x11),    //Frame rate 70Hz
 	DISP_WR_CMD(0xB4, 0x02),
@@ -121,7 +121,7 @@ void ili9488_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint
 
 void ili9488_DrawHLine(uint32_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
 {
-  uint8_t counter = 0;
+  uint16_t counter = 0;
 
   if(Xpos + Length > ili9488_dev.width) return;
 
@@ -140,7 +140,7 @@ void ili9488_DrawHLine(uint32_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t 
 
 void ili9488_DrawVLine(uint32_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
 {
-  uint8_t counter = 0;
+  uint16_t counter = 0;
 
   if(Ypos + Length > ili9488_dev.height) return;
   for(counter = 0; counter < Length; counter++)

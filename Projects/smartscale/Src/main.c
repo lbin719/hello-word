@@ -1,23 +1,3 @@
-/**
-  ******************************************************************************
-  * @file    HID_Standalone/Src/main.c
-  * @author  MCD Application Team
-  * @brief   USB device HID application main file.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
-
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "ulog.h"
 #include "usbd_storage.h"
@@ -33,24 +13,14 @@
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
-/** @addtogroup STM32F1xx_HAL_Validation
-  * @{
-  */
 
-/** @addtogroup STANDARD_CHECK
-  * @{
-  */
+#if 0
+extern USBD_StorageTypeDef  USBD_DISK_fops;
+USBD_HandleTypeDef USBD_Device;
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-#define CURSOR_STEP     5
-
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-USBD_HandleTypeDef USBD_Device;             /* USB Device处理结构�????????? */
-extern volatile uint8_t g_usb_state_reg;    /* USB状�? */
-extern volatile uint8_t g_device_state;     /* USB连接 情况 */
-
+extern volatile uint8_t g_usb_state_reg;    
+extern volatile uint8_t g_device_state;  
+#endif
 
 void SystemClock_Config(void);
 
@@ -79,6 +49,9 @@ void board_init(void)
   HAL_GPIO_Init(KEY_GPIO_PORT, &gpio_init_struct);
 }
 
+extern void ui_init(viod);
+extern void ui_task_handle(void);
+
 int main(void)
 {
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -87,7 +60,7 @@ int main(void)
   /* Configure the system clock to 72 MHz */
   SystemClock_Config();
 
-  delay_init(72);                         /* ��ʱ��ʼ������Ƶ72 MHz */
+  delay_init(72);                       
 
   //PA15 PB3 PB4 use gpio
   __HAL_RCC_AFIO_CLK_ENABLE();
@@ -109,18 +82,17 @@ int main(void)
   norflash_init();
 
 #if 0
-  usbd_port_config(0);    /* USB先断开 */
+  usbd_port_config(0);    /* USB鍏堟柇�??�?? */
   HAL_Delay(500);
-  usbd_port_config(1);    /* USB再�?�连�????????? */
+  usbd_port_config(1);    /* USB鍐嶏�???锟借繛�??????????? */
   HAL_Delay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初�?�化USB */
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加�????????? */
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函�????????? */
-  USBD_Start(&USBD_Device);                                           /* 开启USB */
+  USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 鍒濓�???锟藉寲USB */
+  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 娣�?��?�锟????????? */
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 涓篗SC�??绘坊鍔犲洖璋冨嚱�??????????? */
+  USBD_Start(&USBD_Device);                                           /* �??�??鍚疷SB */
    while(1);
   HAL_Delay(5000);
 #endif
-
 
   fs_init();
 
@@ -128,19 +100,12 @@ int main(void)
 
   lcd_init();
 
+  ui_init();
 
-  text_show_font(200, 100, "���ӳ�", 12, 0, RED);
-  text_show_font(200, 112, "���ӳ�", 16, 0, RED);
-  text_show_font(200, 128, "���ӳ�", 24, 0, RED);
-  text_show_font(200, 152, "���ӳ�", 32, 0, RED);
-
-  uint8_t test_buf[64];
   while (1)
   {
-		snprintf(test_buf, sizeof(test_buf), "Tick: %ld", HAL_GetTick());
-		text_show_string(128, 68, 160, 16, test_buf, 16, 0, RED);
-
-    LOG_I("Hello world\r\n");
+    ui_task_handle();
+    // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
     HAL_Delay(100);
   }

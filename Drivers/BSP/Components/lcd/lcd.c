@@ -86,6 +86,26 @@ void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color)
         lcd_drv->WritePixel(x, y, color);
 }
 
+void lcd_draw_hline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
+{
+    if(lcd_drv->DrawHLine)
+        lcd_drv->DrawHLine(RGBCode, Xpos, Ypos, Length);
+}
+
+void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
+{
+    // if(lcd_drv->DrawFill)
+    //     lcd_drv->DrawFill(RGBCode, sx, sy, ex, ey);
+    uint16_t i, j;
+    for(j = 0; j < (ey - sy + 1); j++)
+    {
+        for(i = 0; i < (ex - sx + 1); i++)
+        {
+            lcd_draw_point((sx + i), (sy + j), RGBCode);
+        }
+    }
+}
+
 void lcd_init(void)
 {
 #if LCD_DRIVER_IC_ST7735S
@@ -128,9 +148,9 @@ void lcd_init(void)
     spi3_init();
 
 	LCD_RST_LOW();
-	HAL_Delay(100);
+	HAL_Delay(20);
     LCD_RST_HIGH();
-	HAL_Delay(100);
+	HAL_Delay(20);
 
     lcd_drv->Init();
 

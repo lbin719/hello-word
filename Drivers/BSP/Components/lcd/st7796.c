@@ -94,7 +94,7 @@ void st7796_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint1
 
 void st7796_DrawHLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
 {
-  uint8_t counter = 0;
+  uint16_t counter = 0;
 
   if(Xpos + Length > ST7796_LCD_PIXEL_WIDTH) return;
 
@@ -114,7 +114,7 @@ void st7796_DrawHLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t L
 
 void st7796_DrawVLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
 {
-  uint8_t counter = 0;
+  uint16_t counter = 0;
 
   if(Ypos + Length >  st7796_dev.height) return;
   for(counter = 0; counter < Length; counter++)
@@ -123,6 +123,23 @@ void st7796_DrawVLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t L
   }
 }
 
+void st7796_Fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
+{
+  uint16_t counter = 0;
+
+  if(sx + ex > st7796_dev.width) return;
+  if(sy + ey > st7796_dev.height) return;
+
+  /* Set Cursor */
+  st7796_SetDisplayWindow(sx, sy, (ex - sx + 1), (ey - sy + 1));
+
+	uint8_t data[] = {RGBCode >> 8, RGBCode};
+	uint16_t Length = (ex - sx + 1) * (ey - sy + 1);
+  for(counter = 0; counter < Length; counter++)
+  {
+    lcd_write_data(data, sizeof(data));
+  }
+}
 
 uint16_t st7796_GetLcdPixelWidth(void)
 {
@@ -191,25 +208,26 @@ void st7796_Init(void)
 {
 	lcd_panel_exec_cmd(st7796_init_cmd, sizeof(st7796_init_cmd));
 	st7796_SetDisplayWindow(0, 0, st7796_dev.width, st7796_dev.height);
-    st7796_DisplayOn();
+  st7796_DisplayOn();
 	st7796_Clear(WHITE);
 }
 
 LCD_DrvTypeDef   st7796_drv =
 {
-  st7796_Init,
-  0,
-  st7796_DisplayOn,
-  st7796_DisplayOff,
-  st7796_SetCursor,
-  st7796_WritePixel,
-  0,
-  st7796_SetDisplayWindow,
-  st7796_DrawHLine,
-  st7796_DrawVLine,
-  st7796_GetLcdPixelWidth,
-  st7796_GetLcdPixelHeight,
-  st7796_DrawBitmap,
+  .Init = st7796_Init,
+  .ReadID = 0,
+  .DisplayOn = st7796_DisplayOn,
+  .DisplayOff = st7796_DisplayOff,
+  .SetCursor = st7796_SetCursor,
+  .WritePixel = st7796_WritePixel,
+  .ReadPixel = 0,
+  .SetDisplayWindow = st7796_SetDisplayWindow,
+  .DrawHLine = st7796_DrawHLine,
+  .DrawVLine = st7796_DrawVLine,
+  .DrawFill = st7796_Fill,
+  .GetLcdPixelWidth = st7796_GetLcdPixelWidth,
+  .GetLcdPixelHeight = st7796_GetLcdPixelHeight,
+  .DrawBitmap = st7796_DrawBitmap,
 };
 
 LCD_DrvTypeDef* st7796_probe(void)

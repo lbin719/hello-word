@@ -146,7 +146,7 @@ void st7735s_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint
   */
 void st7735s_DrawHLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
 {
-  uint8_t counter = 0;
+  uint16_t counter = 0;
 
   if(Xpos + Length > ST7735S_LCD_PIXEL_WIDTH) return;
 
@@ -173,7 +173,7 @@ void st7735s_DrawHLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t 
   */
 void st7735s_DrawVLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
 {
-  uint8_t counter = 0;
+  uint16_t counter = 0;
 
   if(Ypos + Length > ST7735S_LCD_PIXEL_HEIGHT) return;
   for(counter = 0; counter < Length; counter++)

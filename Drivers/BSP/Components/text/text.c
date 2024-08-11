@@ -46,7 +46,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
     uint8_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size); /* 得到字体一个字符对应点阵集所占的字节数 */
     qh = *code;
     ql = *(++code);
-#if 0
+#if 1
     LOG_I("text qh:%02x ql:%02x\r\n", qh, ql);
 #endif
     if (qh < 0x81 || ql < 0x40 || ql == 0xff || qh == 0xff)     /* 非 常用汉字 */
@@ -93,6 +93,8 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
         case 32:
             f_open(&File, "GBK32.FON", FA_READ);
             // norflash_read(mat, foffset + ftinfo.f24addr, csize);
+        case 40:
+            f_open(&File, "GBK40.FON", FA_READ);
             break;
     }
 
@@ -112,7 +114,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
  * @param       color : 字体颜色
  * @retval      无
  */
-#define DZK_LENGTH      256
+#define DZK_LENGTH      255
 static uint8_t dzk[DZK_LENGTH];
 void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t mode, uint32_t color)
 {
@@ -121,7 +123,7 @@ void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t
     // uint8_t *dzk;
     uint8_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size);     /* 得到字体一个字符对应点阵集所占的字节数 */
 
-    if (size != 12 && size != 16 && size != 24 && size != 32)
+    if (size != 12 && size != 16 && size != 24 && size != 32 && size != 40)
     {
         return;     /* 不支持的size */
     }
@@ -286,9 +288,10 @@ void text_show_string_middle(uint16_t x, uint16_t y, char *str, uint8_t size, ui
  */
 void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode, uint32_t color)
 {
-    uint8_t temp, t1, t;
+    uint8_t temp;
+    uint16_t t1, t;
     uint16_t y0 = y;
-    uint8_t csize = 0;
+    uint16_t csize = 0;
     uint8_t *pfont = 0;
 
     csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size / 2); /* 得到字体一个字符对应点阵集所占的字节数 */
@@ -310,6 +313,10 @@ void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode,
 
         case 32:
             pfont = (uint8_t *)asc2_3216[chr];  /* 调用3216字体 */
+            break;
+
+        case 48:
+            pfont = (uint8_t *)asc2_4824[chr];  /* 调用4824字体 */
             break;
 
         default:
@@ -349,7 +356,62 @@ void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode,
     }
 }
 
+void text_show_font_index(uint16_t x, uint16_t y, uint8_t index, uint8_t size, uint8_t mode, uint32_t color)
+{
+    uint8_t temp;
+    uint16_t t, t1;
+    uint16_t y0 = y;
+    unsigned long  foffset;
+    uint8_t *dzk;
+    uint16_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size);     /* 得到字体一个字符对应点阵集所占的字节数 */
 
+    if (size != 40 && size != 48)
+    {
+        return;     /* 不支持的size */
+    }
+    
+    foffset = index * csize;   /* 得到字库中的字节偏移量 */
+    switch (size)
+    {
+        case 40:
+            if(foffset > sizeof(Chinese_40x40))
+                return ;
+            dzk = &Chinese_40x40[foffset];
+            break;
+        case 48:
+            if(foffset > sizeof(Chinese_48x48))
+                return ;
+            dzk = &Chinese_48x48[foffset];
+            break;
+    }
+
+     for (t = 0; t < csize; t++)
+     {
+         temp = dzk[t];                  /* 得到点阵数据 */
+
+         for (t1 = 0; t1 < 8; t1++)
+         {
+             if (temp & 0x80)
+             {
+                 lcd_draw_point(x, y, color);        /* 画需要显示的点 */
+             }
+             else if (mode == 0)     /* 如果非叠加模式, 不需要显示的点,用背景色填充 */
+             {
+                 lcd_draw_point(x, y, g_back_color); /* 填充背景色 */
+             }
+
+             temp <<= 1;
+             y++;
+
+             if ((y - y0) == size)
+             {
+                 y = y0;
+                 x++;
+                 break;
+             }
+         }
+     }
+}
 
 
 

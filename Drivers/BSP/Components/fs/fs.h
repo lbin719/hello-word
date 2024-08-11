@@ -7,6 +7,5 @@
 #define MSC_LABLE_HEAD	"MSC-"
 
 void fs_init(void);
-uint16_t get_watchlink_uid();
-int get_watchlink_uid_string(uint8_t* buf);
+
 #endif

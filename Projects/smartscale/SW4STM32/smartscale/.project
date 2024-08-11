@@ -46,6 +46,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f1xx_msp.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/ui_task.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/ui_task.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/CMSIS/system_stm32f1xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f1xx.c</locationURI>
@@ -224,6 +229,16 @@
 			<name>Drivers/BSP/Components/lcd/st7796.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/lcd/st7796.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/redirect/malloc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/redirect/malloc.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/redirect/printf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/redirect/printf.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/spi/spi.c</name>

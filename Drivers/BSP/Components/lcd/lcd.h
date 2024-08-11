@@ -12,7 +12,7 @@
 #define LCD_DRIVER_IC_ST7796    1
 #define LCD_DRIVER_IC_ILI9488   0
 
-#define LCD_HORIZONTAL 2  //瀹氫箟娑叉櫠灞忛『鏃堕拡鏃嬭浆鏂瑰悜 	0-0搴︽棆杞紝1-180搴︽棆杞紝2-270搴︽棆杞紝3-90搴︽棆杞�
+#define LCD_HORIZONTAL 2  //閻庤鐭粻鐔封槈閸欏鐝烽悘鐐茬箻閵嗗酣寮崼鏇熷珱闁哄啫顑堝ù鍡涘棘閻熺増鍊� 	0-0閹艰揪闄勫Λ鍡樻姜椤掑﹦绀�1-180閹艰揪闄勫Λ鍡樻姜椤掑﹦绀�2-270閹艰揪闄勫Λ鍡樻姜椤掑﹦绀�3-90閹艰揪闄勫Λ鍡樻姜閿燂拷
 
 #if LCD_DRIVER_IC_ILI9488
 #define LCD_PIXEL_RGB666
@@ -88,7 +88,7 @@ typedef struct
   void     (*SetDisplayWindow)(uint16_t, uint16_t, uint16_t, uint16_t);
   void     (*DrawHLine)(uint16_t, uint16_t, uint16_t, uint16_t);
   void     (*DrawVLine)(uint16_t, uint16_t, uint16_t, uint16_t);
-
+  void     (*DrawFill)(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
   uint16_t (*GetLcdPixelWidth)(void);
   uint16_t (*GetLcdPixelHeight)(void);
   void     (*DrawBitmap)(uint16_t, uint16_t, uint8_t*);
@@ -118,28 +118,32 @@ typedef struct
 
 #else
 
-#define WHITE         	  0xFFFF
-#define BLACK         	  0x0000
-#define BLUE              0x001F
-#define BRED              0XF81F
-#define GRED 			        0XFFE0
-#define GBLUE			        0X07FF
-#define RED           	  0xF800
-#define MAGENTA       	  0xF81F
-#define GREEN         	  0x07E0
-#define CYAN          	  0x7FFF
-#define YELLOW        	  0xFFE0
-#define BROWN 			      0XBC40 //锟斤拷色
-#define BRRED 			      0XFC07 //锟截猴拷色
-#define GRAY  			      0X8430 //锟斤拷色
-#define DARKBLUE      	  0X01CF	//锟斤拷锟斤拷色
-#define LIGHTBLUE      	  0X7D7C	//浅锟斤拷色
-#define GRAYBLUE       	  0X5458  //锟斤拷锟斤拷色
-#define LIGHTGREEN     	  0X841F
-//#define LIGHTGRAY        0XEF5B
-#define LGRAY             0XC618
-#define LGRAYBLUE         0XA651
-#define LBBLUE            0X2B12
+#define WHITE         	 0xFFFF
+#define BLACK         	 0x0000	  
+#define BLUE         	 0x001F  
+#define BRED             0XF81F
+#define GRED 			 0XFFE0
+#define GBLUE			 0X07FF
+#define RED           	 0xF800
+#define MAGENTA       	 0xF81F
+#define GREEN         	 0x07E0
+#define CYAN          	 0x7FFF
+#define YELLOW        	 0xFFE0
+#define BROWN 			 0XBC40 //棕色
+#define BRRED 			 0XFC07 //棕红色
+#define GRAY  			 0X8430 //灰色
+//GUI颜色
+#define DARKBLUE      	 0X01CF	//深蓝色
+#define LIGHTBLUE      	 0X7D7C	//浅蓝色  
+#define GRAYBLUE       	 0X5458 //灰蓝色
+//以上三色为PANEL的颜色 
+ 
+#define LIGHTGREEN     	 0X841F //浅绿色
+//#define LIGHTGRAY        0XEF5B //浅灰色(PANNEL)
+#define LGRAY 			     0XC618 //浅灰色(PANNEL),窗体背景色
+
+#define LGRAYBLUE        0XA651 //浅灰蓝色(中间层颜色)
+#define LBBLUE           0X2B12 //浅棕蓝色(选择条目的反色)
 
 #endif
 
@@ -170,6 +174,8 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len);
 
 
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color);
+void lcd_draw_hline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);
+void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey);
 void lcd_init(void);
 
 
