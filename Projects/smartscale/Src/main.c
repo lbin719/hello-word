@@ -11,6 +11,9 @@
 #include "stmencrypt.h"
 #include "hx711.h"
 #include "mj8000.h"
+#include "ec800e.h"
+#include "wtn6040.h"
+
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -19,8 +22,8 @@ const char CodeBuildTime[] = {__TIME__};
 extern USBD_StorageTypeDef  USBD_DISK_fops;
 USBD_HandleTypeDef USBD_Device;
 
-extern volatile uint8_t g_usb_state_reg;    
-extern volatile uint8_t g_device_state;  
+extern volatile uint8_t g_usb_state_reg;
+extern volatile uint8_t g_device_state;
 #endif
 
 void SystemClock_Config(void);
@@ -48,9 +51,17 @@ void board_init(void)
   gpio_init_struct.Mode = GPIO_MODE_INPUT;
   gpio_init_struct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(KEY_GPIO_PORT, &gpio_init_struct);
+
+  // while(1)
+  // {
+  //   HAL_GPIO_WritePin(LED_BLUE_GPIO_PORT, LED_BLUE_GPIO_PIN, GPIO_PIN_SET);
+  //   delay_us(100);
+  //   HAL_GPIO_WritePin(LED_BLUE_GPIO_PORT, LED_BLUE_GPIO_PIN, GPIO_PIN_RESET);
+  //   delay_us(100);
+  // }
 }
 
-extern void ui_init(viod);
+extern void ui_init(void);
 extern void ui_task_handle(void);
 
 int main(void)
@@ -61,14 +72,15 @@ int main(void)
   /* Configure the system clock to 72 MHz */
   SystemClock_Config();
 
-  delay_init(72);                       
+  delay_init(72);
 
   //PA15 PB3 PB4 use gpio
   __HAL_RCC_AFIO_CLK_ENABLE();
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
-#ifdef  LOG_DEBUG_ENABLE
+#ifdef LOG_DEBUG_ENABLE
   ulog_init();
+  LOG_I("%s Demo\r\n", PRODUCT_DEVICE_NAME);
 #endif
 
 //  stmencrypt_init();
@@ -82,16 +94,20 @@ int main(void)
 
   mj8000_init();
 
+  ec800e_init();
+
+  wtn6040_init();
+
   norflash_init();
 
 #if 0
-  usbd_port_config(0);   
+  usbd_port_config(0);
   HAL_Delay(500);
-  usbd_port_config(1);   
+  usbd_port_config(1);
   HAL_Delay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0); 
+  USBD_Init(&USBD_Device, &MSC_Desc, 0);
   USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);           
+  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);
   USBD_Start(&USBD_Device);
   while(1);
   HAL_Delay(5000);
@@ -101,13 +117,23 @@ int main(void)
 
   fonts_init();
 
-  lcd_init();
+  // lcd_init();
 
-  ui_init();
+  // ui_init();
 
   while (1)
   {
-    ui_task_handle();
+#ifdef LOG_DEBUG_ENABLE
+    usmart_scan();
+#endif
+    mj8000_task_handle();
+
+    ec800e_task_handle();
+
+    wtn6040_task_handle();
+
+    // ui_task_handle();
+
     // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
     HAL_Delay(100);

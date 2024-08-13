@@ -14,32 +14,32 @@ void draw_single(uint16_t x, uint16_t y, uint8_t level)
   lcd_draw_fill(level > 3 ? BLACK : LGRAY, x + 36, y + 10 , x + 40, y + 40);
 }
 
-void ui_init(viod)
+void ui_init(void)
 {
     draw_single(430, 0, 2);
-    text_show_font_index(480/2-48, 5, 0, 48, 0, BLACK);//Ë÷Òýºº×Ö
+    text_show_font_index(480/2-48, 5, 0, 48, 0, BLACK);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     text_show_font_index(480/2, 5, 1, 48, 0, BLACK);
     lcd_draw_hline(BLACK, 0, 60, 480);
     lcd_draw_hline(BLACK, 0, 265, 480);
     lcd_draw_vline(BLACK, 240, 265, 55);
 
-    text_show_string(120, 65 + 12, 32*4, 32, "µ¥  ¼Û:", 32, 0, BLACK);
+    text_show_string(120, 65 + 12, 32*4, 32, "ï¿½ï¿½  ï¿½ï¿½:", 32, 0, BLACK);
     text_show_string(480/2, 65, 120, 48, "0.00", 48, 0, BLACK);
     text_show_string(360, 65 + 12, 120, 32, "Ôª\/g", 32, 0, BLACK);
 
-    text_show_string(120, (65 + 48 * 1 + 12), 32*4, 32, "ÖØ  Á¿:", 32, 0, BLACK);
+    text_show_string(120, (65 + 48 * 1 + 12), 32*4, 32, "ï¿½ï¿½  ï¿½ï¿½:", 32, 0, BLACK);
     text_show_string(480/2, (65 + 48 * 1), 100, 48, "0.00", 48, 0, BLACK);
-    text_show_string(360, (65 + 48 * 1 + 12), 120, 32, "¿Ë(g)", 32, 0, BLACK);
+    text_show_string(360, (65 + 48 * 1 + 12), 120, 32, "ï¿½ï¿½(g)", 32, 0, BLACK);
 
-    text_show_string(120, (65 + 48 * 2 + 12), 32*4, 32, "×Ü  ¼Û:", 32, 0, BLACK);
+    text_show_string(120, (65 + 48 * 2 + 12), 32*4, 32, "ï¿½ï¿½  ï¿½ï¿½:", 32, 0, BLACK);
     text_show_string(480/2, (65 + 48 * 2), 100, 48, "0.00", 48, 0, BLACK);
     text_show_string(360, (65 + 48 * 2 + 12), 120, 32, "Ôª", 32, 0, BLACK);
 
-    text_show_string(120 - 32, (65 + 48 * 3 + 12), 32*5, 32, "Ïû·Ñ×Ü¶î:", 32, 0, GREEN);
+    text_show_string(120 - 32, (65 + 48 * 3 + 12), 32*5, 32, "ï¿½ï¿½ï¿½ï¿½ï¿½Ü¶ï¿½:", 32, 0, GREEN);
     text_show_string(480/2, (65 + 48 * 3), 100, 48, "0.00", 48, 0, GREEN);
     text_show_string(360, (65 + 48 * 3 + 12), 120, 32, "Ôª", 32, 0, GREEN);
 
-    text_show_string(480/2/2 - 64, 275, 32*4, 32, "»¶Ó­Ê¹ÓÃ", 32, 0, RED);// zuoxia
+    text_show_string(480/2/2 - 64, 275, 32*4, 32, "ï¿½ï¿½Ó­Ê¹ï¿½ï¿½", 32, 0, RED);// zuoxia
     text_show_string(240 + 120 - 64, 275, 32*4, 32, "zh008354", 32, 0, RED);// youxia
 
   // text_show_string(480/2, 65 + 48 * 4 + 5 + 10, 100, 32, "0.00", 32, 0, BLACK);

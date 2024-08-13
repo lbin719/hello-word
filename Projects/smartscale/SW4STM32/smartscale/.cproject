@@ -59,6 +59,8 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/delay"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/hx711"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/mj8000"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/ec800e"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/wtn6040"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/usb"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Core/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Class/HID/Inc"/>

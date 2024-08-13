@@ -33,9 +33,10 @@
 /* Private variables ---------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd;
 
-// extern DMA_HandleTypeDef hdma_tx;
-// extern DMA_HandleTypeDef hdma_rx;
-// extern UART_HandleTypeDef Uart1Handle;
+extern UART_HandleTypeDef Uart1Handle;
+extern UART_HandleTypeDef Uart2Handle;
+extern UART_HandleTypeDef Uart4Handle;
+
 extern SPI_HandleTypeDef Spi1Handle; /* SPI1句柄 */
 extern SPI_HandleTypeDef Spi2Handle; /* SPI2句柄 */
 extern SPI_HandleTypeDef Spi3Handle; /* SPI3句柄 */
@@ -184,6 +185,62 @@ void DMA2_Channel1_IRQHandler(void)
 void DMA2_Channel2_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(Spi3Handle.hdmatx);
+}
+
+void USART1_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&Uart1Handle);
+}
+
+
+void DMA1_Channel6_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(Uart2Handle.hdmarx);
+}
+
+void DMA1_Channel7_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(Uart2Handle.hdmatx);
+}
+
+void USART2_IRQHandler(void)
+{
+  if(__HAL_UART_GET_FLAG(&Uart2Handle, UART_FLAG_IDLE) != RESET)
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&Uart2Handle);
+
+    HAL_UART_AbortReceive(&Uart2Handle);
+
+    extern void ec800e_uart_rx_callback(UART_HandleTypeDef *huart);
+    ec800e_uart_rx_callback(&Uart2Handle);
+  }
+
+  HAL_UART_IRQHandler(&Uart2Handle);
+}
+
+void DMA2_Channel3_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(Uart4Handle.hdmarx);
+}
+
+void DMA2_Channel4_5_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(Uart4Handle.hdmatx);
+}
+
+
+void UART4_IRQHandler(void)
+{
+  if(__HAL_UART_GET_FLAG(&Uart4Handle, UART_FLAG_IDLE) != RESET)
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&Uart4Handle);
+
+    HAL_UART_AbortReceive(&Uart4Handle);
+
+    extern void mj8000_uart_rx_callback(UART_HandleTypeDef *huart);
+    mj8000_uart_rx_callback(&Uart4Handle);
+  }
+  HAL_UART_IRQHandler(&Uart4Handle);
 }
 
 /**

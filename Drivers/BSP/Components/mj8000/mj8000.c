@@ -1,6 +1,19 @@
 #include "mj8000.h"
 #include "ulog.h"
 #include "uart.h"
+#include "stm32f1xx_hal.h"
+
+#define MJ8000_UART_RX_BUF_SIZE        (128)
+
+
+static struct
+{
+    uint8_t buf[MJ8000_UART_RX_BUF_SIZE];       /* 帧接收缓冲 */
+    uint16_t len;                               /* 帧接收长度 */
+    bool finsh;                                 /* 帧接收完成标志 */
+} mj_uart_rx_frame = {0};                        /* UART接收帧缓冲信息结构体 */
+
+
 
 const char set_config_cmd[] = {
 0x7E, 0x00, 0x08, 0xD0, 0x00, 0x00,
@@ -47,8 +60,35 @@ unsigned int crc_cal_by_bit(unsigned char* ptr, unsigned int len)
     return crc;
 }
 
+void mj8000_task_handle(void)
+{
+    if(mj_uart_rx_frame.finsh)
+    {
+        mj_uart_rx_frame.buf[mj_uart_rx_frame.len] = '\0';
+        LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_uart_rx_frame.len, mj_uart_rx_frame.buf);
 
- void mj8000_init(void)
- {
-     LOG_I("%s", __FUNCTION__);
- }
+        uart4_sync_output(mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
+
+        mj_uart_rx_frame.finsh = 0;
+        uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);
+    }
+    // uart4_sync_output(save_flash_cmd, sizeof(save_flash_cmd));
+}
+
+
+void mj8000_uart_rx_callback(UART_HandleTypeDef *huart)
+{
+    mj_uart_rx_frame.len = MJ8000_UART_RX_BUF_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx);
+    mj_uart_rx_frame.finsh = 1;                                      /* 标记帧接收完成 */
+}
+
+
+void mj8000_init(void)
+{
+    LOG_I("%s", __FUNCTION__);
+
+    uart4_init();
+
+    mj_uart_rx_frame.finsh = 0;
+    uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);
+}

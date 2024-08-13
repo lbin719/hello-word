@@ -136,6 +136,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_usart.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_usart.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_ll_usb.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_usb.c</locationURI>
@@ -179,6 +184,11 @@
 			<name>Drivers/BSP/Components/delay/delay.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/delay/delay.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/ec800e/ec800e.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/ec800e/ec800e.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/encrypt/stmencrypt.c</name>
@@ -284,6 +294,11 @@
 			<name>Drivers/BSP/Components/usb/usbd_storage.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/usb/usbd_storage.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/wtn6040/wtn6040.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/wtn6040/wtn6040.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/STM32_USBD_Library/Class/HID/usbd_hid.c</name>

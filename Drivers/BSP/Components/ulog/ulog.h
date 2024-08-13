@@ -20,6 +20,7 @@
 #ifdef LOG_DEBUG_ENABLE
 void ulog_init(void);
 int ulog_sync_output(bool output_tick, const char* format, ...);
+void usmart_scan(void);
 #endif
 
 #ifdef __cplusplus
