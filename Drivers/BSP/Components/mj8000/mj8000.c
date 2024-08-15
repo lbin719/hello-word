@@ -85,7 +85,7 @@ void mj8000_uart_rx_callback(UART_HandleTypeDef *huart)
 
 void mj8000_init(void)
 {
-    LOG_I("%s", __FUNCTION__);
+    LOG_I("%s\r\n", __FUNCTION__);
 
     uart4_init();
 

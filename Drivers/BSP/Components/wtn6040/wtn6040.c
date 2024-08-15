@@ -31,5 +31,5 @@ void wtn6040_init(void)
     HAL_GPIO_Init(WTN6040_BUSY_GPIO_PORT, &gpio_init_struct);
 
 
-    LOG_I("%s", __FUNCTION__);
+    LOG_I("%s\r\n", __FUNCTION__);
 }

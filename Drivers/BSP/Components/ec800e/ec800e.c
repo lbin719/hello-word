@@ -73,7 +73,7 @@ void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)
 
 void ec800e_init(void)
 {
-    LOG_I("%s", __FUNCTION__);
+    LOG_I("%s\r\n", __FUNCTION__);
 
     uart2_init();
 
