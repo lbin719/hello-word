@@ -9,12 +9,12 @@ void spi1_init(void)
 {
     Spi1Handle.Instance = SPI1;
     Spi1Handle.Init.Mode = SPI_MODE_MASTER;                        /* 设置SPI工作模式，设置为主模式 */
-    Spi1Handle.Init.Direction = SPI_DIRECTION_2LINES;              /* 设置SPI单向或者双向的数据模式:SPI设置为双线模式 */
+    Spi1Handle.Init.Direction = SPI_DIRECTION_1LINE;              
     Spi1Handle.Init.DataSize = SPI_DATASIZE_8BIT;                  /* 设置SPI的数据大小:SPI发送接收8位帧结构 */
     Spi1Handle.Init.CLKPolarity = SPI_POLARITY_LOW;                /* 串行同步时钟的空闲状态 */
     Spi1Handle.Init.CLKPhase = SPI_PHASE_1EDGE;                    /* 串行同步时钟的第几个跳变沿（上升或下降）数据被采样 */
     Spi1Handle.Init.NSS = SPI_NSS_SOFT;                            /* NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制 */
-    Spi1Handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;  /* 定义波特率预分频的值:波特率预分频值为 */
+    Spi1Handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;  /* 定义波特率预分频的值:波特率预分频值为 */
     Spi1Handle.Init.FirstBit = SPI_FIRSTBIT_MSB;                   /* 指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始 */
     Spi1Handle.Init.TIMode = SPI_TIMODE_DISABLE;                   /* 关闭TI模式 */
     Spi1Handle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;   /* 关闭硬件CRC校验 */
@@ -24,7 +24,7 @@ void spi1_init(void)
     {
         Error_Handler();
     }
-    __HAL_SPI_ENABLE(&Spi1Handle);
+    // __HAL_SPI_ENABLE(&Spi1Handle);
 }
 
 
@@ -92,7 +92,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
   if (hspi->Instance == SPI1)
   {
     SPI1_SCK_GPIO_CLK_ENABLE();  /* SPI1_SCK脚时钟使能 */
-    SPI1_MISO_GPIO_CLK_ENABLE(); /* SPI1_MISO脚时钟使能 */
+//    SPI1_MISO_GPIO_CLK_ENABLE(); /* SPI1_MISO脚时钟使能 */
     SPI1_MOSI_GPIO_CLK_ENABLE(); /* SPI1_MOSI脚时钟使能 */
 
     /* SCK引脚模式设置(复用输出) */
@@ -103,8 +103,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     HAL_GPIO_Init(SPI1_SCK_GPIO_PORT, &gpio_init_struct);
 
     /* MISO引脚模式设置(复用输出) */
-    gpio_init_struct.Pin = SPI1_MISO_GPIO_PIN;
-    HAL_GPIO_Init(SPI1_MISO_GPIO_PORT, &gpio_init_struct);
+    // gpio_init_struct.Pin = SPI1_MISO_GPIO_PIN;
+    // HAL_GPIO_Init(SPI1_MISO_GPIO_PORT, &gpio_init_struct);
 
     /* MOSI引脚模式设置(复用输出) */
     gpio_init_struct.Pin = SPI1_MOSI_GPIO_PIN;
@@ -221,6 +221,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
   }
   else if (hspi->Instance == SPI3)
   {
+#if LCD_USE_SPI3
     SPI3_SCK_GPIO_CLK_ENABLE();  /* SPI3_SCK脚时钟使能 */
     // SPI3_MISO_GPIO_CLK_ENABLE(); /* SPI3_MISO脚时钟使能 */
     SPI3_MOSI_GPIO_CLK_ENABLE(); /* SPI3_MOSI脚时钟使能 */
@@ -283,7 +284,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     /* NVIC configuration for DMA transfer complete interrupt (SPI2_RX) */
     HAL_NVIC_SetPriority(SPI3_RX_DMA_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(SPI3_RX_DMA_IRQn);
-
+#endif
   }
 }
 
@@ -295,7 +296,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     /* Configure SPI SCK as alternate function  */
     HAL_GPIO_DeInit(SPI1_SCK_GPIO_PORT, SPI1_SCK_GPIO_PIN);
     /* Configure SPI MISO as alternate function  */
-    HAL_GPIO_DeInit(SPI1_MISO_GPIO_PORT, SPI1_MISO_GPIO_PIN);
+    // HAL_GPIO_DeInit(SPI1_MISO_GPIO_PORT, SPI1_MISO_GPIO_PIN);
     /* Configure SPI MOSI as alternate function  */
     HAL_GPIO_DeInit(SPI1_MOSI_GPIO_PORT, SPI1_MOSI_GPIO_PIN);
 
@@ -335,6 +336,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
   }
   else if (hspi->Instance == SPI3)
   {
+#if LCD_USE_SPI3
     /*##-1- Disable peripherals and GPIO Clocks ################################*/
     /* Configure SPI SCK as alternate function  */
     HAL_GPIO_DeInit(SPI3_SCK_GPIO_PORT, SPI3_SCK_GPIO_PIN);
@@ -352,6 +354,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     /*##-3- Disable the NVIC for DMA ###########################################*/
     HAL_NVIC_DisableIRQ(SPI3_TX_DMA_IRQn);
     HAL_NVIC_DisableIRQ(SPI3_RX_DMA_IRQn);
+#endif
   }
 }
 

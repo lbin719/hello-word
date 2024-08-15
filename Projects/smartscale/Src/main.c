@@ -89,9 +89,10 @@ int main(void)
   cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
   // cm_backtrace_set_callback(NULL);
 
-  // hx711_init();
   board_init();
 
+  hx711_init();
+  
   mj8000_init();
 
   ec800e_init();
@@ -117,9 +118,9 @@ int main(void)
 
   fonts_init();
 
-  // lcd_init();
+  lcd_init();
 
-  // ui_init();
+  ui_init();
 
   while (1)
   {
@@ -132,11 +133,13 @@ int main(void)
 
     wtn6040_task_handle();
 
-    // ui_task_handle();
+    hx711_task_handle();
+
+    ui_task_handle();
 
     // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
-    HAL_Delay(100);
+    HAL_Delay(1000);
   }
 }
 

@@ -21,11 +21,11 @@ void lcd_write_data(uint8_t *data, uint16_t len)
  	LCD_CS_LOW();  //LCD_CS=0
 //	if(len > 10)
 //	{
-//		spi3_dma_write(data, len);
-//		spi3_dma_wait_finsh();
+//		spi1_dma_write(data, len);
+//		spi1_dma_wait_finsh();
 //	}
 //	else
-		spi3_bytes_write(data, len);
+		spi1_bytes_write(data, len);
 	LCD_CS_HIGH();  //LCD_CS=1
 }
 
@@ -35,12 +35,12 @@ void lcd_write_cmddata(uint8_t *data, uint16_t len)
 
 	LCD_CS_LOW();  //LCD_CS=0
 
-	spi3_bytes_write(&data[0], 1);
+	spi1_bytes_write(&data[0], 1);
 
 	if(len > 1)
 	{
 		LCD_DC_HIGH();
-		spi3_bytes_write(&data[1], (len - 1));
+		spi1_bytes_write(&data[1], (len - 1));
 	}
 
 	LCD_CS_HIGH();  //LCD_CS=1
@@ -51,10 +51,10 @@ void lcd_read_cmddata(uint8_t cmd, uint8_t *data, uint16_t len)
     LCD_DC_LOW();
 
 	LCD_CS_LOW();  //LCD_CS=0
-	spi3_bytes_write(&cmd, 1);
+	spi1_bytes_write(&cmd, 1);
 
 	LCD_DC_HIGH();
-	spi3_bytes_read(data, len);
+	spi1_bytes_read(data, len);
 
 	LCD_CS_HIGH();  //LCD_CS=1
 }
@@ -151,7 +151,7 @@ void lcd_init(void)
     gpio_init_struct.Pin = LCD_BLK_GPIO_PIN;
     HAL_GPIO_Init(LCD_BLK_GPIO_PORT, &gpio_init_struct);
 
-    spi3_init();
+    spi1_init();
 
 	LCD_RST_LOW();
 	HAL_Delay(20);
