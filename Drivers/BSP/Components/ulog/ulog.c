@@ -117,6 +117,8 @@ char *usmart_get_input_string(void)
     return pbuf;
 }
 
+#include "stmencrypt.h"
+
 void usmart_scan(void)
 {
     char *pbuf = 0;
@@ -124,7 +126,16 @@ void usmart_scan(void)
     pbuf = usmart_get_input_string();   /* 获取数据数据流 */
     if (pbuf == 0) return ; /* 数据流空, 直接返回 */
 
-    uart1_sync_output((uint8_t *)pbuf, strlen(pbuf));
+    // uart1_sync_output((uint8_t *)pbuf, strlen(pbuf));
+    if (!strcmp(pbuf, "fct,keysolea48b"))
+    {
+        stmencrypt_write_key();
+        LOG_I("stmencrypt_write_key ok\r\n");
+        LOG_I("system reboot...\r\n");
+        HAL_Delay(100);
+        NVIC_SystemReset();
+    }
+    
 }
 
 #endif

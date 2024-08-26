@@ -78,7 +78,7 @@ int main(void)
   LOG_I("%s Demo\r\n", PRODUCT_DEVICE_NAME);
 #endif
 
-//  stmencrypt_init();
+  stmencrypt_init();
 
   /* CmBacktrace initialize */
   cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);

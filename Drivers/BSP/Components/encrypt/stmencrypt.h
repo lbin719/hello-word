@@ -4,7 +4,8 @@
 #include "stdbool.h"
 
 
-bool stmencrypt_init(void);
+void stmencrypt_write_key(void);
+void stmencrypt_init(void);
 
 #endif
 
