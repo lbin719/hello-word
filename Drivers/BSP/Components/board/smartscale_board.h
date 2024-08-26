@@ -16,7 +16,7 @@
 /* usb PA11 PA12*/
 /* jlink PA13 PA14 */
 
-/* uart1 TX:PA9 RX:PA10 */
+/* debug uart1 TX:PA9 RX:PA10 */
 #define USART1_TX_GPIO_PORT               GPIOA
 #define USART1_TX_GPIO_PIN                GPIO_PIN_9
 #define USART1_TX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOA_CLK_ENABLE()
@@ -35,7 +35,7 @@
 // #define USART1_DMA_RX_IRQHandler          DMA1_Channel5_IRQHandler
 #endif
 
-/* uart2 TX:PA2 RX:PA3 */
+/* EC800E uart2 TX:PA2 RX:PA3 */
 // RX DMA1_Channel6
 // TX DMA1_Channel7
 #define USART2_TX_GPIO_PORT               GPIOA
@@ -52,18 +52,20 @@
 #define USART2_TX_DMA_IRQn                DMA1_Channel7_IRQn
 #define USART2_RX_DMA_IRQn                DMA1_Channel6_IRQn
 
+#define EC_DTR_GPIO_PORT                  GPIOC
+#define EC_DTR_GPIO_PIN                   GPIO_PIN_1
+#define EC_DTR_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
 
-/* uart3 TX:PB10 RX:PB11 */
-#define USART3_TX_GPIO_PORT               GPIOB
-#define USART3_TX_GPIO_PIN                GPIO_PIN_10
-#define USART3_TX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+#define EC_PWR_GPIO_PORT                  GPIOA
+#define EC_PWR_GPIO_PIN                   GPIO_PIN_0
+#define EC_PWR_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOA_CLK_ENABLE()
 
-#define USART3_RX_GPIO_PORT               GPIOB
-#define USART3_RX_GPIO_PIN                GPIO_PIN_11
-#define USART3_RX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+#define EC_RST_GPIO_PORT                  GPIOC
+#define EC_RST_GPIO_PIN                   GPIO_PIN_3
+#define EC_RST_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
 
 
-/* uart4 TX:PC10 RX:PC11 */
+/* MJ8000 uart4 TX:PC10 RX:PC11 */
 #define UART4_TX_GPIO_PORT                GPIOC
 #define UART4_TX_GPIO_PIN                 GPIO_PIN_10
 #define UART4_TX_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE()
@@ -71,6 +73,7 @@
 #define UART4_RX_GPIO_PORT                GPIOC
 #define UART4_RX_GPIO_PIN                 GPIO_PIN_11
 #define UART4_RX_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE()
+
 
 // TX DMA2_Channel5
 // RX DMA2_Channel3
@@ -81,6 +84,15 @@
 #define UART4_RX_DMA_IRQn                 DMA2_Channel3_IRQn
 #define UART4_DMA_TX_IRQHandler           DMA2_Channel4_5_IRQHandler
 #define UART4_DMA_RX_IRQHandler           DMA2_Channel3_IRQHandler
+
+#define MJ_KEY_GPIO_PORT                  GPIOC
+#define MJ_KEY_GPIO_PIN                   GPIO_PIN_8
+#define MJ_KEY_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
+
+#define MJ_EN_GPIO_PORT                  GPIOC
+#define MJ_EN_GPIO_PIN                   GPIO_PIN_9
+#define MJ_EN_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
+
 
 /* spi1 */
 // #define SPI1_SPI                        SPI1
@@ -123,8 +135,7 @@
 #define LCD_BLK_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOC_CLK_ENABLE()
 
 
-/* spi2 */
-// #define SPI2_SPI                        SPI2
+/* Norflash spi2 */
 #define SPI2_SPI_CLK_ENABLE()           __HAL_RCC_SPI2_CLK_ENABLE()
 
 #define SPI2_SCK_GPIO_PORT              GPIOB
@@ -152,80 +163,44 @@
 #define NORFLASH_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
 
 
+//HX711
+#define HX711_SCK_GPIO_PORT                 GPIOC
+#define HX711_SCK_GPIO_PIN                  GPIO_PIN_7
+#define HX711_SCK_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOC_CLK_ENABLE()
 
-/* spi3 */
+#define HX711_DOUT_GPIO_PORT                GPIOC
+#define HX711_DOUT_GPIO_PIN                 GPIO_PIN_6
+#define HX711_DOUT_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE()
 
-// #define SPI3_SPI_CLK_ENABLE()               __HAL_RCC_SPI3_CLK_ENABLE()
+//WTN6040
+#define WTN6040_DATA_GPIO_PORT              GPIOB
+#define WTN6040_DATA_GPIO_PIN               GPIO_PIN_3
+#define WTN6040_DATA_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
 
-// #define SPI3_SCK_GPIO_PORT                  GPIOB
-// #define SPI3_SCK_GPIO_PIN                   GPIO_PIN_3
-// #define SPI3_SCK_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOB_CLK_ENABLE()
+#define WTN6040_BUSY_GPIO_PORT              GPIOD
+#define WTN6040_BUSY_GPIO_PIN               GPIO_PIN_2
+#define WTN6040_BUSY_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOD_CLK_ENABLE()
 
-// // #define SPI3_MISO_GPIO_PORT             GPIOB
-// // #define SPI3_MISO_GPIO_PIN              GPIO_PIN_4
-// // #define SPI3_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
-
-// #define SPI3_MOSI_GPIO_PORT                 GPIOB
-// #define SPI3_MOSI_GPIO_PIN                  GPIO_PIN_5
-// #define SPI3_MOSI_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
-
-// #define SPI3_TX_DMA_CHANNEL                 DMA2_Channel2
-// #define SPI3_RX_DMA_CHANNEL                 DMA2_Channel1
-// #define SPI3_DMA_CLK_ENABLE()               __HAL_RCC_DMA2_CLK_ENABLE()
-
-// #define SPI3_TX_DMA_IRQn                    DMA2_Channel2_IRQn
-// #define SPI3_RX_DMA_IRQn                    DMA2_Channel1_IRQn
-
-// #define LCD_CS_GPIO_PORT                    GPIOB
-// #define LCD_CS_GPIO_PIN                     GPIO_PIN_4
-// #define LCD_CS_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOB_CLK_ENABLE()
-
-
-// #define LCD_DC_GPIO_PORT                    GPIOB
-// #define LCD_DC_GPIO_PIN                     GPIO_PIN_6
-// #define LCD_DC_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOB_CLK_ENABLE()
-
-// #define LCD_RST_GPIO_PORT                   GPIOB
-// #define LCD_RST_GPIO_PIN                    GPIO_PIN_7
-// #define LCD_RST_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOB_CLK_ENABLE()
-
-// #define LCD_BLK_GPIO_PORT                   GPIOD
-// #define LCD_BLK_GPIO_PIN                    GPIO_PIN_2
-// #define LCD_BLK_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
-
-
+//HOT
+#define HOT_CTRL_GPIO_PORT                  GPIOA
+#define HOT_CTRL_GPIO_PIN                   GPIO_PIN_1
+#define HOT_CTRL_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOA_CLK_ENABLE()
 
 //LED & KEY
+#define LED_RED_GPIO_PORT                   GPIOC
+#define LED_RED_GPIO_PIN                    GPIO_PIN_12
+#define LED_RED_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
+
 #define LED_GREEN_GPIO_PORT                 GPIOC
 #define LED_GREEN_GPIO_PIN                  GPIO_PIN_0
 #define LED_GREEN_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOC_CLK_ENABLE()
-
-#define LED_BLUE_GPIO_PORT                  GPIOC
-#define LED_BLUE_GPIO_PIN                   GPIO_PIN_1
-#define LED_BLUE_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
 
 #define KEY_GPIO_PORT                       GPIOC
 #define KEY_GPIO_PIN                        GPIO_PIN_2
 #define KEY_GPIO_CLK_ENABLE()               __HAL_RCC_GPIOC_CLK_ENABLE()
 
-//HX711
-#define HX711_SCK_GPIO_PORT                 GPIOC
-#define HX711_SCK_GPIO_PIN                  GPIO_PIN_6
-#define HX711_SCK_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOC_CLK_ENABLE()
 
-#define HX711_DOUT_GPIO_PORT                GPIOC
-#define HX711_DOUT_GPIO_PIN                 GPIO_PIN_7
-#define HX711_DOUT_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE()
-
-//WTN6040
-#define WTN6040_DATA_GPIO_PORT              GPIOC
-#define WTN6040_DATA_GPIO_PIN               GPIO_PIN_8
-#define WTN6040_DATA_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOC_CLK_ENABLE()
-
-#define WTN6040_BUSY_GPIO_PORT              GPIOC
-#define WTN6040_BUSY_GPIO_PIN               GPIO_PIN_9
-#define WTN6040_BUSY_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOC_CLK_ENABLE()
-
+#if 0
 /* uart1 log  PA9 PA10 */
 // DMA1_Channel4
 // DMA1_Channel5
@@ -250,9 +225,55 @@
 // DMA2_Channel1
 // DMA2_Channel2
 
+/* spi3 */
+
+#define SPI3_SPI_CLK_ENABLE()               __HAL_RCC_SPI3_CLK_ENABLE()
+
+#define SPI3_SCK_GPIO_PORT                  GPIOB
+#define SPI3_SCK_GPIO_PIN                   GPIO_PIN_3
+#define SPI3_SCK_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOB_CLK_ENABLE()
+
+// #define SPI3_MISO_GPIO_PORT             GPIOB
+// #define SPI3_MISO_GPIO_PIN              GPIO_PIN_4
+// #define SPI3_MISO_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define SPI3_MOSI_GPIO_PORT                 GPIOB
+#define SPI3_MOSI_GPIO_PIN                  GPIO_PIN_5
+#define SPI3_MOSI_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define SPI3_TX_DMA_CHANNEL                 DMA2_Channel2
+#define SPI3_RX_DMA_CHANNEL                 DMA2_Channel1
+#define SPI3_DMA_CLK_ENABLE()               __HAL_RCC_DMA2_CLK_ENABLE()
+
+#define SPI3_TX_DMA_IRQn                    DMA2_Channel2_IRQn
+#define SPI3_RX_DMA_IRQn                    DMA2_Channel1_IRQn
+
+#define LCD_CS_GPIO_PORT                    GPIOB
+#define LCD_CS_GPIO_PIN                     GPIO_PIN_4
+#define LCD_CS_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOB_CLK_ENABLE()
 
 
+#define LCD_DC_GPIO_PORT                    GPIOB
+#define LCD_DC_GPIO_PIN                     GPIO_PIN_6
+#define LCD_DC_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOB_CLK_ENABLE()
 
+#define LCD_RST_GPIO_PORT                   GPIOB
+#define LCD_RST_GPIO_PIN                    GPIO_PIN_7
+#define LCD_RST_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define LCD_BLK_GPIO_PORT                   GPIOD
+#define LCD_BLK_GPIO_PIN                    GPIO_PIN_2
+#define LCD_BLK_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+
+/* uart3 TX:PB10 RX:PB11 */
+#define USART3_TX_GPIO_PORT               GPIOB
+#define USART3_TX_GPIO_PIN                GPIO_PIN_10
+#define USART3_TX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define USART3_RX_GPIO_PORT               GPIOB
+#define USART3_RX_GPIO_PIN                GPIO_PIN_11
+#define USART3_RX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+#endif
 
 #ifdef __cplusplus
 }
