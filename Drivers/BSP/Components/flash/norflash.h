@@ -14,7 +14,7 @@
   */
 #define GD25Q16_CHIP_SIZE                (0x200000)
 #define WB25Q64_CHIP_SIZE                (0x800000)
-#define WB25Q64_CHIP_SIZE                (0x800000)// 先识别成8M
+#define WB25Q128_CHIP_SIZE               (0x800000)// 先识别成8M
 
 #define SPIF_CHIP_SIZE                   (chip_size)
 
