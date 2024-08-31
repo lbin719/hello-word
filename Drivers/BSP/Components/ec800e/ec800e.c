@@ -4,6 +4,7 @@
 #include "stm32f1xx_hal.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include "board.h"
 
 #define EC800E_UART_RX_BUF_SIZE        (512)
 #define EC800E_UART_TX_BUF_SIZE        (512)
@@ -37,11 +38,13 @@ void ec800e_task_handle(void)
         g_uart_rx_frame.buf[g_uart_rx_frame.len] = '\0';
         LOG_I("[EC]recv: %s\r\n", g_uart_tx_buf);
 
-        ec800e_uart_printf("%s\r\n", g_uart_rx_frame.buf);
+        // ec800e_uart_printf("%s\r\n", g_uart_rx_frame.buf);
 
         g_uart_rx_frame.finsh = 0;
         uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
+
     }
+    ec800e_uart_printf("AT\r\n");
 }
 
 
@@ -74,6 +77,16 @@ void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)
 void ec800e_init(void)
 {
     LOG_I("%s\r\n", __FUNCTION__);
+
+    GPIO_InitTypeDef gpio_init_struct = {0};
+
+    EC_PWR_GPIO_CLK_ENABLE();
+    gpio_init_struct.Pin = EC_PWR_GPIO_PIN;
+    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio_init_struct.Pull = GPIO_NOPULL;
+    gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(EC_PWR_GPIO_PORT, &gpio_init_struct);
+    HAL_GPIO_WritePin(EC_PWR_GPIO_PORT, EC_PWR_GPIO_PIN, GPIO_PIN_RESET);//
 
     uart2_init();
 
