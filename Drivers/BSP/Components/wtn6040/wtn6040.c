@@ -15,7 +15,11 @@
 
 void wtn6040_task_handle(void)
 {
-
+	static uint8_t i = 0;
+    wtn6040_write_data(WTN6040_PLAY(i));
+    i++;
+    i = i%4;
+    HAL_Delay(1000);
 }
 
 void wtn6040_init(void)
