@@ -31,6 +31,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f103rctx.s</locationURI>
 		</link>
 		<link>
+			<name>Application/User/fct_task.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/fct_task.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
@@ -309,11 +314,6 @@
 			<name>Drivers/BSP/Components/wtn6040/wtn6040.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/wtn6040/wtn6040.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/STM32_USBD_Library/Class/HID/usbd_hid.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/ST/STM32_USB_Device_Library/Class/HID/Src/usbd_hid.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/STM32_USBD_Library/Class/MSC/usbd_msc.c</name>

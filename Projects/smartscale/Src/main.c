@@ -13,6 +13,8 @@
 #include "mj8000.h"
 #include "ec800e.h"
 #include "wtn6040.h"
+#include "led.h"
+#include "key.h"
 
 
 const char CodeBuildDate[] = {__DATE__};
@@ -35,6 +37,7 @@ void board_init(void)
 
 extern void ui_init(void);
 extern void ui_task_handle(void);
+extern void fct_task_handle(void);
 
 int main(void)
 {
@@ -100,9 +103,19 @@ int main(void)
 
   while (1)
   {
-#ifdef LOG_DEBUG_ENABLE
-    usmart_scan();
-#endif
+    ui_task_handle();
+
+    led_task_handle();
+
+    fct_task_handle();
+
+    if(get_stmencrypt_status() == false)// 解密失败，后面的模块不运行
+    {
+      LOG_I("warnning: key error\r\n");
+      HAL_Delay(5000);
+      continue;
+    }
+
     mj8000_task_handle();
 
     ec800e_task_handle();
@@ -111,12 +124,9 @@ int main(void)
 
     hx711_task_handle();
 
-    ui_task_handle();
-
-    led_task_handle();
     // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
-    HAL_Delay(1000);
+    // HAL_Delay(1000);
   }
 }
 

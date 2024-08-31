@@ -1,14 +1,10 @@
+#include <string.h>
 #include "stmencrypt.h"
 #include "stmflash.h"
 #include "ulog.h"
 
-typedef struct {
-	uint32_t header;
-	uint32_t tick;
-    uint32_t key;
-} stmencrypt_data_t;
 
-const uint32_t trng_data[4] = {0xCBE6BBFA, 0xCAFDB8F6, 0xCAFDA3BA, 0x3130300D0A};
+const uint32_t trng_data[4] = {0xCBE6BBFA, 0xCAFDB8F6, 0xCAFDA3BA, 0x3130300D};
 #define STMENCRYPT_HEADER   0x56F3B4A6
 #define STM32_ID_D  848468   //任意的一个数
 
@@ -57,10 +53,10 @@ uint32_t stm_generate_key(void)
 返    回：
 备    注：
 ********************************************************************/
-void stmencrypt_write_key(void)
+uint32_t stmencrypt_write_key(void)
 {
     uint32_t ret = FLASHIF_OK;
-    uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
+    // uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
     // if(flash_key == 0xFFFFFFFF)//未写入
     {
         stmencrypt_data_t ststmencrypt_data;
@@ -69,15 +65,17 @@ void stmencrypt_write_key(void)
         ststmencrypt_data.key = stm_generate_key();
         ststmencrypt_data.key ^= ststmencrypt_data.tick;
 
-        stmflash_erase(STM32_FLASH_EN_ID_START_ADDR, STM32_FLASH_EN_ID_SIZE);
+        ret = stmflash_erase(STM32_FLASH_EN_ID_START_ADDR, STM32_FLASH_EN_ID_SIZE);
         if(ret != FLASHIF_OK)
         {
             LOG_I("stmflash_erase error ret:%d\r\n", ret);
+            return ret;
         }
-        stmflash_write(STM32_FLASH_EN_ID_START_ADDR, &ststmencrypt_data, sizeof(stmencrypt_data_t)); //保存这个数，写进32位
+        ret = stmflash_write(STM32_FLASH_EN_ID_START_ADDR, (uint32_t *)&ststmencrypt_data, sizeof(stmencrypt_data_t)); //保存这个数，写进32位
         if(ret != FLASHIF_OK)
         {
             LOG_I("stmflash_write error ret:%d\r\n", ret);
+            return ret;
         }
         //check
 //        uint32_t read_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
@@ -86,6 +84,8 @@ void stmencrypt_write_key(void)
 //            LOG_I("write key fail. key: 0x%08x, read_key: 0x%08x\r\n", key, read_key);
 //        }
     }
+
+    return ret;
 }
 
 /********************************************************************
@@ -111,12 +111,12 @@ bool stmencrypt_cmp_key(void)
 
     if(ststmencrypt_data.key == calculater_key)
     {
-        // LOG_I("stmencrypt success. key: 0x%08x\r\n", key);     // ID正确，正常运行
+        // LOG_I("stmencrypt success. key: 0x%08x\r\n", ststmencrypt_data.key);     // ID正确，正常运行
         return true;
     }
     else
     {
-        // LOG_I("stmencrypt fail. flash_key: 0x%08x, key: 0x%08x\r\n", flash_key, key);     // ID正确，正常运行
+        // LOG_I("stmencrypt fail. flash_key: 0x%08x, key: 0x%08x\r\n", ststmencrypt_data.key, calculater_key);
         return false;
     }
 }
@@ -130,6 +130,6 @@ void stmencrypt_init(void)
 {
     stmencrypt_status = stmencrypt_cmp_key();
 
-    LOG_I("%s result: %s\r\n", __FUNCTION__, stmencrypt_status ? "false" : "true");
+    LOG_I("%s result: %s\r\n", __FUNCTION__, stmencrypt_status ? "true" : "false");
 }
 

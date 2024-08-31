@@ -8,14 +8,14 @@ uint32_t stmflash_write(uint32_t waddr, uint32_t *pbuf ,uint32_t length)
 
     if (waddr < STM32_FLASH_BASE || ((waddr + length) > (STM32_FLASH_BASE + STM32_FLASH_SIZE)))
     {
-        return FLASHIF_WRITING_ERROR;     /* 非法地址 */
+        return FLASHIF_WRITING_ERROR;     /* 闈炴硶鍦板潃 */
     }
     if (waddr % 4)
     {
-        return FLASHIF_WRITING_ERROR;     /* 非法地址 */
+        return FLASHIF_WRITING_ERROR;     /* 闈炴硶鍦板潃 */
     }
 
-    HAL_FLASH_Unlock();     /* FLASH解锁 */
+    HAL_FLASH_Unlock();     /* FLASH瑙ｉ攣 */
     for (uint32_t i = 0; (i < length) && (waddr <= (STM32_FLASH_END_ADDRESS - 4)); i++)
     {
         /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
@@ -26,7 +26,7 @@ uint32_t stmflash_write(uint32_t waddr, uint32_t *pbuf ,uint32_t length)
             if (*(uint32_t*)waddr != *(uint32_t*)(pbuf+i))
             {
                 /* Flash content doesn't match SRAM content */
-                HAL_FLASH_Lock(); /* 上锁 */
+                HAL_FLASH_Lock(); /* 涓婇攣 */
                 return(FLASHIF_WRITINGCTRL_ERROR);
             }
             /* Increment FLASH destination address */
@@ -35,38 +35,38 @@ uint32_t stmflash_write(uint32_t waddr, uint32_t *pbuf ,uint32_t length)
         else
         {
             /* Error occurred while writing data in Flash memory */
-            HAL_FLASH_Lock(); /* 上锁 */
+            HAL_FLASH_Lock(); /* 涓婇攣 */
             return (FLASHIF_WRITING_ERROR);
         }
     }
-    HAL_FLASH_Lock(); /* 上锁 */
+    HAL_FLASH_Lock(); /* 涓婇攣 */
     return (FLASHIF_OK);
 }
 
 uint32_t stmflash_erase(uint32_t addr, uint32_t size)
 {
     FLASH_EraseInitTypeDef flash_eraseop;
-    uint32_t erase_addr;    /* 擦除错�?，这�?��为发生错�?的扇区地址 */
+    uint32_t erase_addr;    /* 鎿﹂櫎閿欒?锛岃繖涓?€间负鍙戠敓閿欒?鐨勬墖鍖哄湴鍧€ */
 
     LOG_I("%s addr:0x%08x size:0x%x\r\n", __func__, addr, size);
 
     if (addr < STM32_FLASH_BASE || ((addr + size) > (STM32_FLASH_BASE + STM32_FLASH_SIZE)))
     {
-        return FLASHIF_WRITING_ERROR;     /* 非法地址 */
+        return FLASHIF_WRITING_ERROR;     /* 闈炴硶鍦板潃 */
     }
 
     // if ((addr % STM32_SECTOR_SIZE) || (size % STM32_SECTOR_SIZE))
     // {
-    //     return FLASHIF_WRITING_ERROR;     /* 非法地址 */
+    //     return FLASHIF_WRITING_ERROR;     /* 闈炴硶鍦板潃 */
     // }
 
-    flash_eraseop.TypeErase = FLASH_TYPEERASE_PAGES;     /* 选择页擦�? */
+    flash_eraseop.TypeErase = FLASH_TYPEERASE_PAGES;     /* 閫夋嫨椤垫摝闄? */
     flash_eraseop.NbPages = size / STM32_SECTOR_SIZE  + ((size % STM32_SECTOR_SIZE) ? 1 : 0);
-    flash_eraseop.PageAddress = addr;  /* 要擦除的扇区 */
+    flash_eraseop.PageAddress = addr;  /* 瑕佹摝闄ょ殑鎵囧尯 */
 
-    HAL_FLASH_Unlock(); /* FLASH解锁 */
+    HAL_FLASH_Unlock(); /* FLASH瑙ｉ攣 */
     HAL_FLASHEx_Erase( &flash_eraseop, &erase_addr);
-    HAL_FLASH_Lock(); /* 上锁 */
+    HAL_FLASH_Lock(); /* 涓婇攣 */
 
     return FLASHIF_OK;
 }
