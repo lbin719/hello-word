@@ -38,20 +38,16 @@ void board_init(void)
 {
   GPIO_InitTypeDef gpio_init_struct = {0};
 
-  LED_GREEN_GPIO_CLK_ENABLE();
-  LED_BLUE_GPIO_CLK_ENABLE();
+  LED_RED_GPIO_CLK_ENABLE();
   KEY_GPIO_CLK_ENABLE();
 
-  gpio_init_struct.Pin = LED_GREEN_GPIO_PIN;
+  gpio_init_struct.Pin = LED_RED_GPIO_PIN;
   gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
   gpio_init_struct.Pull = GPIO_NOPULL;
   gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-  HAL_GPIO_Init(LED_GREEN_GPIO_PORT, &gpio_init_struct);
-  HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_GPIO_PIN, GPIO_PIN_SET);
+  HAL_GPIO_Init(LED_RED_GPIO_PORT, &gpio_init_struct);
+  HAL_GPIO_WritePin(LED_RED_GPIO_PORT, LED_RED_GPIO_PIN, GPIO_PIN_RESET);
 
-  gpio_init_struct.Pin = LED_BLUE_GPIO_PIN;
-  HAL_GPIO_Init(LED_BLUE_GPIO_PORT, &gpio_init_struct);
-  HAL_GPIO_WritePin(LED_BLUE_GPIO_PORT, LED_BLUE_GPIO_PIN, GPIO_PIN_SET);
 
   gpio_init_struct.Pin = KEY_GPIO_PIN;
   gpio_init_struct.Mode = GPIO_MODE_INPUT;
@@ -230,10 +226,10 @@ int main(void)
 
   while (1)
   {
-    HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_GPIO_PIN, GPIO_PIN_RESET);
-    HAL_Delay(10);
-    HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LED_RED_GPIO_PORT, LED_RED_GPIO_PIN, GPIO_PIN_RESET);
     HAL_Delay(90);
+    HAL_GPIO_WritePin(LED_RED_GPIO_PORT, LED_RED_GPIO_PIN, GPIO_PIN_SET);
+    HAL_Delay(10);
   }
 }
 

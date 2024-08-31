@@ -14,7 +14,7 @@
   */
 #define GD25Q16_CHIP_SIZE                (0x200000)
 #define WB25Q64_CHIP_SIZE                (0x800000)
-#define WB25Q128_CHIP_SIZE               (0x800000)// 先识别成8M
+#define WB25Q128_CHIP_SIZE               (0x1000000)
 
 #define SPIF_CHIP_SIZE                   (chip_size)
 
@@ -49,6 +49,13 @@
 #define FLASH_SPI_DUMMY_BYTE             0xA5
 
 extern uint32_t chip_size;
+
+#define SPIF_FAT_SIZE                     (SPIF_CHIP_SIZE - 0x100000)
+
+#define FLASH_DISK_BLOCK_SIZE             (8) /* 每个 BLOCK 有 8 个扇区 */
+#define FLASH_DISK_SECTOR_SIZE            (SPIF_SECTOR_SIZE / FLASH_DISK_BLOCK_SIZE) /* 扇区大小 */
+#define FLASH_DISK_SECTOR_COUNT           (SPIF_CHIP_SIZE / FLASH_DISK_SECTOR_SIZE) /* 扇区数目 */
+
 
 bool norflash_init(void);
 void norflash_write(uint8_t *pbuffer, uint32_t write_addr, uint32_t length);

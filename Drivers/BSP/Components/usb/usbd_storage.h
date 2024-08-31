@@ -24,9 +24,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_msc.h"
 
-#define FLASH_DISK_BLOCK_SIZE    8 /* 姣忎釜 BLOCK 鏈? 8 涓?墖鍖? */
-#define FLASH_DISK_SECTOR_SIZE   (SPIF_SECTOR_SIZE / FLASH_DISK_BLOCK_SIZE) /* 鎵囧尯澶у皬 */
-#define FLASH_DISK_SECTOR_COUNT  (SPIF_CHIP_SIZE / FLASH_DISK_SECTOR_SIZE) /* 鎵囧尯鏁扮洰 */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

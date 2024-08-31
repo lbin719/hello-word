@@ -22,9 +22,6 @@
 #include "ff_gen_drv.h"
 #include "norflash.h"
 
-#define FLASH_DISK_BLOCK_SIZE    8 /* 每个 BLOCK 有 8 个扇区 */
-#define FLASH_DISK_SECTOR_SIZE   (SPIF_SECTOR_SIZE / FLASH_DISK_BLOCK_SIZE) /* 扇区大小 */
-#define FLASH_DISK_SECTOR_COUNT  (SPIF_CHIP_SIZE / FLASH_DISK_SECTOR_SIZE) /* 扇区数目 */
 
 extern const Diskio_drvTypeDef  FLASHDISK_Driver;
 
