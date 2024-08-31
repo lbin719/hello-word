@@ -2,6 +2,7 @@
 #include "ulog.h"
 #include "uart.h"
 #include "stm32f1xx_hal.h"
+#include "board.h"
 
 #define MJ8000_UART_RX_BUF_SIZE        (128)
 
@@ -86,6 +87,16 @@ void mj8000_uart_rx_callback(UART_HandleTypeDef *huart)
 void mj8000_init(void)
 {
     LOG_I("%s\r\n", __FUNCTION__);
+
+    GPIO_InitTypeDef gpio_init_struct = {0};
+
+    MJ_EN_GPIO_CLK_ENABLE();
+    gpio_init_struct.Pin = MJ_EN_GPIO_PIN;
+    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio_init_struct.Pull = GPIO_NOPULL;
+    gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(MJ_EN_GPIO_PORT, &gpio_init_struct);
+    HAL_GPIO_WritePin(MJ_EN_GPIO_PORT, MJ_EN_GPIO_PIN, GPIO_PIN_RESET);
 
     uart4_init();
 
