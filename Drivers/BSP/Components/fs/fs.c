@@ -22,8 +22,8 @@ uint16_t get_device_xoruid()
 void update_details_file(void)
 {
     FIL File;
-    uint8_t read_buff[64];
-    uint8_t write_buff[64];
+    char read_buff[64];
+    char write_buff[64];
     uint32_t readbytes;
     uint32_t writebytes;
 
@@ -41,7 +41,7 @@ void update_details_file(void)
         return;
     }
 
-    snprintf((char *)write_buff, sizeof(write_buff), "Version: %s\r\nBuild: %s %s\r\n", MCU_FW_VERSION, CodeBuildDate, CodeBuildTime);
+    snprintf(write_buff, sizeof(write_buff), "Version: %s\r\nBuild: %s %s\r\n", MCU_FW_VERSION, CodeBuildDate, CodeBuildTime);
     if((readbytes == 0) || (strncmp((const char *)write_buff, (const char *)read_buff, strlen(write_buff)) != 0))
     {
         //need to update.
@@ -57,28 +57,30 @@ char FLASHDISKPath[4];
 
 void fs_init()
 {
-    FRESULT res;
+    FRESULT result;
+    DIR dir = {0};
+    FILINFO fno = {0};
 
     if (FATFS_LinkDriver(&FLASHDISK_Driver, FLASHDISKPath) == 0)
     {
-        res = f_mount(&FLASHDISKFatFs, (TCHAR const *)FLASHDISKPath, 1);
-        if (res == FR_OK)
+        result = f_mount(&FLASHDISKFatFs, (TCHAR const *)FLASHDISKPath, 1);
+        if (result == FR_OK)
         {
             // 文件系统已存在
         }
-        else if (res == FR_NO_FILESYSTEM)
+        else if (result == FR_NO_FILESYSTEM)
         {
             // 无文件系统，可以格式化
            uint8_t buffer[_MAX_SS];
-           if (f_mkfs((TCHAR const *)FLASHDISKPath, FM_ANY, 0, buffer, sizeof(buffer)) != FR_OK)
+           result = f_mkfs((TCHAR const *)FLASHDISKPath, FM_ANY, 0, buffer, sizeof(buffer));
+           if (result != FR_OK)
            {
-//               Error_Handler();
+                LOG_I("f_mkfs error result:%d\r\n", result);
            }
         }
         else
         {
-            // 其他错误
-//            Error_Handler();
+            LOG_I("f_mount error result:%d\r\n", result);
         }
 
         //写入版本信息
@@ -92,6 +94,22 @@ void fs_init()
         {
             f_setlabel(label_set);
         }
+
+        //printf fat
+        result = f_opendir(&dir, "/");
+        if(result == FR_OK) // 打开当前目录
+        {
+            do {
+                FRESULT result = f_readdir(&dir, &fno);
+                if((result != FR_OK) || !fno.fname[0])
+                {
+                    // LOG_I("f_readdir error result:%d name:0x%02x\r\n", result, fno.fname[0]);
+                    break;
+                }
+                LOG_I("file:%s, size:%d\r\n", fno.fname, fno.fsize); // 打印符合条件的文件名
+            }while(1);
+        }
+        f_closedir(&dir);
     }
 
     /* 卸载驱动，防止和USB MSC冲突 */

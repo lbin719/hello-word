@@ -16,45 +16,43 @@ void draw_single(uint16_t x, uint16_t y, uint8_t level)
 
 void ui_init(void)
 {
+    // draw name
+    text_show_string_middle(480/2-(3*48), 5, 48*6, 48, "小蘑菇炖土鸡", 48, 0, BLACK);    
+
+    // draw line
     draw_single(430, 0, 2);
-    text_show_font_index(480/2-48, 5, 0, 48, 0, BLACK);//锟斤拷锟斤拷锟斤拷锟斤拷
-    text_show_font_index(480/2, 5, 1, 48, 0, BLACK);
+
+    //draw lines
     lcd_draw_hline(BLACK, 0, 60, 480);
     lcd_draw_hline(BLACK, 0, 265, 480);
     lcd_draw_vline(BLACK, 240, 265, 55);
 
+    // first line
     text_show_string(120, 65 + 12, 32*4, 32, "单  价:", 32, 0, BLACK);
     text_show_string(480/2, 65, 120, 48, "0.00", 48, 0, BLACK);
-    text_show_string(360, 65 + 12, 120, 32, "元\/g", 32, 0, BLACK);
+    text_show_string(360, 65 + 12, 120, 32, "元\/100g", 32, 0, BLACK);
 
+    // second line
     text_show_string(120, (65 + 48 * 1 + 12), 32*4, 32, "重  量:", 32, 0, BLACK);
     text_show_string(480/2, (65 + 48 * 1), 100, 48, "0.00", 48, 0, BLACK);
     text_show_string(360, (65 + 48 * 1 + 12), 120, 32, "克(g)", 32, 0, BLACK);
 
+    // third line
     text_show_string(120, (65 + 48 * 2 + 12), 32*4, 32, "总  价:", 32, 0, BLACK);
     text_show_string(480/2, (65 + 48 * 2), 100, 48, "0.00", 48, 0, BLACK);
     text_show_string(360, (65 + 48 * 2 + 12), 120, 32, "元", 32, 0, BLACK);
 
+    // fourth line
     text_show_string(120 - 32, (65 + 48 * 3 + 12), 32*5, 32, "消费总额:", 32, 0, GREEN);
     text_show_string(480/2, (65 + 48 * 3), 100, 48, "0.00", 48, 0, GREEN);
     text_show_string(360, (65 + 48 * 3 + 12), 120, 32, "元", 32, 0, GREEN);
 
-    text_show_string(480/2/2 - 64, 275, 32*4, 32, "欢迎使用", 32, 0, RED);// zuoxia
-    text_show_string(240 + 120 - 64, 275, 32*4, 32, "zh008354", 32, 0, RED);// youxia
+    //left down width 8
+    text_show_string_middle((480/4*1-32/2*4), 280, 32/2*8, 32, "欢迎使用", 32, 0, RED);
 
-  // text_show_string(480/2, 65 + 48 * 4 + 5 + 10, 100, 32, "0.00", 32, 0, BLACK);
+    //right down width 10
+    text_show_string_middle((480/4*3-32/2*5), 280, 32/2*10, 32, "zh123456", 32, 0, RED);
 
-  // text_show_font_index(0, 5+60, 0, 40, 0, BLACK);
-  // text_show_font_index(48, 5+60, 1, 40, 0, BLACK);
-
-  // text_show_string(480/2-40, 0, 80, 40, "????", 40, 0, RED);
-
-  // text_show_string(128, 100, 160, 32, "?????", 32, 0, RED);
-  // text_show_string(128, 200, 160, 40, "?????", 40, 0, RED);
-
-  // text_show_font_index(128, 150, 2, 40, 0, RED);
-  // text_show_font_index(128+40, 150, 3, 40, 0, RED);
-  // text_show_font_index(128+40+40, 150, 4, 40, 0, RED);
 }
 
 static float weigth = 0;

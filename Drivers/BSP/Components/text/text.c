@@ -30,6 +30,43 @@
 #include "ulog.h"
 #include "font.h"
 
+/* 字库存放在磁盘中的路径 */
+char *const FONT_GBK_PATH[] =
+{ 
+    "GBK_12.FON",
+    "GBK_16.FON",
+    "GBK_24.FON",    
+    "GBK_32.FON",  
+    "GBK_40.FON",     
+    "GBK_48.FON",   
+};
+
+char *const FONT_GBK2312_PATH[] =
+{
+    "GBK2312_12.FON",
+    "GBK2312_16.FON",
+    "GBK2312_24.FON",    
+    "GBK2312_32.FON",   
+    "GBK2312_40.FON",
+    "GBK2312_48.FON",   
+};
+
+static uint8_t text_match_path_index(uint8_t size)
+{
+    uint8_t index = 0;
+    switch (size)
+    {
+        case 12: index = 0; break;
+        case 16: index = 1; break;
+        case 24: index = 2; break;
+        case 32: index = 3; break;
+        case 40: index = 4; break;
+        case 48: index = 5; break;
+        default : break;
+    }
+    return index;
+}
+
 /**
  * @brief       获取汉字点阵数据
  * @param       code  : 当前汉字编码(GBK码)
@@ -41,73 +78,68 @@
 static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t size)
 {
     unsigned char qh, ql;
-    unsigned char i;
     unsigned long foffset;
-    uint8_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size); /* 得到字体一个字符对应点阵集所占的字节数 */
+    uint16_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size); /* 得到字体一个字符对应点阵集所占的字节数 */
     qh = *code;
     ql = *(++code);
 #if 1
-    LOG_I("text qh:%02x ql:%02x\r\n", qh, ql);
+    LOG_I("font qh:%02x ql:%02x\r\n", qh, ql);
 #endif
-    if (qh < 0x81 || ql < 0x40 || ql == 0xff || qh == 0xff)     /* 非 常用汉字 */
-    {
-        for (i = 0; i < csize; i++)
-        {
-            *mat++ = 0x00;  /* 填充满格 */
-        }
 
+#ifdef USE_GBK2312_FONT
+    if (qh < 0xa1 || ql < 0xa1 || ql > 0xff || qh == 0xff)     /* 非常用汉字 */
+    {
+        LOG_I("ERROR font qh:%02x ql:%02x unsupported\r\n");
+        memset(mat, 0x00, csize); /* 填充满格 */
         return;     /* 结束访问 */
     }
-
-    if (ql < 0x7f)
+    qh -= (0xA0 + 1);
+    ql -= (0xA0 + 1);
+    foffset = ((unsigned long)94 * qh + ql) * csize;   /* 得到字库中的字节偏移量 */
+#else
+    if (qh < 0x81 || ql < 0x40 || ql == 0xff || qh == 0xff)     /* 非常用汉字 */
     {
-        ql -= 0x40; /* 注意! */
+        LOG_I("ERROR font qh:%02x ql:%02x unsupported\r\n");
+        memset(mat, 0x00, csize); /* 填充满格 */
+        return;     /* 结束访问 */
     }
-    else
-    {
-        ql -= 0x41;
-    }
-
     qh -= 0x81;
+    if (ql < 0x7f)
+        ql -= 0x40; /* 注意! */
+    else
+        ql -= 0x41;
     foffset = ((unsigned long)190 * qh + ql) * csize;   /* 得到字库中的字节偏移量 */
+#endif
 
 	FIL File;
     uint32_t readbytes;
     FRESULT result;
-    switch (size)
+    uint8_t index = text_match_path_index(size);
+#ifdef USE_GBK2312_FONT
+    result = f_open(&File, FONT_GBK2312_PATH[index], FA_READ);
+    if(FR_OK != result)
     {
-        case 12:
-            result = f_open(&File, "GBK12.FON", FA_READ);
-            // norflash_read(mat, foffset + ftinfo.f12addr, csize);
-            break;
-
-        case 16:
-            result = f_open(&File, "GBK16.FON", FA_READ);
-            // norflash_read(mat, foffset + ftinfo.f16addr, csize);
-            break;
-
-        case 24:
-            result = f_open(&File, "GBK24.FON", FA_READ);
-            // norflash_read(mat, foffset + ftinfo.f24addr, csize);
-            break;
-        case 32:
-            result = f_open(&File, "GBK32.FON", FA_READ);
-            // norflash_read(mat, foffset + ftinfo.f24addr, csize);
-            break;
-        case 40:
-            result = f_open(&File, "GBK40.FON", FA_READ);
-            break;
-        default : 
-            result = FR_INVALID_PARAMETER;
-            break;
+        LOG_I("f_open fail result: %d index: %d, name: %s\r\n", result, index, FONT_GBK2312_PATH[index]);
+        memset(mat, 0x00, csize); /* 填充满格 */
+        return;     /* 结束访问 */
     }
-
-    result += f_lseek(&File, foffset);
+#else
+    result = f_open(&File, FONT_GBK_PATH[index], FA_READ);
+    if(FR_OK != result)
+    {
+        LOG_I("f_open fail result: %d index: %d, name: %s\r\n", result, index, FONT_GBK_PATH[index]);
+        memset(mat, 0x00, csize); /* 填充满格 */
+        return;     /* 结束访问 */
+    }
+#endif
+    result = f_lseek(&File, foffset);
     result += f_read(&File, mat, csize, (UINT *)&readbytes);
     result += f_close(&File);
     if(FR_OK != result)
     {
         LOG_I("%s, open file failed. result: %d\r\n", __FUNCTION__, result);
+        memset(mat, 0x00, csize); /* 填充满格 */
+        return;     /* 结束访问 */
     }
 }
 
@@ -126,12 +158,15 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
 static uint8_t dzk[DZK_LENGTH];
 void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t mode, uint32_t color)
 {
-    uint8_t temp, t, t1;
+    uint8_t temp;
+    uint16_t t, t1;
     uint16_t y0 = y;
     // uint8_t *dzk;
-    uint8_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size);     /* 得到字体一个字符对应点阵集所占的字节数 */
+    uint16_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size);     /* 得到字体一个字符对应点阵集所占的字节数 */
 
-    if (size != 12 && size != 16 && size != 24 && size != 32 && size != 40)
+    if (size != 12 && size != 16 &&
+    	size != 24 && size != 32 &&
+		size != 40 && size != 48)
     {
         return;     /* 不支持的size */
     }
@@ -262,27 +297,38 @@ void text_show_string(uint16_t x, uint16_t y, uint16_t width, uint16_t height, c
  * @brief       在指定宽度的中间显示字符串
  *   @note      如果字符长度超过了len,则用text_show_string_middle显示
  * @param       x,y   : 起始坐标
+ * @param       width : 显示区域宽度
+ * @param       height: 显示区域高度
  * @param       str   : 字符串
  * @param       size  : 字体大小
- * @param       width : 显示区域宽度
+ * @param       mode  : 显示模式
+ *   @note              0, 正常显示(不需要显示的点,用LCD背景色填充,即g_back_color)
+ *   @note              1, 叠加显示(仅显示需要显示的点, 不需要显示的点, 不做处理)
  * @param       color : 字体颜色
  * @retval      无
  */
-void text_show_string_middle(uint16_t x, uint16_t y, char *str, uint8_t size, uint16_t width, uint32_t color)
+void text_show_string_middle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, char *str, uint8_t size, uint8_t mode, uint32_t color)
 {
-    // uint16_t strlenth = 0;
-    // strlenth = strlen((const char *)str);
-    // strlenth *= size / 2;
+    uint16_t strlenth = 0;
+    uint16_t offest = 0;
+    strlenth = strlen((const char *)str);
+    // LOG_I("string len:%d\r\n", strlenth);
+    strlenth *= size / 2;
 
-    // if (strlenth > width) /* 超过了, 不能居中显示 */
-    // {
-    //     text_show_string(x, y, lcddev.width, lcddev.height, str, size, 1, color);
-    // }
-    // else
-    // {
-    //     strlenth = (width - strlenth) / 2;
-    //     text_show_string(strlenth + x, y, lcddev.width, lcddev.height, str, size, 1, color);
-    // }
+    if (strlenth > width) /* 超过了, 不能居中显示 */
+    {
+        text_show_string(x, y, lcd_dev.width, lcd_dev.height, str, size, mode, color);
+    }
+    else
+    {
+        offest = (width - strlenth) / 2;
+        text_show_string(offest + x, y, lcd_dev.width, lcd_dev.height, str, size, mode, color);
+        if((mode == 0) && (offest > 0))
+        {
+            lcd_draw_fill(g_back_color, x, y, (x + offest - 1), (y + size));
+            lcd_draw_fill(g_back_color, (x + offest + strlenth), y, (x + width - 1), (y + size));
+        }
+    }
 }
 
 /**
@@ -384,13 +430,14 @@ void text_show_font_index(uint16_t x, uint16_t y, uint8_t index, uint8_t size, u
         case 40:
             if(foffset > sizeof(Chinese_40x40))
                 return ;
-            dzk = &Chinese_40x40[foffset];
+            dzk = (uint8_t *)&Chinese_40x40[foffset];
             break;
         case 48:
             if(foffset > sizeof(Chinese_48x48))
                 return ;
-            dzk = &Chinese_48x48[foffset];
+            dzk = (uint8_t *)&Chinese_48x48[foffset];
             break;
+        default : break;
     }
 
      for (t = 0; t < csize; t++)
