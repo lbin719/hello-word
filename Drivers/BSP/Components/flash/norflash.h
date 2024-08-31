@@ -8,11 +8,13 @@
  */
 #define GD25Q16                          0xC814
 #define WB25Q64                          0xEF16
+#define WB25Q128                         0xEF17
 /** @defgroup SPI_flash_operation_definition
   * @{
   */
 #define GD25Q16_CHIP_SIZE                (0x200000)
 #define WB25Q64_CHIP_SIZE                (0x800000)
+#define WB25Q64_CHIP_SIZE                (0x800000)// 先识别成8M
 
 #define SPIF_CHIP_SIZE                   (chip_size)
 

@@ -298,6 +298,12 @@ bool norflash_init(void)
         LOG_I("flash id:%x is:%s size:%x\r\n", flash_id, "WB25Q64", chip_size);
         return true;
     }
+    else if(WB25Q128 == flash_id)
+    {
+        chip_size = WB25Q128_CHIP_SIZE;
+        LOG_I("flash id:%x is:%s size:%x\r\n", flash_id, "WB25Q128", chip_size);
+        return true;
+    }
     else
     {
         LOG_I("flash init fail id: %x\r\n", flash_id);
