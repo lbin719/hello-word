@@ -30,30 +30,7 @@ void SystemClock_Config(void);
 
 void board_init(void)
 {
-  GPIO_InitTypeDef gpio_init_struct = {0};
 
-  LED_GREEN_GPIO_CLK_ENABLE();
-  KEY_GPIO_CLK_ENABLE();
-
-  gpio_init_struct.Pin = LED_GREEN_GPIO_PIN;
-  gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
-  gpio_init_struct.Pull = GPIO_NOPULL;
-  gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-  HAL_GPIO_Init(LED_GREEN_GPIO_PORT, &gpio_init_struct);
-  HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_GPIO_PIN, GPIO_PIN_SET);
-
-  gpio_init_struct.Pin = KEY_GPIO_PIN;
-  gpio_init_struct.Mode = GPIO_MODE_INPUT;
-  gpio_init_struct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(KEY_GPIO_PORT, &gpio_init_struct);
-
-  // while(1)
-  // {
-  //   HAL_GPIO_WritePin(LED_BLUE_GPIO_PORT, LED_BLUE_GPIO_PIN, GPIO_PIN_SET);
-  //   delay_us(100);
-  //   HAL_GPIO_WritePin(LED_BLUE_GPIO_PORT, LED_BLUE_GPIO_PIN, GPIO_PIN_RESET);
-  //   delay_us(100);
-  // }
 }
 
 extern void ui_init(void);
@@ -85,6 +62,10 @@ int main(void)
   // cm_backtrace_set_callback(NULL);
 
   board_init();
+
+  led_init();
+
+  key_init();
 
   hx711_init();
   
@@ -132,6 +113,7 @@ int main(void)
 
     ui_task_handle();
 
+    led_task_handle();
     // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */
     HAL_Delay(1000);
