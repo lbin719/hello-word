@@ -120,7 +120,7 @@ int main(void)
 
     ec800e_task_handle();
 
-    // wtn6040_task_handle();
+    wtn6040_task_handle();
 
     weight_task_handle();
 

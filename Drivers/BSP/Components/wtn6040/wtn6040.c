@@ -13,13 +13,19 @@
 #define WTN6040_PLAY(x)     (0x00 + x)// 语音索引
 #define WTN6040_LEVEL(x)    (0xE0 + x)// 调节音量0~15
 
+
+uint32_t wtn6040_lasttime = 0;
+
 void wtn6040_task_handle(void)
 {
+    if(HAL_GetTick() - wtn6040_lasttime < 5000)
+        return ;
+    wtn6040_lasttime = HAL_GetTick();
+
 	static uint8_t i = 0;
     wtn6040_write_data(WTN6040_PLAY(i));
     i++;
     i = i%4;
-    HAL_Delay(1000);
 }
 
 void wtn6040_init(void)
