@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "stmencrypt.h"
 #include "ulog.h"
+#include "hx711.h"
 
 typedef void (*fct_test_func_t)(uint8_t argc, char **argv);
 typedef struct
@@ -13,10 +14,12 @@ typedef struct
 
 void fct_encrypt_test(uint8_t argc, char **argv);
 void fct_power_test(uint8_t argc, char **argv);
+void fct_hx711_test(uint8_t argc, char **argv);
 
 static const fct_test_func_mapping_t fct_test_func[]={
     {"key",     fct_encrypt_test,   true},
     {"power",   fct_power_test,     true},
+    {"hx711",   fct_hx711_test,     true},    
     // {"led", fct_led_test, false},
     // {"bootfac", fct_bootfac_test, true},
     // {"time", fct_rtc_test, false}
@@ -207,6 +210,23 @@ void fct_power_test(uint8_t argc, char **argv)
         LOG_I("system reboot...\r\n");
         HAL_Delay(100);
         NVIC_SystemReset();
+    }
+    else
+    {
+        LOG_I("param err!\r\n");
+        return;
+    }
+}
+
+void fct_hx711_test(uint8_t argc, char **argv)
+{
+    if (argc == 3 && !strcmp(argv[2], "zero"))
+    {
+        hx711_set_zero();
+    }
+    else if (argc == 3 && !strcmp(argv[2], "cala"))
+    {
+        hx711_set_calibration(500);
     }
     else
     {
