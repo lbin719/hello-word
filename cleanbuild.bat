@@ -37,4 +37,4 @@ stm32cubeidec.exe --launcher.suppressErrors -nosplash -application org.eclipse.c
 @REM copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.bin .\binary
 @REM copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%_raw.bin .\binary
 
-@REM pause
+pause
