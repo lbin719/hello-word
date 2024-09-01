@@ -35,7 +35,8 @@ char *const FONT_GBK_PATH[] =
 { 
     "GBK_12.FON",
     "GBK_16.FON",
-    "GBK_24.FON",    
+    "GBK_24.FON",
+    "GBK_28.FON",
     "GBK_32.FON",  
     "GBK_40.FON",     
     "GBK_48.FON",   
@@ -45,7 +46,8 @@ char *const FONT_GBK2312_PATH[] =
 {
     "GBK2312_12.FON",
     "GBK2312_16.FON",
-    "GBK2312_24.FON",    
+    "GBK2312_24.FON",  
+    "GBK2312_28.FON",        
     "GBK2312_32.FON",   
     "GBK2312_40.FON",
     "GBK2312_48.FON",   
@@ -59,9 +61,10 @@ static uint8_t text_match_path_index(uint8_t size)
         case 12: index = 0; break;
         case 16: index = 1; break;
         case 24: index = 2; break;
-        case 32: index = 3; break;
-        case 40: index = 4; break;
-        case 48: index = 5; break;
+        case 28: index = 3; break;
+        case 32: index = 4; break;
+        case 40: index = 5; break;
+        case 48: index = 6; break;
         default : break;
     }
     return index;
@@ -164,9 +167,8 @@ void text_show_font(uint16_t x, uint16_t y, uint8_t *font, uint8_t size, uint8_t
     // uint8_t *dzk;
     uint16_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size);     /* 得到字体一个字符对应点阵集所占的字节数 */
 
-    if (size != 12 && size != 16 &&
-    	size != 24 && size != 32 &&
-		size != 40 && size != 48)
+    if (size != 12 && size != 16 && size != 24 && size != 28 && 
+        size != 32 && size != 40 && size != 48)
     {
         return;     /* 不支持的size */
     }
@@ -332,6 +334,33 @@ void text_show_string_middle(uint16_t x, uint16_t y, uint16_t width, uint16_t he
 }
 
 /**
+ * @brief       在指定宽度的左边间显示字符串
+ *   @note      如果字符长度超过了len,则用text_show_string_middle显示
+ * @param       x,y   : 起始坐标
+ * @param       width : 显示区域宽度
+ * @param       height: 显示区域高度
+ * @param       str   : 字符串
+ * @param       size  : 字体大小
+ * @param       mode  : 显示模式
+ *   @note              0, 正常显示(不需要显示的点,用LCD背景色填充,即g_back_color)
+ *   @note              1, 叠加显示(仅显示需要显示的点, 不需要显示的点, 不做处理)
+ * @param       color : 字体颜色
+ * @retval      无
+ */
+void text_show_string_left(uint16_t x, uint16_t y, uint16_t width, uint16_t height, char *str, uint8_t size, uint8_t mode, uint32_t color)
+{
+    uint16_t strlenth = 0;
+    strlenth = strlen((const char *)str);
+    strlenth *= size / 2;
+
+    text_show_string(x, y, lcd_dev.width, lcd_dev.height, str, size, mode, color);
+    if ((mode == 0) && (width > strlenth)) /* 将末尾清空 */
+    {
+        lcd_draw_fill(g_back_color, (x + strlenth), y, (width - strlenth), (y + size));
+    }
+}
+
+/**
  * @brief       在指定位置显示一个字符
  * @param       x,y  : 坐标
  * @param       chr  : 要显示的字符:" "--->"~"
@@ -363,6 +392,10 @@ void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode,
 
         case 24:
             pfont = (uint8_t *)asc2_2412[chr];  /* 调用2412字体 */
+            break;
+
+        case 28:
+            pfont = (uint8_t *)asc2_2814[chr];  /* 调用3216字体 */
             break;
 
         case 32:
