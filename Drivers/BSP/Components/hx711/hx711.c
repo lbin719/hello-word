@@ -3,6 +3,7 @@
 #include "hx711.h"
 #include "board.h"
 #include "ulog.h"
+#include "system_info.h"
 
 
 #define HX711_SCK_HIGH()        	(HX711_SCK_GPIO_PORT->BSRR = HX711_SCK_GPIO_PIN)
@@ -71,7 +72,7 @@ void hx711_set_zero(void)
 void hx711_set_calibration(uint32_t weight)
 {
 	uint32_t diff_value;
-	uint32_t read_value = hx711_read(HX711_READ_TIMEOUT*10);
+	uint32_t read_value = hx711_read(HX711_READ_TIMEOUT * 10);
 
 	if(read_value > zero_value)
 	{
