@@ -296,6 +296,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/text/text.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/timer/timer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/timer/timer.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/uart/uart.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/uart/uart.c</locationURI>

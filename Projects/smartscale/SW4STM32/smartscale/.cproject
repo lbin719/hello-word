@@ -65,6 +65,7 @@
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/led"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/key"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/sysinfo"/>
+									<listOptionValue builtIn="false" value="../../../../../Drivers/BSP/Components/timer"/>									
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Core/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Class/HID/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc"/>
