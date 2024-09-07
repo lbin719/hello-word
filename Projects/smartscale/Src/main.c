@@ -38,6 +38,7 @@ extern void ui_init(void);
 extern void ui_task_handle(void);
 extern void fct_task_handle(void);
 extern void weight_task_handle(void);
+extern void wireless_task_handle(void);
 
 int main(void)
 {
@@ -120,11 +121,9 @@ int main(void)
 
     mj8000_task_handle();
 
-    ec800e_task_handle();
-
-    wtn6040_task_handle();
-
     weight_task_handle();
+
+    wireless_task_handle();
 
     // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */

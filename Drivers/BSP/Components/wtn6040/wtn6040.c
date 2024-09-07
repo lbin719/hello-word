@@ -17,7 +17,6 @@
 #define WTN6040_MAX_VOICE   (15)
 #define WTN6040_MAX_PLAY    (8)
 
-uint32_t wtn6040_lasttime = 0;
 
 void wtn6040_write_data(uint8_t data)
 {
@@ -63,18 +62,6 @@ void wtn6040_set_voice(uint8_t level)
         level = WTN6040_MAX_VOICE;
 
     wtn6040_write_data(WTN6040_LEVEL(level));
-}
-
-void wtn6040_task_handle(void)
-{
-    if(HAL_GetTick() - wtn6040_lasttime < 2000)
-        return ;
-    wtn6040_lasttime = HAL_GetTick();
-
-	static uint8_t i = 0;
-    wtn6040_play(i);
-    i++;
-    i = i%4;
 }
 
 void wtn6040_init(void)
