@@ -15,11 +15,13 @@ typedef struct
 void fct_encrypt_test(uint8_t argc, char **argv);
 void fct_power_test(uint8_t argc, char **argv);
 void fct_hx711_test(uint8_t argc, char **argv);
+void fct_wtn6040_test(uint8_t argc, char **argv);
 
 static const fct_test_func_mapping_t fct_test_func[]={
     {"key",     fct_encrypt_test,   true},
     {"power",   fct_power_test,     true},
     {"hx711",   fct_hx711_test,     true},    
+    {"wtn6040", fct_wtn6040_test,    true},      
     // {"led", fct_led_test, false},
     // {"bootfac", fct_bootfac_test, true},
     // {"time", fct_rtc_test, false}
@@ -39,6 +41,28 @@ typedef struct
 
 static SHELL_TypeDef shell = {0};
 
+static int strToInt(char* str) {
+    int num = 0;
+    int sign = 1;
+    int i = 0;
+
+    // 处理字符串中的空格
+    while (str[i] == ' ') {
+        i++;
+    }
+
+    // 处理正负号
+    if (str[i] == '+' || str[i] == '-') {
+        sign = (str[i++] == '+') ? 1 : -1;
+    }
+
+    // 将字符串转换为整数
+    while (str[i] >= '0' && str[i] <= '9') {
+        num = num * 10 + str[i++] - '0';
+    }
+
+    return sign * num;
+}
 
 void cmd_factorytest(int argc, char *argv[])
 {
@@ -224,10 +248,30 @@ void fct_hx711_test(uint8_t argc, char **argv)
     {
         hx711_set_zero();
     }
-    else if (argc == 3 && !strcmp(argv[2], "cala"))
+    else if (argc == 4 && !strcmp(argv[2], "cala"))
     {
-        hx711_set_calibration(500);
+        uint32_t cali_weight = strToInt(argv[3]);
+        hx711_set_calibration(cali_weight);
     }
+    else
+    {
+        LOG_I("param err!\r\n");
+        return;
+    }
+}
+
+void fct_wtn6040_test(uint8_t argc, char **argv)
+{
+    if (argc == 4 && !strcmp(argv[2], "level"))
+    {
+        uint8_t level = strToInt(argv[3]);
+        wtn6040_set_voice(level);
+    }
+    else if (argc == 4 && !strcmp(argv[2], "play"))
+    {
+        uint8_t index = strToInt(argv[3]);
+        wtn6040_play(index);
+    }   
     else
     {
         LOG_I("param err!\r\n");

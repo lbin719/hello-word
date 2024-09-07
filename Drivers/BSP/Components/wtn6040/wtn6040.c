@@ -47,6 +47,8 @@ void wtn6040_write_data(uint8_t data)
 
 void wtn6040_play(uint8_t index)
 {
+    LOG_I("[WTN]play:%d", index);
+    
     if(index > WTN6040_MAX_PLAY)
         index = WTN6040_MAX_PLAY;
 
@@ -55,6 +57,8 @@ void wtn6040_play(uint8_t index)
 
 void wtn6040_set_voice(uint8_t level)
 {
+    LOG_I("[WTN]set voice:%d", level);
+
     if(level > WTN6040_MAX_VOICE)
         level = WTN6040_MAX_VOICE;
 
