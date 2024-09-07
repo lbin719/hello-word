@@ -64,6 +64,8 @@ int main(void)
   cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
   // cm_backtrace_set_callback(NULL);
 
+  sys_data_init();
+
   board_init();
 
   led_init();

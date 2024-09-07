@@ -56,7 +56,7 @@ uint32_t stm_generate_key(void)
 uint32_t stmencrypt_write_key(void)
 {
     uint32_t ret = FLASHIF_OK;
-    // uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
+    // uint32_t flash_key = *(uint32_t*)(STMFLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
     // if(flash_key == 0xFFFFFFFF)//未写入
     {
         stmencrypt_data_t ststmencrypt_data;
@@ -65,20 +65,20 @@ uint32_t stmencrypt_write_key(void)
         ststmencrypt_data.key = stm_generate_key();
         ststmencrypt_data.key ^= ststmencrypt_data.tick;
 
-        ret = stmflash_erase(STM32_FLASH_EN_ID_START_ADDR, STM32_FLASH_EN_ID_SIZE);
+        ret = stmflash_erase(STMFLASH_EN_ID_START_ADDR, STMFLASH_EN_ID_SIZE);
         if(ret != FLASHIF_OK)
         {
             LOG_I("stmflash_erase error ret:%d\r\n", ret);
             return ret;
         }
-        ret = stmflash_write(STM32_FLASH_EN_ID_START_ADDR, (uint32_t *)&ststmencrypt_data, sizeof(stmencrypt_data_t)); //保存这个数，写进32位
+        ret = stmflash_write(STMFLASH_EN_ID_START_ADDR, (uint32_t *)&ststmencrypt_data, sizeof(stmencrypt_data_t)); //保存这个数，写进32位
         if(ret != FLASHIF_OK)
         {
             LOG_I("stmflash_write error ret:%d\r\n", ret);
             return ret;
         }
         //check
-//        uint32_t read_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
+//        uint32_t read_key = *(uint32_t*)(STMFLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
 //        if(read_key != key)
 //        {
 //            LOG_I("write key fail. key: 0x%08x, read_key: 0x%08x\r\n", key, read_key);
@@ -98,8 +98,8 @@ bool stmencrypt_cmp_key(void)
 {
     uint32_t calculater_key = 0;
     stmencrypt_data_t ststmencrypt_data;
-    memcpy((uint8_t *)&ststmencrypt_data, (uint8_t *)(STM32_FLASH_EN_ID_START_ADDR), sizeof(ststmencrypt_data));
-    // uint32_t flash_key = *(uint32_t*)(STM32_FLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
+    memcpy((uint8_t *)&ststmencrypt_data, (uint8_t *)(STMFLASH_EN_ID_START_ADDR), sizeof(ststmencrypt_data));
+    // uint32_t flash_key = *(uint32_t*)(STMFLASH_EN_ID_START_ADDR);  //读出加密时，保存在flash中的数
 
     if(ststmencrypt_data.header != STMENCRYPT_HEADER)//  未写入
     {

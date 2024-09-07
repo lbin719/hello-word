@@ -14,12 +14,10 @@
 
 #define HX711_READ_TIMEOUT		(100000)//100ms
 
-#define HX_DEFAULT_ZERO 		(8411213)
-#define HX_DEFAULT_WEIGHT		(109.578)
 
-uint32_t zero_value = HX_DEFAULT_ZERO;
-float gap_value = HX_DEFAULT_WEIGHT;
-uint32_t weight_value = 0;
+static uint32_t zero_value = 0;
+static float gap_value = 0;
+static uint32_t weight_value = 0;
 
 
 static uint32_t hx711_read(uint32_t timeout_us)	//增益128
@@ -66,6 +64,7 @@ static uint32_t hx711_read(uint32_t timeout_us)	//增益128
 void hx711_set_zero(void)
 {
 	zero_value = hx711_read(HX711_READ_TIMEOUT*10);
+	sysinfo_store_hxzero(zero_value);
 	LOG_I("[HX]zero read value: %d\r\n", zero_value);
 }
 
@@ -78,6 +77,7 @@ void hx711_set_calibration(uint32_t weight)
 	{
 		diff_value = read_value - zero_value;				
 		gap_value = ((float)diff_value/weight);
+		sysinfo_store_hxgap(gap_value);
 		LOG_I("[HX]calibration success w: %d,r: %d,z:%d,gap:%f\r\n", weight, read_value, zero_value, gap_value); 													
 	}
 	else
@@ -117,5 +117,9 @@ void hx711_init(void)
     gpio_init_struct.Pull = GPIO_PULLUP;
 	HAL_GPIO_Init(HX711_DOUT_GPIO_PORT, &gpio_init_struct);
 
+	zero_value = sysinfo_get_hxzero();
+	gap_value = sysinfo_get_hxgap();
+
+	LOG_I("[HX]%s zero:%d, gap:%f\r\n", __FUNCTION__, zero_value, gap_value);
 }
 
