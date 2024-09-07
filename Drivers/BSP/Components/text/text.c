@@ -85,7 +85,7 @@ static void text_get_hz_mat(unsigned char *code, unsigned char *mat, uint8_t siz
     uint16_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size); /* 得到字体一个字符对应点阵集所占的字节数 */
     qh = *code;
     ql = *(++code);
-#if 1
+#if 0
     LOG_I("font qh:%02x ql:%02x\r\n", qh, ql);
 #endif
 
