@@ -10,44 +10,14 @@
                                   HAL_GPIO_WritePin(WTN6040_DATA_GPIO_PORT, WTN6040_DATA_GPIO_PIN, GPIO_PIN_RESET); \
                             }while(0)
 
+
 #define WTN6040_PLAY(x)     (0x00 + x)// 语音索引
 #define WTN6040_LEVEL(x)    (0xE0 + x)// 调节音量0~15
 
+#define WTN6040_MAX_VOICE   (15)
+#define WTN6040_MAX_PLAY    (8)
 
 uint32_t wtn6040_lasttime = 0;
-
-void wtn6040_task_handle(void)
-{
-    if(HAL_GetTick() - wtn6040_lasttime < 5000)
-        return ;
-    wtn6040_lasttime = HAL_GetTick();
-
-	static uint8_t i = 0;
-    wtn6040_write_data(WTN6040_PLAY(i));
-    i++;
-    i = i%4;
-}
-
-void wtn6040_init(void)
-{
-    GPIO_InitTypeDef gpio_init_struct = {0};
-
-    WTN6040_DATA_GPIO_CLK_ENABLE();
-    WTN6040_BUSY_GPIO_CLK_ENABLE();
-
-    gpio_init_struct.Pin = WTN6040_DATA_GPIO_PIN;
-    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio_init_struct.Pull = GPIO_NOPULL;
-    gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-    HAL_GPIO_Init(WTN6040_DATA_GPIO_PORT, &gpio_init_struct);
-    WTN6040_DATA(1);
-
-    // gpio_init_struct.Pin = WTN6040_BUSY_GPIO_PIN;
-    // gpio_init_struct.Mode = GPIO_MODE_INPUT;
-    // HAL_GPIO_Init(WTN6040_BUSY_GPIO_PORT, &gpio_init_struct);
-
-    LOG_I("%s\r\n", __FUNCTION__);
-}
 
 void wtn6040_write_data(uint8_t data)
 {
@@ -73,3 +43,54 @@ void wtn6040_write_data(uint8_t data)
 	}
     WTN6040_DATA(1);
 }
+
+
+void wtn6040_play(uint8_t index)
+{
+    if(index > WTN6040_MAX_PLAY)
+        index = WTN6040_MAX_PLAY;
+
+    wtn6040_write_data(WTN6040_PLAY(index));
+}
+
+void wtn6040_set_voice(uint8_t level)
+{
+    if(level > WTN6040_MAX_VOICE)
+        level = WTN6040_MAX_VOICE;
+
+    wtn6040_write_data(WTN6040_LEVEL(level));
+}
+
+void wtn6040_task_handle(void)
+{
+    if(HAL_GetTick() - wtn6040_lasttime < 2000)
+        return ;
+    wtn6040_lasttime = HAL_GetTick();
+
+	static uint8_t i = 0;
+    wtn6040_play(i);
+    i++;
+    i = i%4;
+}
+
+void wtn6040_init(void)
+{
+    GPIO_InitTypeDef gpio_init_struct = {0};
+
+    WTN6040_DATA_GPIO_CLK_ENABLE();
+    WTN6040_BUSY_GPIO_CLK_ENABLE();
+
+    gpio_init_struct.Pin = WTN6040_DATA_GPIO_PIN;
+    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio_init_struct.Pull = GPIO_NOPULL;
+    gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(WTN6040_DATA_GPIO_PORT, &gpio_init_struct);
+    WTN6040_DATA(1);
+
+    // gpio_init_struct.Pin = WTN6040_BUSY_GPIO_PIN;
+    // gpio_init_struct.Mode = GPIO_MODE_INPUT;
+    // HAL_GPIO_Init(WTN6040_BUSY_GPIO_PORT, &gpio_init_struct);
+
+    LOG_I("%s\r\n", __FUNCTION__);
+}
+
