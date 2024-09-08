@@ -1,10 +1,25 @@
 #ifndef _EC800E_H
 #define _EC800E_H
 
-// #define UART4_RXDMA_BUFFER_SIZE (255)
+#include <stdint.h>
+#include <stdbool.h>
+
+#define EC800E_UART_RX_BUF_SIZE        (256)
+#define EC800E_UART_TX_BUF_SIZE        (256)
+
+typedef struct
+{
+    uint8_t buf[EC800E_UART_RX_BUF_SIZE];       /* 帧接收缓冲 */
+    uint16_t len;                               /* 帧接收长度 */
+    bool finsh;                                 /* 帧接收完成标志 */
+} uart_rx_frame_t; 
+
+extern uart_rx_frame_t g_uart_rx_frame;
 
 void ec800e_init(void);
-void ec800e_task_handle(void);
+void ec800e_uart_printf(char *fmt, ...);
+void ec800e_start_recv(void);
+bool ec800e_wait_recv_data(void);
 
 /* 操作函数 */
 // void atk_idm750c_uart_printf(char *fmt, ...);           /* ATK-IDM750C UART printf */

@@ -41,29 +41,6 @@ typedef struct
 
 static SHELL_TypeDef shell = {0};
 
-static int strToInt(char* str) {
-    int num = 0;
-    int sign = 1;
-    int i = 0;
-
-    // 处理字符串中的空格
-    while (str[i] == ' ') {
-        i++;
-    }
-
-    // 处理正负号
-    if (str[i] == '+' || str[i] == '-') {
-        sign = (str[i++] == '+') ? 1 : -1;
-    }
-
-    // 将字符串转换为整数
-    while (str[i] >= '0' && str[i] <= '9') {
-        num = num * 10 + str[i++] - '0';
-    }
-
-    return sign * num;
-}
-
 void cmd_factorytest(int argc, char *argv[])
 {
 #if 1
@@ -250,7 +227,7 @@ void fct_hx711_test(uint8_t argc, char **argv)
     }
     else if (argc == 4 && !strcmp(argv[2], "cala"))
     {
-        uint32_t cali_weight = strToInt(argv[3]);
+        uint32_t cali_weight = str_toint(argv[3]);
         hx711_set_calibration(cali_weight);
     }
     else
@@ -264,12 +241,12 @@ void fct_wtn6040_test(uint8_t argc, char **argv)
 {
     if (argc == 4 && !strcmp(argv[2], "level"))
     {
-        uint8_t level = strToInt(argv[3]);
+        uint8_t level = str_toint(argv[3]);
         wtn6040_set_voice(level);
     }
     else if (argc == 4 && !strcmp(argv[2], "play"))
     {
-        uint8_t index = strToInt(argv[3]);
+        uint8_t index = str_toint(argv[3]);
         wtn6040_play(index);
     }   
     else

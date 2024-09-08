@@ -14,7 +14,7 @@
 #include "wtn6040.h"
 #include "led.h"
 #include "key.h"
-
+#include "application.h"
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -37,8 +37,7 @@ void board_init(void)
 extern void ui_init(void);
 extern void ui_task_handle(void);
 extern void fct_task_handle(void);
-extern void weight_task_handle(void);
-extern void wireless_task_handle(void);
+
 
 int main(void)
 {

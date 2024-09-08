@@ -6,16 +6,14 @@
 #include <stdio.h>
 #include "board.h"
 
-#define EC800E_UART_RX_BUF_SIZE        (512)
-#define EC800E_UART_TX_BUF_SIZE        (512)
+#define EC_RST_SET()        	    (EC_RST_GPIO_PORT->BSRR = (uint32_t)(EC_RST_GPIO_PIN  << 16u))
+#define EC_RST_RESET()       		(EC_RST_GPIO_PORT->BSRR = EC_RST_GPIO_PIN)
 
-static struct
-{
-    uint8_t buf[EC800E_UART_RX_BUF_SIZE];       /* 帧接收缓冲 */
-    uint16_t len;                               /* 帧接收长度 */
-    bool finsh;                                 /* 帧接收完成标志 */
-} g_uart_rx_frame = {0};                        /* UART接收帧缓冲信息结构体 */
+#define EC_PWR_SET()        	    (EC_PWR_GPIO_PORT->BSRR = (uint32_t)(EC_PWR_GPIO_PIN  << 16u))
+#define EC_PWR_RESET()       		(EC_PWR_GPIO_PORT->BSRR = EC_PWR_GPIO_PIN)
 
+
+uart_rx_frame_t g_uart_rx_frame = {0};                        /* UART接收帧缓冲信息结构体 */
 static uint8_t g_uart_tx_buf[EC800E_UART_TX_BUF_SIZE]; /* UART发送缓冲 */
 
 void ec800e_uart_printf(char *fmt, ...)
@@ -29,24 +27,8 @@ void ec800e_uart_printf(char *fmt, ...)
 
     len = strlen((const char *)g_uart_tx_buf);
     uart2_sync_output(g_uart_tx_buf, len);
+    LOG_I("[EC]send:%s\r\n", g_uart_tx_buf);
 }
-
-void ec800e_task_handle(void)
-{
-    if(g_uart_rx_frame.finsh)
-    {
-        g_uart_rx_frame.buf[g_uart_rx_frame.len] = '\0';
-        LOG_I("[EC]recv: %s\r\n", g_uart_tx_buf);
-
-        // ec800e_uart_printf("%s\r\n", g_uart_rx_frame.buf);
-
-        g_uart_rx_frame.finsh = 0;
-        uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
-
-    }
-    ec800e_uart_printf("AT\r\n");
-}
-
 
 void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)
 {
@@ -74,22 +56,60 @@ void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)
     g_uart_rx_frame.finsh = 1;                                      /* 标记帧接收完成 */
 }
 
+void ec800e_start_recv(void)
+{
+    g_uart_rx_frame.finsh = 0;
+    uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
+}
+
+bool ec800e_wait_recv_data(void)
+{
+    if(g_uart_rx_frame.finsh)
+    {
+        g_uart_rx_frame.buf[g_uart_rx_frame.len] = '\0';
+#if 0
+        LOG_I("[EC]rx len:%d, hex:", g_uart_rx_frame.len);
+        for(uint32_t i = 0; i < g_uart_rx_frame.len; i++)
+        {
+            LOG_I_NOTICK(" %02X ", g_uart_rx_frame.buf[i]);
+        }
+        LOG_I_NOTICK("\r\n");
+#endif
+        LOG_I("[EC]rx: %s\r\n", g_uart_rx_frame.buf);
+
+        g_uart_rx_frame.finsh = 0;
+        return true;
+    }
+    return false;
+}
+
 void ec800e_init(void)
 {
-    LOG_I("%s\r\n", __FUNCTION__);
-
     GPIO_InitTypeDef gpio_init_struct = {0};
 
     EC_PWR_GPIO_CLK_ENABLE();
+    EC_RST_GPIO_CLK_ENABLE();
     gpio_init_struct.Pin = EC_PWR_GPIO_PIN;
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
     gpio_init_struct.Pull = GPIO_NOPULL;
     gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
     HAL_GPIO_Init(EC_PWR_GPIO_PORT, &gpio_init_struct);
-    HAL_GPIO_WritePin(EC_PWR_GPIO_PORT, EC_PWR_GPIO_PIN, GPIO_PIN_RESET);//
+
+    gpio_init_struct.Pin = EC_RST_GPIO_PIN;
+    HAL_GPIO_Init(EC_RST_GPIO_PORT, &gpio_init_struct);
+
+    //POWER ON
+    EC_RST_RESET();
+    EC_PWR_SET();
+    HAL_Delay(30);
+    EC_PWR_RESET();
+    HAL_Delay(300);
+    EC_RST_SET();
 
     uart2_init();
 
-    g_uart_rx_frame.finsh = 0;
-    uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
+    // g_uart_rx_frame.finsh = 0;
+    // uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
+
+    LOG_I("%s\r\n", __FUNCTION__);
 }
