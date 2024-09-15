@@ -16,6 +16,10 @@ typedef struct
 
 extern uart_rx_frame_t g_uart_rx_frame;
 
+
+uint32_t ec800e_get_rx_buf(uint8_t *buf, uint32_t len);
+void ec800e_clear_rx_buf(void);
+
 void ec800e_init(void);
 void ec800e_uart_printf(char *fmt, ...);
 void ec800e_start_recv(void);

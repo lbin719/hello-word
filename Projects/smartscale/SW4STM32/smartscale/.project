@@ -281,6 +281,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/redirect/str.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/ringbuffer/ringbuffer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/ringbuffer/ringbuffer.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/spi/spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/spi/spi.c</locationURI>

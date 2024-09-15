@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "board.h"
+#include "ringbuffer.h"
 
 #define EC_RST_SET()        	    (EC_RST_GPIO_PORT->BSRR = (uint32_t)(EC_RST_GPIO_PIN  << 16u))
 #define EC_RST_RESET()       		(EC_RST_GPIO_PORT->BSRR = EC_RST_GPIO_PIN)
@@ -15,6 +16,13 @@
 
 uart_rx_frame_t g_uart_rx_frame = {0};                        /* UART接收帧缓冲信息结构体 */
 static uint8_t g_uart_tx_buf[EC800E_UART_TX_BUF_SIZE]; /* UART发送缓冲 */
+
+#define ECUART_RX_BUF_SIZE   (256)
+uint8_t ecuart_rx_buf[ECUART_RX_BUF_SIZE];
+
+#define ECRX_BUF_SIZE        (512)
+ring_buf_t ecrx_rb_handle = {0};
+uint8_t ecrx_rbuf[ECRX_BUF_SIZE];
 
 void ec800e_uart_printf(char *fmt, ...)
 {
@@ -27,61 +35,67 @@ void ec800e_uart_printf(char *fmt, ...)
 
     len = strlen((const char *)g_uart_tx_buf);
     uart2_sync_output(g_uart_tx_buf, len);
-    LOG_I("[EC]send:%s\r\n", g_uart_tx_buf);
+    LOG_I("[EC] T:%s", g_uart_tx_buf);
 }
+
 
 void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)
 {
-    // uint8_t tmp;
-    // if (__HAL_UART_GET_FLAG(&g_uart_handle, UART_FLAG_RXNE) != RESET)       /* UART接收中断 */
-    // {
-    //     HAL_UART_Receive(&g_uart_handle, &tmp, 1, HAL_MAX_DELAY);           /* UART接收数据 */
-
-    //     if (g_uart_rx_frame.len < (EC800E_UART_RX_BUF_SIZE - 1))        /* 判断UART接收缓冲是否溢出
-    //                                                                          * 留出一位给结束符'\0'
-    //                                                                          */
-    //     {
-    //         g_uart_rx_frame.buf[g_uart_rx_frame.len] = tmp;             /* 将接收到的数据写入缓冲 */
-    //         g_uart_rx_frame.len++;                                      /* 更新接收到的数据长度 */
-    //     }
-    //     else                                                                /* UART接收缓冲溢出 */
-    //     {
-    //         g_uart_rx_frame.len = 0;                                    /* 覆盖之前收到的数据 */
-    //         g_uart_rx_frame.buf[g_uart_rx_frame.len] = tmp;             /* 将接收到的数据写入缓冲 */
-    //         g_uart_rx_frame.len++;                                      /* 更新接收到的数据长度 */
-    //     }
-    // }
-
-    g_uart_rx_frame.len = EC800E_UART_RX_BUF_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx);
-    g_uart_rx_frame.finsh = 1;                                      /* 标记帧接收完成 */
+    ring_buf_put(&ecrx_rb_handle, ecuart_rx_buf, (ECUART_RX_BUF_SIZE -  __HAL_DMA_GET_COUNTER(huart->hdmarx)));
+    uart2_recive_dma(ecuart_rx_buf, ECUART_RX_BUF_SIZE);   
 }
 
-void ec800e_start_recv(void)
+uint32_t ec800e_get_rx_buf(uint8_t *buf, uint32_t len)
 {
-    g_uart_rx_frame.finsh = 0;
-    uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
-}
+    if(ring_buf_len(&ecrx_rb_handle) == 0)
+        return 0;
 
-bool ec800e_wait_recv_data(void)
-{
-    if(g_uart_rx_frame.finsh)
+    __disable_irq();
+    uint32_t len_act = ring_buf_get(&ecrx_rb_handle, buf, len);
+    __enable_irq();
+
+    // if(len_act > 0)
     {
-        g_uart_rx_frame.buf[g_uart_rx_frame.len] = '\0';
-#if 0
-        LOG_I("[EC]rx len:%d, hex:", g_uart_rx_frame.len);
-        for(uint32_t i = 0; i < g_uart_rx_frame.len; i++)
-        {
-            LOG_I_NOTICK(" %02X ", g_uart_rx_frame.buf[i]);
-        }
-        LOG_I_NOTICK("\r\n");
-#endif
-        LOG_I("[EC]rx: %s\r\n", g_uart_rx_frame.buf);
-
-        g_uart_rx_frame.finsh = 0;
-        return true;
+        buf[len_act] = '\0';
+        LOG_I("[EC] R:%s", buf);
     }
-    return false;
+
+    return len_act;
 }
+
+void ec800e_clear_rx_buf(void)
+{
+    __disable_irq();
+    ring_buf_clr(&ecrx_rb_handle);
+    __enable_irq();
+}
+
+// void ec800e_start_recv(void)
+// {
+//     g_uart_rx_frame.finsh = 0;
+//     uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
+// }
+
+// bool ec800e_wait_recv_data(void)
+// {
+//     if(g_uart_rx_frame.finsh)
+//     {
+//         g_uart_rx_frame.buf[g_uart_rx_frame.len] = '\0';
+// #if 0
+//         LOG_I("[EC]rx len:%d, hex:", g_uart_rx_frame.len);
+//         for(uint32_t i = 0; i < g_uart_rx_frame.len; i++)
+//         {
+//             LOG_I_NOTICK(" %02X ", g_uart_rx_frame.buf[i]);
+//         }
+//         LOG_I_NOTICK("\r\n");
+// #endif
+//         LOG_I("[EC]rx: %s\r\n", g_uart_rx_frame.buf);
+
+//         g_uart_rx_frame.finsh = 0;
+//         return true;
+//     }
+//     return false;
+// }
 
 void ec800e_init(void)
 {
@@ -108,6 +122,9 @@ void ec800e_init(void)
 
     uart2_init();
 
+
+    ring_buf_create(&ecrx_rb_handle, ecrx_rbuf, sizeof(ecrx_rbuf));
+    uart2_recive_dma(ecuart_rx_buf, ECUART_RX_BUF_SIZE);
     // g_uart_rx_frame.finsh = 0;
     // uart2_recive_dma(g_uart_rx_frame.buf, EC800E_UART_RX_BUF_SIZE);
 
