@@ -14,11 +14,10 @@
 #define UI_HYSY_STR             "欢迎使用"
 
 
-char *const leftdown_string[] =
-{ 
-    "正在登录"
-    "设备离线", 
-    "设备正常",
+char *const ld_str[] = { 
+  "正在登录",
+  "设备离线", 
+  "设备正常",
 };
 
 #if 0

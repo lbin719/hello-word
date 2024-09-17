@@ -122,7 +122,7 @@ int main(void)
 
     weight_task_handle();
 
-    wireless_task_handle();
+    wl_task_handle();
 
     // LOG_I("Hello world\r\n");
     /* Insert delay 100 ms */

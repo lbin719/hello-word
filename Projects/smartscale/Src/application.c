@@ -31,7 +31,9 @@ void weight_task_handle(void)
 	}
 }
 
-#define wl_set_state(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
+#define WL_SET_STATE(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
+
+#define WL_TIMEOUT_STATE(st)    if(timer_isexpired(wl.respond_timer)) WL_SET_STATE(st)
 
 #define WL_ATRESPOND_TIMEOUT_MS         (2000)
 #define WL_HEART_TIMEOUT_MS             (10*1000)
@@ -43,6 +45,7 @@ static wl_t wl = {
     .priv_dnum = 0,
     .priv_register = false,
     .send_status = false,
+    .device_status = WL_DSTATUS_ZZDL,
 };
 
 volatile uint32_t priv_send_bit = 0;
@@ -50,6 +53,11 @@ volatile uint32_t priv_send_bit = 0;
 void set_privsend_bit(uint32_t data_bit)
 {
     priv_send_bit |= data_bit;
+}
+
+uint8_t wl_get_device_status(void)
+{
+    return wl.device_status;
 }
 
 #define WL_RX_BUFFER_SIZE   (256)
@@ -82,8 +90,11 @@ bool rx_priv_parse(int argc, char *argv[])
         case WL_PRIV_FREBOOT_CMD:// 13 设备重启
         break;
 
-        case WL_PRIV_DREGISTER_RECMD:
+        case WL_PRIV_DREGISTER_RECMD:{
             wl.priv_register = true;
+            wl.device_status = WL_DSTATUS_SBZC;
+            set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+        }
         break;
         default:break;
     }
@@ -252,7 +263,6 @@ bool wl_rx_parse(parse_buffer * const input_buffer)
         return wl_ctrl_cmd(argc, argv);
     }
 
-
 	/*  one number */
     if((argc == 1) && argv[0][0] >= '0' && argv[0][0] <= '9')
 	{
@@ -267,6 +277,9 @@ bool wl_rx_parse(parse_buffer * const input_buffer)
     LOG_I("%s error\r\n", __FUNCTION__);
     return false;
 }
+
+
+
 
 bool wl_rx_handle(uint8_t *buf, int16_t len)
 {
@@ -334,7 +347,6 @@ void wl_priv_send(void)
     else if(priv_send_bit & WL_PRIVSEND_HEART_BIT)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
-
     }
     priv_send_bit = 0;
 }
@@ -346,7 +358,7 @@ void wl_priv_txrx(void)
     {
         set_privsend_bit(WL_PRIVSEND_RIGISTER_BIT);
         ec800e_uart_printf("AT+QISEND=0\r\n");
-        wl_set_state(WL_STATE_PRIV_SEND);
+        WL_SET_STATE(WL_STATE_PRIV_SEND);
         timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
 
         wl.priv_register = true;//todu test
@@ -357,7 +369,7 @@ void wl_priv_txrx(void)
     {
         set_privsend_bit(WL_PRIVSEND_HEART_BIT);
         ec800e_uart_printf("AT+QISEND=0\r\n");
-        wl_set_state(WL_STATE_PRIV_SEND);
+        WL_SET_STATE(WL_STATE_PRIV_SEND);
         timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         timer_start(wl.heart_timer, WL_HEART_TIMEOUT_MS);
         return ;
@@ -367,19 +379,19 @@ void wl_priv_txrx(void)
     uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
     if(act_len && wl_rx_handle(wl_rx_buf, act_len))
     {
-        // wl_set_state(WL_STATE_CONNECT_FINISH);
+        // WL_SET_STATE(WL_STATE_CONNECT_FINISH);
         // break;
     }
 }
 
-void wireless_task_handle(void)
+void wl_task_handle(void)
 {
     switch(wl.state)
     {
         case WL_STATE_INIT: {
            ec800e_clear_rx_buf();
            ec800e_uart_printf("AT\r\n");
-           wl_set_state(WL_STATE_WAIT_UART_CONNECT);
+           WL_SET_STATE(WL_STATE_WAIT_UART_CONNECT);
            timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -387,19 +399,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CLOSE_DIS);
+                WL_SET_STATE(WL_STATE_CLOSE_DIS);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_INIT);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_INIT);
         }
         break;
         case WL_STATE_CLOSE_DIS: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("ATE0\r\n");
-            wl_set_state(WL_STATE_WAIT_CLOSE_DIS);
+            WL_SET_STATE(WL_STATE_WAIT_CLOSE_DIS);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -407,19 +416,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CGSN);
+                WL_SET_STATE(WL_STATE_CGSN);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CLOSE_DIS);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CLOSE_DIS);
         }
         break;
         case WL_STATE_CGSN: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+CGSN=1\r\n");
-            wl_set_state(WL_STATE_WAIT_CGSN);
+            WL_SET_STATE(WL_STATE_WAIT_CGSN);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -427,18 +433,15 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CHECK_SIM);
+                WL_SET_STATE(WL_STATE_CHECK_SIM);
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CGSN);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CGSN);
         }
         break;
         case WL_STATE_CHECK_SIM: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+CPIN?\r\n");
-            wl_set_state(WL_STATE_WAIT_CHECK_SIM);
+            WL_SET_STATE(WL_STATE_WAIT_CHECK_SIM);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;    
@@ -446,19 +449,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CHECK_CSQ);
+                WL_SET_STATE(WL_STATE_CHECK_CSQ);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CHECK_SIM);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CHECK_SIM);
         }
         break;
         case WL_STATE_CHECK_CSQ: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+CSQ\r\n");
-            wl_set_state(WL_STATE_WAIT_CHECK_CSQ);
+            WL_SET_STATE(WL_STATE_WAIT_CHECK_CSQ);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -466,19 +466,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CIMI);
+                WL_SET_STATE(WL_STATE_CIMI);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CHECK_CSQ);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CHECK_CSQ);
         }
         break;
         case WL_STATE_CIMI: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+CIMI\r\n");
-            wl_set_state(WL_STATE_WAIT_CIMI);
+            WL_SET_STATE(WL_STATE_WAIT_CIMI);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -486,19 +483,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_QCCID);
+                WL_SET_STATE(WL_STATE_QCCID);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CIMI);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CIMI);
         }
         break;
         case WL_STATE_QCCID: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QCCID\r\n");
-            wl_set_state(WL_STATE_WAIT_QCCID);
+            WL_SET_STATE(WL_STATE_WAIT_QCCID);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -506,19 +500,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_QICLOSE);
+                WL_SET_STATE(WL_STATE_QICLOSE);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_QCCID);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_QCCID);
         }
         break;
         case WL_STATE_QICLOSE: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QICLOSE=0\r\n");
-            wl_set_state(WL_STATE_WAIT_QICLOSE);
+            WL_SET_STATE(WL_STATE_WAIT_QICLOSE);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -526,19 +517,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CGREG);
+                WL_SET_STATE(WL_STATE_CGREG);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_QICLOSE);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_QICLOSE);
         }
         break;
         case WL_STATE_CGREG: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+CGREG?\r\n");
-            wl_set_state(WL_STATE_WAIT_CGREG);
+            WL_SET_STATE(WL_STATE_WAIT_CGREG);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -546,19 +534,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_CEREG);
+                WL_SET_STATE(WL_STATE_CEREG);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CGREG);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CGREG);
         }
         break;
         case WL_STATE_CEREG: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+CEREG?\r\n");
-            wl_set_state(WL_STATE_WAIT_CEREG);
+            WL_SET_STATE(WL_STATE_WAIT_CEREG);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -566,19 +551,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_QLTS);
+                WL_SET_STATE(WL_STATE_QLTS);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_CEREG);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_CEREG);
         }
         break;
         case WL_STATE_QLTS: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QLTS=2\r\n");
-            wl_set_state(WL_STATE_WAIT_QLTS);
+            WL_SET_STATE(WL_STATE_WAIT_QLTS);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -586,19 +568,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_QIACT);
+                WL_SET_STATE(WL_STATE_QIACT);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_QLTS);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_QLTS);
         }
         break;
         case WL_STATE_QIACT: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QIACT=1\r\n");
-            wl_set_state(WL_STATE_WAIT_QIACT);
+            WL_SET_STATE(WL_STATE_WAIT_QIACT);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -606,19 +585,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_GET_QIACT);
+                WL_SET_STATE(WL_STATE_GET_QIACT);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_QIACT);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_QIACT);
         }
         break;
         case WL_STATE_GET_QIACT: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QIACT?\r\n");
-            wl_set_state(WL_STATE_WAIT_GET_QIACT);
+            WL_SET_STATE(WL_STATE_WAIT_GET_QIACT);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -626,19 +602,16 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_GET_QIOPEN);
+                WL_SET_STATE(WL_STATE_GET_QIOPEN);
                 break;
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_QIACT);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_QIACT);
         }
         break;
         case WL_STATE_GET_QIOPEN: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QIOPEN=1,0,\"TCP\",\"39.106.91.24\",10181,0,1\r\n");
-            wl_set_state(WL_STATE_WAIT_QIOPEN);
+            WL_SET_STATE(WL_STATE_WAIT_QIOPEN);
             timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
         }
         break;
@@ -653,14 +626,11 @@ void wireless_task_handle(void)
                     LOG_I("[WL]imsi:%s\r\n", wl.imsi);
                     LOG_I("[WL]iccid:%s\r\n", wl.iccid);            
                     LOG_I("[WL]ip:%s\r\n", wl.ip);
-                    wl_set_state(WL_STATE_TXRX);
+                    WL_SET_STATE(WL_STATE_TXRX);
                     break;
                 }
             }
-            if(timer_isexpired(wl.respond_timer))
-            {
-                wl_set_state(WL_STATE_GET_QIOPEN);
-            }
+            WL_TIMEOUT_STATE(WL_STATE_GET_QIOPEN);
         }
         break;
 
@@ -673,7 +643,7 @@ void wireless_task_handle(void)
                     wl_priv_send();
                     ec800e_uart_printf("%c", 0x1A);
                     wl.send_status = false;
-                    wl_set_state(WL_STATE_TXRX);
+                    WL_SET_STATE(WL_STATE_TXRX);
                     break;
                 }
             }
@@ -681,7 +651,7 @@ void wireless_task_handle(void)
             {
                 ec800e_uart_printf("%c", 0x1A);
                 wl.send_status = false;
-                wl_set_state(WL_STATE_TXRX);
+                WL_SET_STATE(WL_STATE_TXRX);
             }
         }
         break;
@@ -689,8 +659,8 @@ void wireless_task_handle(void)
             wl_priv_txrx();
         }
         break;
+
         default: break;
     }
-
 }
 

@@ -95,13 +95,16 @@ typedef enum
 
     WL_STATE_PRIV_SEND, 
 
-    // WL_STATE_PRIV_SEND_REGISTER,
-    // WL_STATE_PRIV_WAIT_REGISTER, 
-    // WL_STATE_PRIV_DATA,
-    // WL_STATE_CONNECT_FINISH,  
     WL_STATE_TXRX,            
 } wlstate_e;
 
+typedef enum
+{
+  WL_DSTATUS_ZZDL = 0, // 正在登录
+  WL_DSTATUS_SBLX,     // 设备离线
+  WL_DSTATUS_SBZC,     // 设备正常
+
+}wl_device_status_e;
 
 #define WL_SN_LEN                       (15)
 #define WL_IMSI_LEN                     (15)
@@ -124,6 +127,8 @@ typedef struct{
     uint32_t       priv_fnum;
     bool           priv_register;
     bool           send_status;
+
+    uint8_t        device_status;
 } wl_t;
 
 
@@ -168,6 +173,8 @@ typedef struct{
 
 
 void weight_task_handle(void);
-void wireless_task_handle(void);
+
+uint8_t wl_get_device_status(void);
+void wl_task_handle(void);
 
 #endif /* __APPLICATION_H */
