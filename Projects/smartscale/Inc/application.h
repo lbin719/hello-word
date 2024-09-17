@@ -2,6 +2,51 @@
 #ifndef __APPLICATION_H
 #define __APPLICATION_H
 
+#if 0
+tyepdef struct {
+    char *cmd;	/* AT指令 */
+    char *r_cmd;
+    int (*deal_func)(int opt, int argc, char *argv[]);
+}at_cmd_t;
+
+// int deal_uart_func(int opt, int argc, char *argv[]);
+
+at_cmd_t at_table[] = {
+    {"AT",              "OK",       NULL},
+    {"ATE0",            "OK",       NULL},
+    {"AT+CGSN=1",       "+CGSN:"    NULL},// +CGSN: "862584073708935"
+    {"AT+CPIN?",        "+CPIN:",   NULL},// +CPIN: READY
+    {"AT+CMIM",         "0",       NULL},// 460081925003317
+    {"AT+CSQ",          "+CSQ:",    NULL},// +CSQ: 31,0 信号强度
+    {"AT+QICLOSE=0",    "OK",       NULL},// ok
+    {"AT+CGREG?",       "+CGREG:",  NULL},// +CGREG: 0,1
+    {"AT+CEREG?",       "+CEREG:",  NULL},// +CEREG: 0,1
+    {"AT+QLTS=2",       "+QLTS:", NULL},// +QLTS:
+	// AT+QICSGP=1,1,"CMIOT","","",1  OK
+	// AT+QIACT=1 OK
+	// AT+QIACT? +QIACT: 1,1,1,"10.27.82.43" OK
+	// AT+QIOPEN=1,0,"TCP","39.106.91.24",10181,0,1  OK
+	// AT+QISEND=0 \r\n hello ... SEND OK
+};
+#endif
+
+typedef struct
+{
+	const unsigned char *content;
+	uint16_t length;
+	uint16_t offset;
+} parse_buffer;
+
+/* check if the given size is left to read in a given parse buffer (starting with 1) */
+#define can_read(buffer, size) ((buffer != NULL) && (((buffer)->offset + size) <= (buffer)->length))
+/* check if the buffer can be accessed at the given index (starting with 0) */
+#define can_access_at_index(buffer, index) ((buffer != NULL) && (((buffer)->offset + index) < (buffer)->length))
+#define cannot_access_at_index(buffer, index) (!can_access_at_index(buffer, index))
+/* get a pointer to the buffer at the position */
+#define buffer_at_offset(buffer) ((buffer)->content + (buffer)->offset)
+
+#define ARGC_LIMIT      (12)
+
 typedef enum
 {
     WL_STATE_INIT,
@@ -33,6 +78,9 @@ typedef enum
 
     WL_STATE_CEREG,    
     WL_STATE_WAIT_CEREG, 
+
+    WL_STATE_QLTS,    
+    WL_STATE_WAIT_QLTS,    
                             //AT+QICSGP=1,1,"CMIOT","","",1//配置 TCP/IP 场景参数
 
     WL_STATE_QIACT,         // AT+QIACT=1 
@@ -45,7 +93,6 @@ typedef enum
     WL_STATE_WAIT_QIOPEN,  
 
 
-    WL_STATE_PRIV_ENTER_SEND,
     WL_STATE_PRIV_SEND, 
 
     // WL_STATE_PRIV_SEND_REGISTER,
@@ -64,6 +111,7 @@ typedef enum
 typedef struct{
     wlstate_e      state;
     uint32_t       respond_timer;
+    uint32_t       heart_timer;
     bool           connect;
     bool           sim_status; 
     uint8_t        rssi; 
@@ -72,7 +120,8 @@ typedef struct{
     char           iccid[WL_ICCID_LEN + 1];
     char           ip[WL_IP_LEN + 1];
 
-    uint32_t       priv_count;
+    uint32_t       priv_dnum;
+    uint32_t       priv_fnum;
     bool           priv_register;
     bool           send_status;
 } wl_t;
@@ -113,6 +162,9 @@ typedef struct{
 
 
 #define WL_PRIVSEND_RIGISTER_BIT        (0x1UL << 0)       
+#define WL_PRIVSEND_HEART_BIT          (0x1UL << 1)    
+
+
 
 
 void weight_task_handle(void);

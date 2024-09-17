@@ -6,6 +6,7 @@
 #include "timer.h"
 #include "application.h"
 #include "str.h"
+#include "rtc_timer.h"
 
 uint32_t weitht_lasttime = 0;
 uint32_t last_weight = 0;
@@ -33,12 +34,13 @@ void weight_task_handle(void)
 #define wl_set_state(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
 
 #define WL_ATRESPOND_TIMEOUT_MS         (2000)
+#define WL_HEART_TIMEOUT_MS             (10*1000)
 
 
 static wl_t wl = {
     .connect = false,
     .state = WL_STATE_INIT,
-    .priv_count = 0,
+    .priv_dnum = 0,
     .priv_register = false,
     .send_status = false,
 };
@@ -47,203 +49,226 @@ volatile uint32_t priv_send_bit = 0;
 
 void set_privsend_bit(uint32_t data_bit)
 {
-  priv_send_bit |= data_bit;
+    priv_send_bit |= data_bit;
 }
 
 #define WL_RX_BUFFER_SIZE   (256)
 uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
 
-typedef struct
+bool rx_priv_parse(int argc, char *argv[])
 {
-	const unsigned char *content;
-	uint16_t length;
-	uint16_t offset;
-} parse_buffer;
-
-/* check if the given size is left to read in a given parse buffer (starting with 1) */
-#define can_read(buffer, size) ((buffer != NULL) && (((buffer)->offset + size) <= (buffer)->length))
-/* check if the buffer can be accessed at the given index (starting with 0) */
-#define can_access_at_index(buffer, index) ((buffer != NULL) && (((buffer)->offset + index) < (buffer)->length))
-#define cannot_access_at_index(buffer, index) (!can_access_at_index(buffer, index))
-/* get a pointer to the buffer at the position */
-#define buffer_at_offset(buffer) ((buffer)->content + (buffer)->offset)
-
-#define ARGC_LIMIT      (12)
-
-//tyepdef struct {
-//	char *cmd;	/* AT指令 */
-//    char *r_cmd;
-//	int (*deal_func)(int opt, int argc, char *argv[]);
-//}at_cmd_t;
-//
-//// int deal_uart_func(int opt, int argc, char *argv[]);
-//
-//at_cmd_t at_table[] = {
-//	{"AT",              "OK",       NULL},
-//	// {"ATE0",            "OK",       NULL},
-//	{"AT+CGSN=1",       "+CGSN:"    NULL},// +CGSN: "862584073708935"
-//    {"AT+CPIN?",        "+CPIN:",   NULL},// +CPIN: READY
-//    {"AT+CMIM",         "0",       NULL},// 460081925003317
-//    {"AT+CSQ",          "+CSQ:",    NULL},// +CSQ: 31,0 信号强度
-//    // {"AT+QICLOSE=0",    "OK",       NULL},// ok
-//    {"AT+CGREG?",       "+CGREG:",  NULL},// +CGREG: 0,1
-//    {"AT+CEREG?",       "+CEREG:",  NULL},// +CEREG: 0,1
-//	// AT+QICSGP=1,1,"CMIOT","","",1  OK
-//	// AT+QIACT=1 OK
-//	// AT+QIACT? +QIACT: 1,1,1,"10.27.82.43" OK
-//	// AT+QIOPEN=1,0,"TCP","39.106.91.24",10181,0,1  OK
-//	// AT+QISEND=0 \r\n hello ... SEND OK
-//};
-
-bool rx_priv_parse(const char *ptr, uint16_t len)
-{
-    int argc = ARGC_LIMIT;
-    char *argv[ARGC_LIMIT] = { (char *)0 };
-    // ptr += 1;
-    argc = string_split((char*)ptr, len, ',', argv, argc);
-#if 1
-    LOG_I("[WL]argc: %d argv:", argc);
-    for (int i = 0; i < argc; i++)
-        LOG_I_NOTICK(" %s", argv[i]);
-    LOG_I_NOTICK("\r\n");
-#endif
-
     int cmd = str_toint(argv[0]);
+    // wl.priv_fnum = str_toint(argv[1]);
     switch(cmd)
     {
+        case WL_PRIV_FCAIPING_CMD:// 4	服务器设置菜品
+        break;
+        case WL_PRIV_FQUPI_CMD:// 5	传感器操作（去皮）
+        break;
+        case WL_PRIV_FJIAOZHUN_CMD:// 6	传感器操作（校准）
+        break;
+        case WL_PRIV_FWEIGHT_CMD:// 7	传感器操作（获取重量）
+        break;
+        case WL_PRIV_FGETSTATUS_CMD:// 8 获取传感器稳定状态
+        break;
+        case WL_PRIV_FSAOMATUO_CMD:// 9	扫码头默认参数设置
+        break;
+        case WL_PRIV_FSETVOICE_CMD:// 10 设置音量大小
+        break;
+        case WL_PRIV_FHOT_CMD:// 11	设置加热状态
+        break;
+        case WL_PRIV_FHOTTIMER_CMD:// 12 设置加热等级
+        break;
+        case WL_PRIV_FREBOOT_CMD:// 13 设备重启
+        break;
+
         case WL_PRIV_DREGISTER_RECMD:
             wl.priv_register = true;
-            break;
+        break;
         default:break;
     }
 
     return true;
 }
 
-bool rx_cmd_parse(parse_buffer * const input_buffer)
+bool wl_ctrl_cmd(int argc, char *argv[])
+{
+    if (strncmp((const char*)argv[0], "+CGSN", 5) == 0)
+    {
+        memcpy(wl.sn, argv[1], WL_SN_LEN);
+        wl.sn[WL_SN_LEN] = '\0';
+		return true;
+    }
+
+    if (strncmp((const char*)argv[0], "+QCCID", 6) == 0)
+    {
+        memcpy(wl.iccid, argv[1], WL_ICCID_LEN);
+        wl.iccid[WL_ICCID_LEN] = '\0';
+		return true;
+    }
+
+    if (strncmp((const char*)argv[0], "+CPIN", 6) == 0)
+    {
+        if (strncmp((const char*)argv[1], "READY", 5) == 0)
+            return true;
+        else
+            return false;
+    }
+
+    if (strncmp((const char*)argv[0], "+CSQ", 4) == 0)
+    {
+        wl.rssi = str_toint(argv[1]);
+        return true;
+    }
+
+    if (strncmp((const char*)argv[0], "+CGREG", 6) == 0)
+    {
+        if(argv[1][0] == '0' && (argv[2][0] == '1' || argv[2][0] == '5')) //返回正常 或漫游
+            return true;
+        else
+            return false;
+    }
+
+    if (strncmp((const char*)argv[0], "+CEREG", 6) == 0)
+    {
+        if(argv[1][0] == '0' && (argv[2][0] == '1' || argv[2][0] == '5')) //返回正常 或漫游
+            return true;
+        else
+            return false;
+    }
+
+    if (strncmp((const char*)argv[0], "+QLTS", 5) == 0)
+    {
+        uint32_t m_argc = 0;
+        char *m_argv[ARGC_LIMIT] = { (char *)0 };
+        m_argc = str_split((char*)argv[1], strlen(argv[1]), m_argv, m_argc);
+#if 1
+        LOG_I("[WL]margc: %d margv:", m_argc);
+        for (int i = 0; i < m_argc; i++)
+            LOG_I_NOTICK(" %s", m_argv[i]);
+        LOG_I_NOTICK("\r\n");
+#endif
+        clock_date_t tm = {0};
+        tm.year = str_toint(m_argv[0]);
+        tm.month = str_toint(m_argv[1]);
+        tm.day = str_toint(m_argv[2]);
+        tm.hour = str_toint(m_argv[3]);
+        tm.minute = str_toint(m_argv[4]);
+        tm.second = str_toint(m_argv[5]);
+        tm.timezone = 32;
+        set_timestamp(date_to_seconds(&tm));
+        LOG_I("tm time: %d-%d-%d %d:%d:%d timestamp:%d\r\n", 
+               tm.year, tm.month, tm.day,
+               tm.hour, tm.minute, tm.second,
+               get_timestamp());
+        return true;
+    }
+
+    if (strncmp((const char*)argv[0], "+QIACT", 6) == 0)
+    {
+        int len = MIN(strlen(argv[4]), WL_IP_LEN);
+        memcpy(wl.ip, argv[4], len);
+        wl.ip[len] = '\0';
+        return true;
+    }
+
+    if (strncmp((const char*)argv[0], "+QIOPEN", 7) == 0)
+    {
+        if((argc >= 3) && (argv[1][0] == '0') &&  (argv[2][0] == '0'))
+        {
+            wl.connect = true;
+            return true;
+        }
+        else
+            return false;
+    }
+
+}
+
+bool wl_rx_parse(parse_buffer * const input_buffer)
 {
 	if ((input_buffer == NULL) || (input_buffer->content == NULL))
 	{
 		return false; /* no input */
 	}
 
-#if 0
-    uint8_t print_buf[64];
-    memcpy(print_buf, buffer_at_offset(input_buffer), input_buffer->length);
-    print_buf[input_buffer->length] = '\0';
-    LOG_I("[WL]parse:%s \r\n", );
+    bool priv_data = false;
+    uint32_t argc = 0;
+    char *argv[ARGC_LIMIT] = { (char *)0 };
+
+    char *ptr = buffer_at_offset(input_buffer);
+    uint16_t len = input_buffer->length - input_buffer->offset;
+    if(buffer_at_offset(input_buffer)[0] == '{')
+    {
+        priv_data = true;
+        ptr++;
+        if(len > 0)
+            len--;
+    }
+
+    argc = str_split((char*)buffer_at_offset(input_buffer), len, argv, argc);
+
+#if 1
+    LOG_I("[WL]parse:%s \r\n", buffer_at_offset(input_buffer));
+    LOG_I("[WL]argc: %d argv:", argc);
+    for (int i = 0; i < argc; i++)
+        LOG_I_NOTICK(" %s", argv[i]);
+    LOG_I_NOTICK("\r\n");
 #endif
 
-	/* parse the different types of values */
+    if(argc == 0)
+        return false;
 
-	/* object */
-	if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '{'))
+	if (priv_data)
 	{
-        // prive
-        return rx_priv_parse((buffer_at_offset(input_buffer)+1), (input_buffer->length - input_buffer->offset));
-		// return parse_object(item, input_buffer);
+        return rx_priv_parse(argc, argv);
 	}
 
-	if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '>'))
+    if ((argc == 1) && argv[0][0] == '>')
     {
         wl.send_status = true;
         return true;
     }
 
-
-	if (can_read(input_buffer, 2) && (strncmp((const char*)buffer_at_offset(input_buffer), "OK", 2) == 0))
+	if ((argc == 1) && (strncmp((const char*)argv[0], "OK", 2) == 0))
 		return true;
 
-	if (can_read(input_buffer, 7) && (strncmp((const char*)buffer_at_offset(input_buffer), "SEND OK", 7) == 0))
-		return true;
-
-	if (can_read(input_buffer, 5) && (strncmp((const char*)buffer_at_offset(input_buffer), "ERROR", 5) == 0))
-		return false;
-
-	if (can_read(input_buffer, 2) && (strncmp((const char*)buffer_at_offset(input_buffer), "AT", 2) == 0))
-		return true;
-
-    if (can_read(input_buffer, 8 + WL_SN_LEN) && (strncmp((const char*)buffer_at_offset(input_buffer), "+CGSN: \"", 8) == 0))
+	if ((argc == 2) && (strncmp((const char*)argv[0], "SEND", 4) == 0))
     {
-        memcpy(wl.sn, (char *)(buffer_at_offset(input_buffer) + 8), WL_SN_LEN);
-        wl.sn[WL_SN_LEN] = '\0';
-		return true;
-    }
-
-    if (can_read(input_buffer, 8 + WL_ICCID_LEN) && (strncmp((const char*)buffer_at_offset(input_buffer), "+QCCID: ", 8) == 0))
-    {
-        memcpy(wl.iccid, (char *)(buffer_at_offset(input_buffer) + 8), WL_ICCID_LEN);
-        wl.iccid[WL_ICCID_LEN] = '\0';
-		return true;
-    }
-
-    if (can_read(input_buffer, 6) && (strncmp((const char*)buffer_at_offset(input_buffer), "+CPIN: READY", 12) == 0))
-    {
-		return true;
-    }
-
-    if (can_read(input_buffer, 6) && (strncmp((const char*)buffer_at_offset(input_buffer), "+CSQ: ", 6) == 0))
-    {
-        char *rssi_buf = buffer_at_offset(input_buffer) + strlen("+CSQ: ");
-        wl.rssi = str_toint(rssi_buf);
-		return true;
-    }
-
-    if (can_read(input_buffer, 8) && (strncmp((const char*)buffer_at_offset(input_buffer), "+CGREG: ", 8) == 0))
-    {
-        if(strstr((buffer_at_offset(input_buffer)+8), "0,1") || // 返回正常
-           strstr((buffer_at_offset(input_buffer)+8), "0,5"))   // 返回正常，漫游
-        {
+        if(strncmp((const char*)argv[1], "OK", 2) == 0)
             return true;
-        }
-		return false;
+        else
+            return false;
     }
 
-    if (can_read(input_buffer, 8) && (strncmp((const char*)buffer_at_offset(input_buffer), "+CEREG: ", 8) == 0))
-    {
-        if(strstr((buffer_at_offset(input_buffer)+8), "0,1") || // 返回正常
-           strstr((buffer_at_offset(input_buffer)+8), "0,5"))   // 返回正常，漫游
-        {
-            return true;
-        }
-		return false;
-    }
-
-    if (can_read(input_buffer, 8) && (strncmp((const char*)buffer_at_offset(input_buffer), "+QIACT: ", 8) == 0))
-    {
-        // +QIACT: 1,1,1,"100.110.182.156"
-        int offest = str_char_offest(buffer_at_offset(input_buffer), '\"');
-        char *ip = buffer_at_offset(input_buffer) + offest;
-        int len = MIN(strlen(ip), WL_IP_LEN);
-        memcpy(wl.ip, ip, len);
-        wl.ip[len] = '\0';
+	if ((argc == 1) && (strncmp((const char*)argv[0], "ERROR", 5) == 0))
 		return true;
-    }
 
-    if (can_read(input_buffer, 12) && (strncmp((const char*)buffer_at_offset(input_buffer), "+QIOPEN: 0,0", 12) == 0))
-    {
-        // +QIOPEN: 0,0
-        wl.connect = true;
+	if ((argc == 1) && (strncmp((const char*)argv[0], "AT", 2) == 0))
 		return true;
+
+    if(argv[0][0] == '+')
+    {
+        return wl_ctrl_cmd(argc, argv);
     }
 
-	/* number */
-	if (can_access_at_index(input_buffer, 0) && ((buffer_at_offset(input_buffer)[0] == '-') || ((buffer_at_offset(input_buffer)[0] >= '0') && (buffer_at_offset(input_buffer)[0] <= '9'))))
+
+	/*  one number */
+    if((argc == 1) && argv[0][0] >= '0' && argv[0][0] <= '9')
 	{
         if(wl.state == WL_STATE_WAIT_CIMI)
         {
-            memcpy(wl.imsi, (char *)(buffer_at_offset(input_buffer)), WL_IMSI_LEN);
+            memcpy(wl.imsi, (char *)argv[0], WL_IMSI_LEN);
             wl.imsi[WL_IMSI_LEN] = '\0';
             return true;
         }
-		// return parse_number(item, input_buffer);
 	}
 
     LOG_I("%s error\r\n", __FUNCTION__);
     return false;
 }
 
-bool wl_rx_handle(uint8_t *buf, uint16_t len)
+bool wl_rx_handle(uint8_t *buf, int16_t len)
 {
     bool result = false;
     bool index_header = false;
@@ -268,6 +293,13 @@ bool wl_rx_handle(uint8_t *buf, uint16_t len)
                 index_header = true;
             }
             p_buffer.length++;
+
+            if((len == 1) && (p_buffer.offset != p_buffer.length))//特殊处理，就一个字符
+            {
+                result = wl_rx_parse(&p_buffer);//长度不包括\r\n
+                if(result == false)
+                    return result;
+            }
         }
         else //已经找到head
         {
@@ -275,7 +307,7 @@ bool wl_rx_handle(uint8_t *buf, uint16_t len)
                p_buffer.content[p_buffer.length] == '\0' )
             {
                 p_buffer.length++;
-                result = rx_cmd_parse(&p_buffer);//长度不包括\r\n
+                result = wl_rx_parse(&p_buffer);//长度不包括\r\n
                 if(result == false)
                     return result;
 
@@ -287,7 +319,7 @@ bool wl_rx_handle(uint8_t *buf, uint16_t len)
                 p_buffer.length++;
             }
         }
-    }while(--len > 1);
+    }while(--len >= 0);
 
     return true;
 }
@@ -297,10 +329,47 @@ void wl_priv_send(void)
 {
     if(priv_send_bit & WL_PRIVSEND_RIGISTER_BIT)
     {
-        ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_count, wl.sn, wl.imsi);
-        
+        ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum, wl.sn, wl.imsi);
+    }
+    else if(priv_send_bit & WL_PRIVSEND_HEART_BIT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
+
     }
     priv_send_bit = 0;
+}
+
+void wl_priv_txrx(void)
+{
+    HAL_Delay(3000);
+    if(wl.priv_register == false)
+    {
+        set_privsend_bit(WL_PRIVSEND_RIGISTER_BIT);
+        ec800e_uart_printf("AT+QISEND=0\r\n");
+        wl_set_state(WL_STATE_PRIV_SEND);
+        timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
+
+        wl.priv_register = true;//todu test
+        return ;
+    }
+
+    if(timer_isexpired(wl.heart_timer))//心跳包
+    {
+        set_privsend_bit(WL_PRIVSEND_HEART_BIT);
+        ec800e_uart_printf("AT+QISEND=0\r\n");
+        wl_set_state(WL_STATE_PRIV_SEND);
+        timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
+        timer_start(wl.heart_timer, WL_HEART_TIMEOUT_MS);
+        return ;
+    }
+
+
+    uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+    if(act_len && wl_rx_handle(wl_rx_buf, act_len))
+    {
+        // wl_set_state(WL_STATE_CONNECT_FINISH);
+        // break;
+    }
 }
 
 void wireless_task_handle(void)
@@ -497,7 +566,7 @@ void wireless_task_handle(void)
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_set_state(WL_STATE_QIACT);
+                wl_set_state(WL_STATE_QLTS);
                 break;
             }
             if(timer_isexpired(wl.respond_timer))
@@ -505,6 +574,27 @@ void wireless_task_handle(void)
                 wl_set_state(WL_STATE_CEREG);
             }
         }
+        break;
+        case WL_STATE_QLTS: {
+            ec800e_clear_rx_buf();
+            ec800e_uart_printf("AT+QLTS=2\r\n");
+            wl_set_state(WL_STATE_WAIT_QLTS);
+            timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
+        }
+        break;
+        case WL_STATE_WAIT_QLTS: {
+            uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+            if(act_len && wl_rx_handle(wl_rx_buf, act_len))
+            {
+                wl_set_state(WL_STATE_QIACT);
+                break;
+            }
+            if(timer_isexpired(wl.respond_timer))
+            {
+                wl_set_state(WL_STATE_QLTS);
+            }
+        }
+        break;
         case WL_STATE_QIACT: {
             ec800e_clear_rx_buf();
             ec800e_uart_printf("AT+QIACT=1\r\n");
@@ -573,45 +663,30 @@ void wireless_task_handle(void)
             }
         }
         break;
-        case WL_STATE_PRIV_ENTER_SEND: {
-            ec800e_uart_printf("AT+QISEND=0\r\n");
-            wl_set_state(WL_STATE_PRIV_SEND);
-            timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
-        }
-        break;
+
         case WL_STATE_PRIV_SEND: {
             uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
             if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             {
-                wl_priv_send();
-                ec800e_uart_printf("%c", 0x1A);
-                wl.send_status = false;
-                wl_set_state(WL_STATE_TXRX);
-                break;
+                if(wl.send_status)
+                {
+                    wl_priv_send();
+                    ec800e_uart_printf("%c", 0x1A);
+                    wl.send_status = false;
+                    wl_set_state(WL_STATE_TXRX);
+                    break;
+                }
             }
             if(timer_isexpired(wl.respond_timer))
             {
                 ec800e_uart_printf("%c", 0x1A);
                 wl.send_status = false;
-                wl_set_state(WL_STATE_PRIV_ENTER_SEND);
+                wl_set_state(WL_STATE_TXRX);
             }
         }
         break;
         case WL_STATE_TXRX: {
-            HAL_Delay(2000);
-            if(wl.priv_register == false)
-            {
-                set_privsend_bit(WL_PRIVSEND_RIGISTER_BIT);
-                wl_set_state(WL_STATE_PRIV_ENTER_SEND);
-                break;
-            }
-
-            uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-            if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            {
-                // wl_set_state(WL_STATE_CONNECT_FINISH);
-                // break;
-            }
+            wl_priv_txrx();
         }
         break;
         default: break;

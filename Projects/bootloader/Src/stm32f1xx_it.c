@@ -21,6 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_it.h"
+#include "rtc_time.h"
 
 /** @addtogroup Validation_Project
   * @{
@@ -139,9 +140,16 @@ void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
+
 void SysTick_Handler(void)
 {
   HAL_IncTick();
+
+  if(++ms_count >= 1000)
+  {
+    timestamp++;
+    ms_count = 0;
+  }
 }
 
 /******************************************************************************/

@@ -11,7 +11,7 @@ int str_length(char *buf);
 int str_char_offest(char *buf, char data);
 int str_num_offest(char *str);
 
-int string_split(char *strp, uint32_t strsize, char ch, char *argv[], uint32_t argcM );
+uint32_t str_split(char *str, uint32_t strsize, char *argv[], uint32_t argcm);
 
 #endif
 
