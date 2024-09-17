@@ -6,6 +6,9 @@
 
 
 int str_toint(const char* str);
+float str_tofloat(const char* str);
+void str_tohex(const char* str, char* out);
+
 int str_length(char *buf);
 // char* str_find_number(char *str, uint16_t len, char *num_buf, uint16_t *num_len);
 int str_char_offest(char *buf, char data);

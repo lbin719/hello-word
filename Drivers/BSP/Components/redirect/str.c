@@ -25,6 +25,39 @@ int str_toint(const char* str)
     return sign * num;
 }
 
+float str_tofloat(const char* str)
+{
+    return strtof(str, NULL);
+}
+
+void str_tohex(const char* str, char* out) 
+{
+    uint32_t i;
+    uint32_t len = strlen(str);
+
+    for (i = 0; i < len; i += 2) 
+    {
+        // temp = 0;
+        // if(str[i] >= '0' && str[i] <= '9')
+        //     temp = (str[i] - '0') << 4;
+        // else if(str[i] >= 'A' && str[i] <= 'F')
+        //     temp = (str[i] - ('A' + 10)) << 4;
+        // else
+        //     return ;
+        // if(str[i+1] >= '0' && str[i+1] <= '9')
+        //     temp |= (str[i+1] - '0');
+        // else if(str[i+1] >= 'A' && str[i+1] <= 'F')
+        //     temp = (str[i+1] - ('A' + 10));
+        // else
+        //     return ;
+        uint8_t temp = 0;
+        sscanf(str + i, "%2x", &temp);
+        out[i / 2] = (char)temp;
+    }
+    out[i / 2] = '\0';
+}
+ 
+
 int str_length(char *buf)
 {
     int i = 0;
