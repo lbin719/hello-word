@@ -48,12 +48,8 @@ static wl_t wl = {
     .device_status = WL_DSTATUS_ZZDL,
 };
 
-volatile uint32_t priv_send_bit = 0;
+volatile uint8_t priv_send_event = 0;
 
-void set_privsend_bit(uint32_t data_bit)
-{
-    priv_send_bit |= data_bit;
-}
 
 uint8_t wl_get_device_status(void)
 {
@@ -63,13 +59,46 @@ uint8_t wl_get_device_status(void)
 #define WL_RX_BUFFER_SIZE   (256)
 uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
 
+bool wl_set_caiping(int argc, char *argv[])
+{
+    wl.priv_fnum = str_toint(argv[1]);
+
+    caiping_data_t rx_caiping = {0};
+
+    rx_caiping.mode = str_toint(argv[2]);
+    if(strlen(argv[3])*2 <= STRING_DISH_LEN)
+        str_tohex(argv[3], rx_caiping.dish_str);
+    rx_caiping.price_unit = str_toint(argv[4]);
+    rx_caiping.tool_weight = str_toint(argv[5]);
+    rx_caiping.price = str_toint(argv[6]);
+    rx_caiping.zhendongwucha = str_toint(argv[7]);
+    rx_caiping.devicenum = str_toint(argv[8]);
+
+    wl.respond_result = WL_OK;
+    if(rx_caiping.mode > 1)
+    {
+        wl.respond_result = WL_ERROR;
+        goto exit;
+    }
+
+    //TODU 
+    memcpy(&caiping_data, &rx_caiping, sizeof(caiping_data_t));
+    sysinfo_caipin_store(&caiping_data);
+    set_draw_update_bit(DRAW_UPDATE_DISH_BIT | DRAW_UPDATE_PRICE_BIT | DRAW_UPDATE_PRICE_UNIT_BIT | DRAW_UPDATE_ALL_BIT);
+
+exit:
+    wl_set_priv_send(WL_PRIVRSEND_SETCAIPING_EVENT);
+}
+
 bool rx_priv_parse(int argc, char *argv[])
 {
+    bool ret = false;
     int cmd = str_toint(argv[0]);
-    // wl.priv_fnum = str_toint(argv[1]);
+
     switch(cmd)
     {
         case WL_PRIV_FCAIPING_CMD:// 4	服务器设置菜品
+            ret = rx_priv_parse(argc, argv);
         break;
         case WL_PRIV_FQUPI_CMD:// 5	传感器操作（去皮）
         break;
@@ -289,8 +318,6 @@ bool wl_rx_parse(parse_buffer * const input_buffer)
 }
 
 
-
-
 bool wl_rx_handle(uint8_t *buf, int16_t len)
 {
     bool result = false;
@@ -347,18 +374,30 @@ bool wl_rx_handle(uint8_t *buf, int16_t len)
     return true;
 }
 
+void wl_set_priv_send(uint8_t event)
+{
+    priv_send_event = event;
+    ec800e_uart_printf("AT+QISEND=0\r\n");
+    WL_SET_STATE(WL_STATE_PRIV_SEND);
+    timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
+}
 
 void wl_priv_send(void)
 {
-    if(priv_send_bit & WL_PRIVSEND_RIGISTER_BIT)
+    if(priv_send_event == WL_PRIVSEND_RIGISTER_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum, wl.sn, wl.imsi);
     }
-    else if(priv_send_bit & WL_PRIVSEND_HEART_BIT)
+    else if(priv_send_event == WL_PRIVSEND_HEART_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
     }
-    priv_send_bit = 0;
+    else if(priv_send_event == WL_PRIVRSEND_SETCAIPING_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_fnum, wl.respond_result);
+    }
+
+    priv_send_event = 0;
 }
 
 void wl_priv_txrx(void)
@@ -366,10 +405,7 @@ void wl_priv_txrx(void)
     HAL_Delay(3000);
     if(wl.priv_register == false)
     {
-        set_privsend_bit(WL_PRIVSEND_RIGISTER_BIT);
-        ec800e_uart_printf("AT+QISEND=0\r\n");
-        WL_SET_STATE(WL_STATE_PRIV_SEND);
-        timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
+        wl_set_priv_send(WL_PRIVSEND_RIGISTER_EVENT);
 
         wl.priv_register = true;//todu test
         return ;
@@ -377,10 +413,8 @@ void wl_priv_txrx(void)
 
     if(timer_isexpired(wl.heart_timer))//心跳包
     {
-        set_privsend_bit(WL_PRIVSEND_HEART_BIT);
-        ec800e_uart_printf("AT+QISEND=0\r\n");
-        WL_SET_STATE(WL_STATE_PRIV_SEND);
-        timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
+        wl_set_priv_send(WL_PRIVSEND_HEART_EVENT);
+
         timer_start(wl.heart_timer, WL_HEART_TIMEOUT_MS);
         return ;
     }

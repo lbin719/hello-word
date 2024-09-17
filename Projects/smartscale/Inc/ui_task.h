@@ -41,7 +41,8 @@ typedef struct
 
 }caiping_data_t;
 
-extern caiping_data_t default_caiping_data;
+extern const caiping_data_t default_caiping_data;
+extern caiping_data_t caiping_data;
 
 void set_draw_update_bit(uint32_t data_bit);
 

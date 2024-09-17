@@ -39,7 +39,7 @@
 #define DOWN_LINE_YPOST         (280)
 
 
-caiping_data_t default_caiping_data = {
+const caiping_data_t default_caiping_data = {
   .dish_str = UI_DEFAULT_CAIPING,
   .mode = 0,
   .price = 0.30,
@@ -50,7 +50,7 @@ caiping_data_t default_caiping_data = {
 };
 
 static char disp_str[64] = {0};
-static caiping_data_t caiping_data = {0};
+caiping_data_t caiping_data = {0};
 
 volatile uint32_t draw_update_bit = DRAW_UPDATE_ALL_BIT;
 

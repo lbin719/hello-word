@@ -106,6 +106,13 @@ typedef enum
 
 }wl_device_status_e;
 
+typedef enum
+{
+  WL_OK = 0, 
+  WL_ERROR,     
+  WL_TIMEOUT,     
+}wl_result_e;
+
 #define WL_SN_LEN                       (15)
 #define WL_IMSI_LEN                     (15)
 #define WL_ICCID_LEN                    (20)
@@ -129,6 +136,8 @@ typedef struct{
     bool           send_status;
 
     uint8_t        device_status;
+
+    uint8_t        respond_result; //回复结果
 } wl_t;
 
 
@@ -166,10 +175,12 @@ typedef struct{
 #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 129) // 15	设备发送心跳包
 
 
-#define WL_PRIVSEND_RIGISTER_BIT        (0x1UL << 0)       
-#define WL_PRIVSEND_HEART_BIT          (0x1UL << 1)    
-
-
+typedef enum
+{
+  WL_PRIVSEND_RIGISTER_EVENT = 1, 
+  WL_PRIVSEND_HEART_EVENT = 2,     
+  WL_PRIVRSEND_SETCAIPING_EVENT = 3,     
+}wl_privsend_e;
 
 
 void weight_task_handle(void);
