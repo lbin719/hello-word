@@ -18,7 +18,7 @@
 #define DRAW_UPDATE_LOCK_BIT            (0x1UL << 30)
 #define DRAW_UPDATE_ALL_BIT             (0x1UL << 31)
 
-#define STRING_DISH_LEN                 (16)
+#define STRING_DISH_LEN                 (12)
 #define STRING_NUM_LEN                  (6)
 #define STRING_UNIT_LEN                 (7)
 #define STRING_DEVICENUM_LEN            (4)
@@ -27,28 +27,21 @@
 
 typedef struct
 {
-    char dish_str[STRING_DISH_LEN + 1];
+    char dish_str[STRING_DISH_LEN + 1];// 菜品名称
 
-    char price_str[STRING_NUM_LEN + 1];// 单价
-    char price_unit_str[STRING_UNIT_LEN + 1];
+    uint8_t mode; // 称重模式
 
-    char weight_str[STRING_NUM_LEN + 1];// 重量
-    char weight_unit_str[STRING_UNIT_LEN + 1];
+    float price;// 菜品售价
+    uint32_t price_unit;// 菜品售价重量
 
-    char sum_price_str[STRING_NUM_LEN + 1];//设备总价
-    // char sum_price_unit_str[STRING_UNIT_LEN + 1];
+    uint32_t tool_weight; // 打菜工具重量
+    uint32_t zhendongwucha; // 允许震动误差
 
-    char sumsum_price_str[STRING_NUM_LEN + 1];//消费总额
-    // char sumsum_price_unit_str[STRING_UNIT_LEN + 1];
+    uint32_t devicenum; // 设备编号
 
-    char devicenum_str[STRING_DEVICENUM_LEN + 1];
+}caiping_data_t;
 
-    char status_str[STRING_STATUS_LEN + 1];
-
-    char usernum_str[STRING_USERNUM_LEN + 1];
-}ui_draw_t;
-
-extern ui_draw_t ui_draw;
+extern caiping_data_t default_caiping_data;
 
 void set_draw_update_bit(uint32_t data_bit);
 

@@ -100,6 +100,11 @@ uint32_t hx711_get_weight(void)
 	return weight_value;
 }
 
+uint32_t hx711_get_weight_value(void)
+{
+	return weight_value;
+}
+
 void hx711_init(void)
 {
     GPIO_InitTypeDef gpio_init_struct = {0};

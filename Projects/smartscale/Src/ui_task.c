@@ -4,7 +4,8 @@
 #include "text.h"
 #include "ulog.h"
 #include "ui_task.h"
-
+#include "version.h"
+#include "gbk.h"
 
 #define DISH_SIZE            (48)
 #define DISH_WIDTH           (DISH_SIZE*6)
@@ -30,38 +31,27 @@
 #define NUM_WIDTH               (48/2*6)
 #define NUM_LINE_XPOST          (480/2+BIAOTI_SIZE/4)
 
-#define UNIT_SIZE             (24)
-#define UNIT_WIDTH            (24*4)
-#define UNIT_LINE_XPOST       (390)
+#define UNIT_SIZE               (24)
+#define UNIT_WIDTH              (24*4)
+#define UNIT_LINE_XPOST         (390)
 
 
 #define DOWN_SIZE               (28)
 #define DOWN_LINE_YPOST         (280)
 
-char *const leftdown_string[] =
-{ 
-  "…Ë±∏¿Îœﬂ", 
-  "…Ë±∏’˝≥£",
-  "’˝‘⁄µ«¬Ω",
+
+caiping_data_t default_caiping_data = {
+  .dish_str = UI_DEFAULT_CAIPING,
+  .mode = 0,
+  .price = 0.30,
+  .price_unit = 100,
+  .tool_weight = 50,
+  .zhendongwucha = 15,
+  .devicenum = 5555555,
 };
 
-ui_draw_t ui_draw = {
-  .dish_str = "¬‹≤∑≥¥»‚",
-
-  .price_str = "0.30",
-  .price_unit_str = "‘™\/100g",
-
-  .weight_str = "0",
-  .weight_unit_str = "øÀ(g)",
-
-  .sum_price_str = "0.00",
-  .sumsum_price_str = "0.00",
-
-  .devicenum_str = "01",
-  .status_str = "’˝‘⁄µ«¬º",
-  .usernum_str = "ª∂”≠ π”√",
-};
-
+static char str_buf[64] = {0};
+static caiping_data_t caiping_data = {0};
 
 volatile uint32_t draw_update_bit = DRAW_UPDATE_ALL_BIT;
 
@@ -95,77 +85,80 @@ static void draw_update(void)
     lcd_draw_vline(BLACK, 240, 265 + 5, 55-5*2);
 
     // first line
-    text_show_string(BIAOTI_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, 
-                      BIAOTI_WIDTH, BIAOTI_SIZE, 
-                      "µ•    º€:", 
-                      BIAOTI_SIZE, 
-                      0, 
-                      BLACK);
-    text_show_string(BIAOTI_LINE_XPOST, SECOUND_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, 
-                      BIAOTI_WIDTH, BIAOTI_SIZE, 
-                      "÷ÿ    ¡ø:", 
-                      BIAOTI_SIZE, 
-                      0, 
-                      BLACK);
-    text_show_string(BIAOTI_LINE_XPOST, THIRD_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, 
-                      BIAOTI_WIDTH, BIAOTI_SIZE, 
-                      "◊‹    º€:", 
-                      BIAOTI_SIZE, 
-                      0, 
-                      BLACK);
-    text_show_string(BIAOTI_LINE_XPOST, FOURTH_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, 
-                      BIAOTI_WIDTH, BIAOTI_SIZE, 
-                      "œ˚∑—◊‹∂Ó:", 
-                      BIAOTI_SIZE, 
-                      0, 
-                      BLACK);
-
-    text_show_string(UNIT_LINE_XPOST, THIRD_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
-                      UNIT_WIDTH, UNIT_SIZE, 
-                      "‘™", 
-                      UNIT_SIZE, 
-                      0, 
-                      BLACK);
-    text_show_string(UNIT_LINE_XPOST, FOURTH_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
-                      UNIT_WIDTH, UNIT_SIZE, 
-                      "‘™", 
-                      UNIT_SIZE, 
-                      0, 
-                      BLACK);
+    text_show_string(BIAOTI_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, // text Âçï‰ª∑
+                     BIAOTI_WIDTH, BIAOTI_SIZE, 
+                     UI_DANJIA_STR, 
+                     BIAOTI_SIZE, 
+                     0, 
+                     BLACK);
+    text_show_string(BIAOTI_LINE_XPOST, SECOUND_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, // text ÈáçÈáè 
+                     BIAOTI_WIDTH, BIAOTI_SIZE, 
+                     UI_ZHONGLIANG_STR, 
+                     BIAOTI_SIZE, 
+                     0, 
+                     BLACK);
+    text_show_string(BIAOTI_LINE_XPOST, THIRD_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, // text ÊÄª‰ª∑ 
+                     BIAOTI_WIDTH, BIAOTI_SIZE, 
+                     UI_ZONGJIA_STR, 
+                     BIAOTI_SIZE, 
+                     0, 
+                     BLACK);
+    text_show_string(BIAOTI_LINE_XPOST, FOURTH_LINE_YPOST+(NUM_SIZE-BIAOTI_SIZE)/2, // text Ê∂àË¥πÊÄªÈ¢ù
+                     BIAOTI_WIDTH, BIAOTI_SIZE, 
+                     UI_XFZE_STR, 
+                     BIAOTI_SIZE, 
+                     0, 
+                     BLACK);
+    text_show_string(UNIT_LINE_XPOST, THIRD_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), // text ÂÖÉ
+                     UNIT_WIDTH, UNIT_SIZE, 
+                     UI_YUAN_STR, 
+                     UNIT_SIZE, 
+                     0, 
+                     BLACK);
+    text_show_string(UNIT_LINE_XPOST, FOURTH_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), // text ÂÖÉ
+                     UNIT_WIDTH, UNIT_SIZE, 
+                     UI_YUAN_STR, 
+                     UNIT_SIZE, 
+                     0, 
+                     BLACK);
   }
 
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_DISH_BIT))
   {
-    text_show_string_middle(DISH_XPOST, DISH_YPOST, 
+    text_show_string_middle(DISH_XPOST, DISH_YPOST, // text ËèúÂìÅ
                             DISH_WIDTH, DISH_SIZE, 
-                            ui_draw.dish_str, 
+                            caiping_data.dish_str, 
                             DISH_SIZE, 
                             0, 
                             BLACK);    
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_PRICE_BIT))
   {
+    snprintf(str_buf, sizeof(str_buf), "%.2f", caiping_data.price); //text Âçï‰ª∑
     text_show_string_left(NUM_LINE_XPOST, FIRST_LINE_YPOST, 
                       NUM_WIDTH, NUM_SIZE, 
-                      ui_draw.price_str, 
+                      str_buf, 
                       NUM_SIZE, 
                       0, 
                       BLACK);
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_PRICE_UNIT_BIT))
   {
+    //"ÂÖÉ\/100g"
+    snprintf(str_buf, sizeof(str_buf), "%s\/%dg", UI_YUAN_STR, caiping_data.price_unit); // text Âçï‰ª∑Âçï‰Ωç
     text_show_string(UNIT_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
                       UNIT_WIDTH, UNIT_SIZE, 
-                      ui_draw.price_unit_str, 
+                      str_buf, 
                       UNIT_SIZE, 
                       0, 
                       BLACK);
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_WEIGHT_BIT))
   {
+    snprintf(str_buf, sizeof(str_buf), "%d", 154);
     text_show_string_left(NUM_LINE_XPOST, SECOUND_LINE_YPOST, 
                           NUM_WIDTH, NUM_SIZE, 
-                          ui_draw.weight_str, 
+                          str_buf, 
                           NUM_SIZE, 
                           0, 
                           BLACK);
@@ -174,35 +167,38 @@ static void draw_update(void)
   {
     text_show_string(UNIT_LINE_XPOST, SECOUND_LINE_YPOST+(NUM_SIZE-24), 
                       UNIT_WIDTH, UNIT_SIZE, 
-                      ui_draw.weight_unit_str, 
+                      UI_KE_STR, 
                       UNIT_SIZE, 
                       0, 
                       BLACK);
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_SUM_PRICE_BIT))
   {
+    snprintf(str_buf, sizeof(str_buf), "%.2f", 1.25);
     text_show_string_left(NUM_LINE_XPOST, THIRD_LINE_YPOST, 
                           NUM_WIDTH, NUM_SIZE, 
-                          ui_draw.sum_price_str, 
+                          str_buf, 
                           NUM_SIZE, 
                           0, 
                           BLACK);
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT))
   {
-  text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST, 
-                        NUM_WIDTH, NUM_SIZE, 
-                        ui_draw.sumsum_price_str, 
-                        NUM_SIZE, 
-                        0, 
-                        BLACK);
+    snprintf(str_buf, sizeof(str_buf), "%.2f", 5.25);
+    text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST, 
+                          NUM_WIDTH, NUM_SIZE, 
+                          str_buf, 
+                          NUM_SIZE, 
+                          0, 
+                          BLACK);
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_DEVICENUM_BIT))
   {
     //system number width 4
+    snprintf(str_buf, sizeof(str_buf), "%d", caiping_data.devicenum);
     text_show_string_middle(DEVICE_NUM_LINE_XPOST, DEVICE_NUM_LINE_YPOST, 
                             DEVICE_NUM_WIDTH, DEVICE_NUM_SIZE, 
-                            ui_draw.devicenum_str, 
+                            str_buf, 
                             DEVICE_NUM_SIZE, 
                             0, 
                             RED);
@@ -212,7 +208,7 @@ static void draw_update(void)
     //left down width 8
     text_show_string_middle((480/4*1-DOWN_SIZE/2*4), DOWN_LINE_YPOST, 
                             DOWN_SIZE/2*8, DOWN_SIZE, 
-                            ui_draw.status_str, 
+                            UI_ZZDL_STR, 
                             DOWN_SIZE, 
                             0, 
                             BLACK);
@@ -220,9 +216,10 @@ static void draw_update(void)
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_USERNUM_BIT))
   {
     //right down width 10
+    snprintf(str_buf, sizeof(str_buf), "%d", caiping_data.devicenum);
     text_show_string_middle((480/4*3-DOWN_SIZE/2*5), DOWN_LINE_YPOST, 
                             DOWN_SIZE/2*10, DOWN_SIZE, 
-                            ui_draw.usernum_str, 
+                            str_buf, 
                             DOWN_SIZE, 
                             0, 
                             RED);
@@ -236,8 +233,12 @@ static void draw_update(void)
   draw_update_bit = 0;
 }
 
+
 void ui_init(void)
 {
+  caiping_data_t *store = sysinfo_get_caipin();
+  memcpy(&caiping_data, store, sizeof(caiping_data_t));
+
   draw_update();
   // // draw single
   // draw_single(430, 0, 2);
@@ -327,23 +328,31 @@ void ui_init(void)
 }
 
 
-static float weigth = 0;
-static uint8_t level = 0;
+// static float weigth = 0;
+// static uint8_t level = 0;
 void ui_task_handle(void)
 {
 
   draw_update();
+#if 1 // debug
+  char str_buf[32] = {0};
+  snprintf(str_buf, sizeof(str_buf), "v:%s", MCU_FW_VERSION);
+  text_show_string_left(0, 0, 12*12, 12, str_buf, 12, 0, BLUE);
+
+  snprintf(str_buf, sizeof(str_buf), "w:%dg", hx711_get_weight_value());
+  text_show_string_left(0, 12, 12*12, 12, str_buf, 12, 0, BLUE);
+#endif
   return ;
 
-  uint8_t test_buf[64];
-  weigth += (float)HAL_GetTick() / 1000.0f;
-  weigth = 125.4;
-  snprintf(test_buf, sizeof(test_buf), "%.1f", weigth);
-  // text_show_string(480/2, 65, 48*3, 48, test_buf, 48, 0, BLACK);
-  // text_show_string(480/2, 65 + 48 * 1, 48*3, 48, test_buf, 48, 0, BLACK);
-  // text_show_string(480/2, 65 + 48 * 2, 48*3, 48, test_buf, 48, 0, BLACK);
-  // text_show_string(480/2, 65 + 48 * 3, 48*3, 48, test_buf, 48, 0, GREEN);
+  // uint8_t test_buf[64];
+  // weigth += (float)HAL_GetTick() / 1000.0f;
+  // weigth = 125.4;
+  // snprintf(test_buf, sizeof(test_buf), "%.1f", weigth);
+  // // text_show_string(480/2, 65, 48*3, 48, test_buf, 48, 0, BLACK);
+  // // text_show_string(480/2, 65 + 48 * 1, 48*3, 48, test_buf, 48, 0, BLACK);
+  // // text_show_string(480/2, 65 + 48 * 2, 48*3, 48, test_buf, 48, 0, BLACK);
+  // // text_show_string(480/2, 65 + 48 * 3, 48*3, 48, test_buf, 48, 0, GREEN);
 
-  level++;
-  draw_single(430, 0, level % 4);
+  // level++;
+  // draw_single(430, 0, level % 4);
 }

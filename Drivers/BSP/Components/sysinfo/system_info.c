@@ -84,7 +84,19 @@ float sysinfo_get_hxgap(void)
   return sysinfo_store.hxgap;
 }
 
-static void sys_info_init(void)
+void sysinfo_caipin_store(caiping_data_t *caipin)
+{
+  memcpy(&sysinfo_store.caiping_store, &caipin, sizeof(caiping_data_t));
+  stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
+  stmflash_write(STMFLASH_SYSINFO_START_ADDR, (uint32_t *)&sysinfo_store, sizeof(sysinfo_store));
+}
+
+caiping_data_t* sysinfo_get_caipin(void)
+{
+  return &sysinfo_store.caiping_store;
+}
+
+static void sysinfo_init(void)
 {
   stmflash_read(STMFLASH_SYSINFO_START_ADDR, (uint8_t *)&sysinfo_store, sizeof(sysinfo_store));
 
@@ -94,7 +106,7 @@ static void sys_info_init(void)
     sysinfo_store.magic = SYSINFO_MAGIC;
     sysinfo_store.hxzero = HX_DEFAULT_ZERO;
     sysinfo_store.hxgap = HX_DEFAULT_GAP;
-
+    memcpy(&sysinfo_store.caiping_store, &default_caiping_data, sizeof(caiping_data_t));
 
     stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
     stmflash_write(STMFLASH_SYSINFO_START_ADDR, (uint32_t *)&sysinfo_store, sizeof(sysinfo_store));
@@ -103,6 +115,6 @@ static void sys_info_init(void)
 
 void sys_data_init(void)
 {
-  sys_info_init();
+  sysinfo_init();
   sys_nvms_init();
 }
