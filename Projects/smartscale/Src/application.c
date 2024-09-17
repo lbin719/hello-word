@@ -194,6 +194,16 @@ bool wl_ctrl_cmd(int argc, char *argv[])
             return false;
     }
 
+    if ((argc >= 3) && (strncmp((const char*)argv[0], "+CME", 7) == 0) && (strncmp((const char*)argv[1], "ERROR", 7) == 0))
+    {
+        if(strncmp((const char*)argv[1], "10", 2) == 0)
+        {
+            // 未插入 SIM 卡
+        }
+        return false;
+    }
+
+    return false;
 }
 
 bool wl_rx_parse(parse_buffer * const input_buffer)
