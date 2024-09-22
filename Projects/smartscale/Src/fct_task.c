@@ -3,6 +3,7 @@
 #include "stmencrypt.h"
 #include "ulog.h"
 #include "hx711.h"
+#include "mj8000.h"
 
 typedef void (*fct_test_func_t)(uint8_t argc, char **argv);
 typedef struct
@@ -16,12 +17,14 @@ void fct_encrypt_test(uint8_t argc, char **argv);
 void fct_power_test(uint8_t argc, char **argv);
 void fct_hx711_test(uint8_t argc, char **argv);
 void fct_wtn6040_test(uint8_t argc, char **argv);
+void fct_mj8000_test(uint8_t argc, char **argv);
 
 static const fct_test_func_mapping_t fct_test_func[]={
     {"key",     fct_encrypt_test,   true},
     {"power",   fct_power_test,     true},
     {"hx711",   fct_hx711_test,     true},    
-    {"wtn6040", fct_wtn6040_test,    true},      
+    {"wtn6040", fct_wtn6040_test,   true},
+    {"mj8000",  fct_mj8000_test,    true},      
     // {"led", fct_led_test, false},
     // {"bootfac", fct_bootfac_test, true},
     // {"time", fct_rtc_test, false}
@@ -249,6 +252,20 @@ void fct_wtn6040_test(uint8_t argc, char **argv)
         uint8_t index = str_toint(argv[3]);
         wtn6040_play(index);
     }   
+    else
+    {
+        LOG_I("param err!\r\n");
+        return;
+    }
+}
+
+void fct_mj8000_test(uint8_t argc, char **argv)
+{
+    if (argc == 3 && !strcmp(argv[2], "set"))
+    {
+        mj8000_setconfig();
+        LOG_I("fct mj8000 set ret:0\r\n");
+    } 
     else
     {
         LOG_I("param err!\r\n");

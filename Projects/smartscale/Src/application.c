@@ -7,6 +7,7 @@
 #include "application.h"
 #include "str.h"
 #include "rtc_timer.h"
+#include "mj8000.h"
 
 uint32_t weitht_lasttime = 0;
 uint32_t last_weight = 0;
@@ -30,6 +31,39 @@ void weight_task_handle(void)
 		last_weight = current_weight;
 	}
 }
+
+void mj8000_rx_parse(const char *buf, uint16_t len)
+{
+    char *strx = NULL;
+    strx = strstr((const char*)buf,"user"); // 补货
+    if(strx)
+    {
+        LOG_I("[MJ] buhuo\r\n");
+        return ;
+    }
+
+    strx = strstr((const char*)buf,"zh"); // 绑盘
+    if(strx)
+    {
+        LOG_I("[MJ] pangpan\r\n");
+        return ;
+    }
+}
+
+void mj8000_task_handle(void)
+{
+    if(mj_uart_rx_frame.finsh)
+    {
+        mj_uart_rx_frame.buf[mj_uart_rx_frame.len] = '\0';
+        LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_uart_rx_frame.len, mj_uart_rx_frame.buf);
+
+        mj8000_rx_parse(mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
+
+        mj_uart_rx_frame.finsh = 0;
+        uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);
+    }
+}
+
 
 #define WL_SET_STATE(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
 
