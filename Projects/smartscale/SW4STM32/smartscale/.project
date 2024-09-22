@@ -226,6 +226,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/fs/norflash_diskio.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/hot/hot.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hot/hot.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/hx711/hx711.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/hx711/hx711.c</locationURI>
