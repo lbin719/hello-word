@@ -18,10 +18,12 @@ char *const ld_str[] = {
   "正在登录",
   "设备离线", 
   "设备正常",
+  "补货中",
+  "请绑定餐盘",
+  "请取餐",
 };
 
 #if 0
-
 typedef struct
 {
     char dish_str[STRING_DISH_LEN + 1];
@@ -63,6 +65,5 @@ ui_draw_t ui_draw = {
 };
 
 #endif
-
 
 #endif

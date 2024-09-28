@@ -13,6 +13,7 @@
 #include "ec800e.h"
 #include "wtn6040.h"
 #include "led.h"
+#include "hot.h"
 #include "key.h"
 #include "application.h"
 
@@ -67,6 +68,8 @@ int main(void)
   sys_data_init();
 
   board_init();
+
+  hot_init();
 
   led_init();
 

@@ -6,6 +6,7 @@
 #include "ui_task.h"
 #include "version.h"
 #include "gbk.h"
+#include "application.h"
 
 #define DISH_SIZE            (48)
 #define DISH_WIDTH           (DISH_SIZE*6)
@@ -178,7 +179,7 @@ static void draw_update(void)
                           disp_str, 
                           NUM_SIZE, 
                           0, 
-                          BLACK);
+                          BLUE);
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT))
   {
@@ -204,14 +205,14 @@ static void draw_update(void)
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_STATUS_BIT))
   {
     //left down width 8
-    uint8_t device_status = wl_get_device_status();
-    LOG_I("device status:%s\r\n", ld_str[device_status]);
+    uint8_t status = get_sys_status();
+    LOG_I("device status:%s\r\n", ld_str[status]);
     text_show_string_middle((480/4*1-DOWN_SIZE/2*4), DOWN_LINE_YPOST,  // text status
                             DOWN_SIZE/2*8, DOWN_SIZE, 
-                            ld_str[device_status], 
+                            ld_str[status], 
                             DOWN_SIZE, 
                             0, 
-                            BLACK);
+                            (status == SYS_STATUS_SBZC ? BLUE : RED));
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_USERNUM_BIT))
   {

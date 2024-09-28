@@ -8,6 +8,9 @@
 #include "str.h"
 #include "rtc_timer.h"
 #include "mj8000.h"
+#include "wtn6040.h"
+
+static sys_status_e sys_status = SYS_STATUS_ZZDL;
 
 uint32_t weitht_lasttime = 0;
 uint32_t last_weight = 0;
@@ -32,19 +35,38 @@ void weight_task_handle(void)
 	}
 }
 
+
+#define MJ_BP_LIVE_TIMEOUT       (1500)
+#define MJ_STR_MAX_LEN          (32)
+char mj_str[MJ_STR_MAX_LEN + 1];
+uint16_t mj_len = 0;
+uint32_t mj_bp_time = 0;
+
+
 void mj8000_rx_parse(const char *buf, uint16_t len)
 {
     char *strx = NULL;
-    strx = strstr((const char*)buf,"user"); // 补货
-    if(strx)
+    if(strstr((const char*)buf,"user")) // 补货
     {
+        if(sys_status == SYS_STATUS_BHZ)
+        {
+            //exit buhuo
+            wtn6040_play(WTN_BHWC_PLAY);
+            sys_status = SYS_STATUS_SBZC;
+        }
+        else if(sys_status == SYS_STATUS_SBZC)
+        {
+            //enter buhuo
+            wtn6040_play(WTN_KSBH_PLAY);
+            sys_status = SYS_STATUS_BHZ;
+        }
         LOG_I("[MJ] buhuo\r\n");
         return ;
     }
-
-    strx = strstr((const char*)buf,"zh"); // 绑盘
-    if(strx)
+    else if(strstr((const char*)buf,"zh")) // 绑盘
     {
+//        mj_status = MJ_STATUS_BANPANG;
+        timer_start(mj_bp_time, MJ_BP_LIVE_TIMEOUT);
         LOG_I("[MJ] pangpan\r\n");
         return ;
     }
@@ -54,10 +76,11 @@ void mj8000_task_handle(void)
 {
     if(mj_uart_rx_frame.finsh)
     {
-        mj_uart_rx_frame.buf[mj_uart_rx_frame.len] = '\0';
-        LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_uart_rx_frame.len, mj_uart_rx_frame.buf);
-
-        mj8000_rx_parse(mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
+        mj_len = MIN(MJ_STR_MAX_LEN, mj_uart_rx_frame.len);
+        memcpy(mj_str, mj_uart_rx_frame.buf, mj_len);
+        mj_str[mj_len] = '\0';
+        LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_len, mj_str);
+        mj8000_rx_parse(mj_str, mj_len);
 
         mj_uart_rx_frame.finsh = 0;
         uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);
@@ -70,7 +93,7 @@ void mj8000_task_handle(void)
 #define WL_TIMEOUT_STATE(st)    if(timer_isexpired(wl.respond_timer)) WL_SET_STATE(st)
 
 #define WL_ATRESPOND_TIMEOUT_MS         (2000)
-#define WL_HEART_TIMEOUT_MS             (10*1000)
+#define WL_HEART_TIMEOUT_MS             (60*1000)
 
 
 static wl_t wl = {
@@ -79,15 +102,15 @@ static wl_t wl = {
     .priv_dnum = 0,
     .priv_register = false,
     .send_status = false,
-    .device_status = WL_DSTATUS_ZZDL,
+    .device_status = SYS_STATUS_ZZDL,
 };
 
 volatile uint8_t priv_send_event = 0;
 
 
-uint8_t wl_get_device_status(void)
+uint8_t get_sys_status(void)
 {
-    return wl.device_status;
+    return sys_status;
 }
 
 #define WL_RX_BUFFER_SIZE   (256)
@@ -132,7 +155,7 @@ bool rx_priv_parse(int argc, char *argv[])
     switch(cmd)
     {
         case WL_PRIV_FCAIPING_CMD:// 4	服务器设置菜品
-            ret = rx_priv_parse(argc, argv);
+            ret = wl_set_caiping(argc, argv);
         break;
         case WL_PRIV_FQUPI_CMD:// 5	传感器操作（去皮）
         break;
@@ -155,7 +178,7 @@ bool rx_priv_parse(int argc, char *argv[])
 
         case WL_PRIV_DREGISTER_RECMD:{
             wl.priv_register = true;
-            wl.device_status = WL_DSTATUS_SBZC;
+            sys_status = SYS_STATUS_SBZC;
             set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
         }
         break;
@@ -351,9 +374,14 @@ bool wl_rx_parse(parse_buffer * const input_buffer)
     return false;
 }
 
+//todu
+uint8_t t_b[] = "SEND OK\r\n\r\n+QIURC: \"recv\",0,9\r\n{142,1,1}\r\n\r\n>";
 
 bool wl_rx_handle(uint8_t *buf, int16_t len)
 {
+    buf = t_b;
+    len = strlen(t_b);
+
     bool result = false;
     bool index_header = false;
 
@@ -420,7 +448,9 @@ void wl_priv_send(void)
 {
     if(priv_send_event == WL_PRIVSEND_RIGISTER_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum, wl.sn, wl.imsi);
+        //test
+        ec800e_uart_printf("{%d,%d,862584075695577,460074425636505,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum);
+        // ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum, wl.sn, wl.imsi);
     }
     else if(priv_send_event == WL_PRIVSEND_HEART_EVENT)
     {
@@ -441,7 +471,9 @@ void wl_priv_txrx(void)
     {
         wl_set_priv_send(WL_PRIVSEND_RIGISTER_EVENT);
 
-        wl.priv_register = true;//todu test
+        // wl.priv_register = true;//todu test 后续去掉
+        // sys_status = SYS_STATUS_SBZC;
+        // set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
         return ;
     }
 
@@ -708,7 +740,7 @@ void wl_task_handle(void)
                     break;
                 }
             }
-            WL_TIMEOUT_STATE(WL_STATE_GET_QIOPEN);
+            WL_TIMEOUT_STATE(WL_STATE_QICLOSE);// 跳转到close
         }
         break;
 

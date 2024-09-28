@@ -100,11 +100,13 @@ typedef enum
 
 typedef enum
 {
-  WL_DSTATUS_ZZDL = 0, // 正在登录
-  WL_DSTATUS_SBLX,     // 设备离线
-  WL_DSTATUS_SBZC,     // 设备正常
-
-}wl_device_status_e;
+  SYS_STATUS_ZZDL = 0, // 正在登录
+  SYS_STATUS_SBLX,     // 设备离线
+  SYS_STATUS_SBZC,     // 设备正常
+  SYS_STATUS_BHZ,      // 补货中
+  SYS_STATUS_QBDCP,    // 请绑定餐盘
+  SYS_STATUS_QQC,      // 请取餐
+}sys_status_e;
 
 typedef enum
 {
@@ -158,21 +160,21 @@ typedef struct{
 #define WL_PRIV_DREGISTER_CMD           (14) // 14	设备注册
 #define WL_PRIV_DXINTIAOBAO_CMD         (15) // 15	设备发送心跳包
 
-#define WL_PRIV_DBUHUO_RECMD            (1 + 129) // 1	设备发起补货
-#define WL_PRIV_DWEIGHT_RECMD           (2 + 129) // 2	设备传感器重量变化上报
-#define WL_PRIV_DUSER_RECMD             (3 + 129) // 3	设备发起用户绑盘称重
-#define WL_PRIV_FCAIPING_RECMD          (4 + 129) // 4	服务器设置菜品
-#define WL_PRIV_FQUPI_RECMD             (5 + 129) // 5	传感器操作（去皮）
-#define WL_PRIV_FJIAOZHUN_RECMD         (6 + 129) // 6	传感器操作（校准）
-#define WL_PRIV_FWEIGHT_RECMD           (7 + 129) // 7	传感器操作（获取重量）
-#define WL_PRIV_FGETSTATUS_RECMD        (8 + 129) // 8	获取传感器稳定状态
-#define WL_PRIV_FSAOMATUO_RECMD         (9 + 129) // 9	扫码头默认参数设置
-#define WL_PRIV_FSETVOICE_RECMD         (10 + 129) // 10	设置音量大小
-#define WL_PRIV_FHOT_RECMD              (11 + 129) // 11	设置加热状态
-#define WL_PRIV_FHOTTIMER_RECMD         (12 + 129) // 12	设置加热等级
-#define WL_PRIV_FREBOOT_RECMD           (13 + 129) // 13	设备重启
-#define WL_PRIV_DREGISTER_RECMD         (14 + 129) // 14	设备注册
-#define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 129) // 15	设备发送心跳包
+#define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
+#define WL_PRIV_DWEIGHT_RECMD           (2 + 128) // 2	设备传感器重量变化上报
+#define WL_PRIV_DUSER_RECMD             (3 + 128) // 3	设备发起用户绑盘称重
+#define WL_PRIV_FCAIPING_RECMD          (4 + 128) // 4	服务器设置菜品
+#define WL_PRIV_FQUPI_RECMD             (5 + 128) // 5	传感器操作（去皮）
+#define WL_PRIV_FJIAOZHUN_RECMD         (6 + 128) // 6	传感器操作（校准）
+#define WL_PRIV_FWEIGHT_RECMD           (7 + 128) // 7	传感器操作（获取重量）
+#define WL_PRIV_FGETSTATUS_RECMD        (8 + 128) // 8	获取传感器稳定状态
+#define WL_PRIV_FSAOMATUO_RECMD         (9 + 128) // 9	扫码头默认参数设置
+#define WL_PRIV_FSETVOICE_RECMD         (10 + 128) // 10	设置音量大小
+#define WL_PRIV_FHOT_RECMD              (11 + 128) // 11	设置加热状态
+#define WL_PRIV_FHOTTIMER_RECMD         (12 + 128) // 12	设置加热等级
+#define WL_PRIV_FREBOOT_RECMD           (13 + 128) // 13	设备重启
+#define WL_PRIV_DREGISTER_RECMD         (14 + 128) // 14	设备注册
+#define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
 
 
 typedef enum
@@ -188,7 +190,7 @@ typedef enum
 
 void weight_task_handle(void);
 
-uint8_t wl_get_device_status(void);
+uint8_t get_sys_status(void);
 void wl_task_handle(void);
 
 #endif /* __APPLICATION_H */
