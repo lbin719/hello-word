@@ -249,7 +249,7 @@ void fct_wtn6040_test(uint8_t argc, char **argv)
     if (argc == 4 && !strcmp(argv[2], "level"))
     {
         uint8_t level = str_toint(argv[3]);
-        wtn6040_set_voice(level);
+        wtn6040_set_voice_store(level);
     }
     else if (argc == 4 && !strcmp(argv[2], "play"))
     {

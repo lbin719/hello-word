@@ -8,7 +8,7 @@
 #define SYS_INFO_FAIL               (-1)
 
 
-#define SYSINFO_MAGIC               (0xF5F5F503)
+#define SYSINFO_MAGIC               (0xF5F5F502)
 #define NVMS_MAGIC                  (0x55AA55AA)
 
 #define NVMS_INIT_VERSION_0         (0X00000000)
@@ -34,17 +34,24 @@ typedef struct {
     float hxgap;
 
     caiping_data_t caiping_store;
+    uint8_t reve[3];
+    uint8_t wtn_voice;
     // bool fct_mode;                        // sysinfo fctmode
     // uint8_t resvered;
 } sysinfo_store_t;
 
 void sysinfo_store_hxzero(uint32_t zero);
 uint32_t sysinfo_get_hxzero(void);
+
 void sysinfo_store_hxgap(float cali);
 float sysinfo_get_hxgap(void);
 
-void sysinfo_caipin_store(caiping_data_t *caipin);
+void sysinfo_store_caipin(caiping_data_t *caipin);
 caiping_data_t* sysinfo_get_caipin(void);
+
+
+void sysinfo_store_voice(uint8_t voice);
+uint8_t sysinfo_get_voice(void);
 
 // int sys_get_fw_version(char *ver, int len);
 // uint32_t sys_get_fw_version_int(void);

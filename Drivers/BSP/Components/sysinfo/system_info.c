@@ -3,6 +3,7 @@
 #include "string.h"
 #include "stmflash.h"
 #include "hx711.h"
+#include "wtn6040.h"
 #include "system_info.h"
 
 static sysinfo_store_t sysinfo_store = {0};
@@ -84,7 +85,7 @@ float sysinfo_get_hxgap(void)
   return sysinfo_store.hxgap;
 }
 
-void sysinfo_caipin_store(caiping_data_t *caipin)
+void sysinfo_store_caipin(caiping_data_t *caipin)
 {
   memcpy(&sysinfo_store.caiping_store, &caipin, sizeof(caiping_data_t));
   stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
@@ -94,6 +95,17 @@ void sysinfo_caipin_store(caiping_data_t *caipin)
 caiping_data_t* sysinfo_get_caipin(void)
 {
   return &sysinfo_store.caiping_store;
+}
+
+void sysinfo_store_voice(uint8_t voice)
+{
+  sysinfo_store.wtn_voice = voice;
+  stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
+  stmflash_write(STMFLASH_SYSINFO_START_ADDR, (uint32_t *)&sysinfo_store, sizeof(sysinfo_store));
+}
+uint8_t sysinfo_get_voice(void)
+{
+  sysinfo_store.wtn_voice;
 }
 
 static void sysinfo_init(void)
@@ -107,6 +119,7 @@ static void sysinfo_init(void)
     sysinfo_store.hxzero = HX_DEFAULT_ZERO;
     sysinfo_store.hxgap = HX_DEFAULT_GAP;
     memcpy(&sysinfo_store.caiping_store, &default_caiping_data, sizeof(caiping_data_t));
+    sysinfo_store.wtn_voice = WTN6040_DEFAULT_VOICE;
 
     stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
     stmflash_write(STMFLASH_SYSINFO_START_ADDR, (uint32_t *)&sysinfo_store, sizeof(sysinfo_store));

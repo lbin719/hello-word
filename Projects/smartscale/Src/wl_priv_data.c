@@ -36,7 +36,7 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
 
     //TODU 
     memcpy(&caiping_data, &rx_caiping, sizeof(caiping_data_t));
-    sysinfo_caipin_store(&caiping_data);
+    sysinfo_store_caipin(&caiping_data);
     set_draw_update_bit(DRAW_UPDATE_DISH_BIT | DRAW_UPDATE_PRICE_BIT | DRAW_UPDATE_PRICE_UNIT_BIT | DRAW_UPDATE_ALL_BIT);
 
 exit:
@@ -89,8 +89,9 @@ static bool wl_priv_set_saomatou(int argc, char *argv[])
 
 static bool wl_priv_set_voice(int argc, char *argv[])
 {
-    uint8_t voice = str_toint(argv[2]);
-    wtn6040_set_voice(voice);
+    uint8_t level = str_toint(argv[2]);
+
+    wtn6040_set_voice_store(level);
 
     wl.respond_result = WL_OK;
     wl_set_priv_send(WL_PRIVRSEND_SETVOICE_EVENT);
