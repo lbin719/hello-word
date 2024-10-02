@@ -61,6 +61,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/ui_task.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/wl_priv_data.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/wl_priv_data.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/CMSIS/system_stm32f1xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f1xx.c</locationURI>

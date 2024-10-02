@@ -9,8 +9,9 @@
 #include "rtc_timer.h"
 #include "mj8000.h"
 #include "wtn6040.h"
+#include "wl_priv_data.h"
 
-static sys_status_e sys_status = SYS_STATUS_ZZDL;
+sys_status_e sys_status = SYS_STATUS_ZZDL;
 
 uint32_t weitht_lasttime = 0;
 uint32_t last_weight = 0;
@@ -96,7 +97,7 @@ void mj8000_task_handle(void)
 #define WL_HEART_TIMEOUT_MS             (60*1000)
 
 
-static wl_t wl = {
+wl_t wl = {
     .connect = false,
     .state = WL_STATE_INIT,
     .priv_dnum = 0,
@@ -116,77 +117,6 @@ uint8_t get_sys_status(void)
 #define WL_RX_BUFFER_SIZE   (256)
 uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
 
-bool wl_set_caiping(int argc, char *argv[])
-{
-    wl.priv_fnum = str_toint(argv[1]);
-
-    caiping_data_t rx_caiping = {0};
-
-    rx_caiping.mode = str_toint(argv[2]);
-    if(strlen(argv[3])*2 <= STRING_DISH_LEN)
-        str_tohex(argv[3], rx_caiping.dish_str);
-    rx_caiping.price_unit = str_toint(argv[4]);
-    rx_caiping.tool_weight = str_toint(argv[5]);
-    rx_caiping.price = str_toint(argv[6]);
-    rx_caiping.zhendongwucha = str_toint(argv[7]);
-    rx_caiping.devicenum = str_toint(argv[8]);
-
-    wl.respond_result = WL_OK;
-    if(rx_caiping.mode > 1)
-    {
-        wl.respond_result = WL_ERROR;
-        goto exit;
-    }
-
-    //TODU 
-    memcpy(&caiping_data, &rx_caiping, sizeof(caiping_data_t));
-    sysinfo_caipin_store(&caiping_data);
-    set_draw_update_bit(DRAW_UPDATE_DISH_BIT | DRAW_UPDATE_PRICE_BIT | DRAW_UPDATE_PRICE_UNIT_BIT | DRAW_UPDATE_ALL_BIT);
-
-exit:
-    wl_set_priv_send(WL_PRIVRSEND_SETCAIPING_EVENT);
-}
-
-bool rx_priv_parse(int argc, char *argv[])
-{
-    bool ret = false;
-    int cmd = str_toint(argv[0]);
-
-    switch(cmd)
-    {
-        case WL_PRIV_FCAIPING_CMD:// 4	服务器设置菜品
-            ret = wl_set_caiping(argc, argv);
-        break;
-        case WL_PRIV_FQUPI_CMD:// 5	传感器操作（去皮）
-        break;
-        case WL_PRIV_FJIAOZHUN_CMD:// 6	传感器操作（校准）
-        break;
-        case WL_PRIV_FWEIGHT_CMD:// 7	传感器操作（获取重量）
-        break;
-        case WL_PRIV_FGETSTATUS_CMD:// 8 获取传感器稳定状态
-        break;
-        case WL_PRIV_FSAOMATUO_CMD:// 9	扫码头默认参数设置
-        break;
-        case WL_PRIV_FSETVOICE_CMD:// 10 设置音量大小
-        break;
-        case WL_PRIV_FHOT_CMD:// 11	设置加热状态
-        break;
-        case WL_PRIV_FHOTTIMER_CMD:// 12 设置加热等级
-        break;
-        case WL_PRIV_FREBOOT_CMD:// 13 设备重启
-        break;
-
-        case WL_PRIV_DREGISTER_RECMD:{
-            wl.priv_register = true;
-            sys_status = SYS_STATUS_SBZC;
-            set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
-        }
-        break;
-        default:break;
-    }
-
-    return true;
-}
 
 bool wl_ctrl_cmd(int argc, char *argv[])
 {
@@ -335,7 +265,7 @@ bool wl_rx_parse(char *ptr, uint16_t len)
 
 	if (priv_data)
 	{
-        return rx_priv_parse(argc, argv);
+        return wl_rx_priv_parse(argc, argv);
 	}
 
     if ((argc == 1) && argv[0][0] == '>')
@@ -436,6 +366,11 @@ void wl_set_priv_send(uint8_t event)
 
 void wl_priv_send(void)
 {
+// #define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
+// #define WL_PRIV_DWEIGHT_RECMD           (2 + 128) // 2	设备传感器重量变化上报
+// #define WL_PRIV_DUSER_RECMD             (3 + 128) // 3	设备发起用户绑盘称重
+// #define WL_PRIV_DREGISTER_RECMD         (14 + 128) // 14	设备注册
+// #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
     if(priv_send_event == WL_PRIVSEND_RIGISTER_EVENT)
     {
         //test
@@ -446,20 +381,63 @@ void wl_priv_send(void)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
     }
+
     else if(priv_send_event == WL_PRIVRSEND_SETCAIPING_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_fnum, wl.respond_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, wl.priv_fnum, wl.respond_result);
     }
 
+
+    else if(priv_send_event == WL_PRIVRSEND_QUPI_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FQUPI_RECMD, wl.priv_fnum, wl.respond_result);
+    }
+    else if(priv_send_event == WL_PRIVRSEND_JIAOZHUN_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FJIAOZHUN_RECMD, wl.priv_fnum, wl.respond_result);
+    }
+    else if(priv_send_event == WL_PRIVRSEND_GETWEIGHT_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FWEIGHT_RECMD, wl.priv_fnum, wl.respond_result, 152); //todu
+    }
+    else if(priv_send_event == WL_PRIVRSEND_GETSTATUS_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FGETSTATUS_RECMD, wl.priv_fnum, wl.respond_result, 0);
+    }    
+    else if(priv_send_event == WL_PRIVRSEND_SETSAOMATOU_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FSAOMATUO_RECMD, wl.priv_fnum, wl.respond_result);
+    }   
+    else if(priv_send_event == WL_PRIVRSEND_SETVOICE_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FSETVOICE_RECMD, wl.priv_fnum, wl.respond_result);
+    }
+    else if(priv_send_event == WL_PRIVRSEND_SETHOT_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FHOT_RECMD, wl.priv_fnum, wl.respond_result);
+    }
+    else if(priv_send_event == WL_PRIVRSEND_SETHOTTIMER_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FHOTTIMER_RECMD, wl.priv_fnum, wl.respond_result);
+    }
+    else if(priv_send_event == WL_PRIVRSEND_REBOOT_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FREBOOT_RECMD, wl.priv_fnum, wl.respond_result);
+
+        LOG_I("system reboot\r\n");
+        HAL_Delay(500);
+        NVIC_SystemReset();
+    }        
     priv_send_event = 0;
 }
 
 void wl_priv_txrx(void)
 {
-    HAL_Delay(3000);
     if(wl.priv_register == false)
     {
         wl_set_priv_send(WL_PRIVSEND_RIGISTER_EVENT);
+
+        wl.priv_register = true;
         return ;
     }
 
