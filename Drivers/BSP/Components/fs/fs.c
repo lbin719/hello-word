@@ -5,7 +5,7 @@
 #include "ulog.h"
 #include "version.h"
 
-
+#if 0
 uint16_t get_device_xoruid()
 {
     uint32_t xoruid;
@@ -51,6 +51,7 @@ void update_details_file(void)
 
     f_close(&File);
 }
+#endif
 
 FATFS FLASHDISKFatFs;
 char FLASHDISKPath[4];
@@ -82,7 +83,7 @@ void fs_init()
         {
             LOG_I("f_mount error result:%d\r\n", result);
         }
-
+#if 0
         //写入版本信息
         update_details_file();
 
@@ -94,7 +95,7 @@ void fs_init()
         {
             f_setlabel(label_set);
         }
-
+#endif
         //printf fat
         result = f_opendir(&dir, "/");
         if(result == FR_OK) // 打开当前目录
