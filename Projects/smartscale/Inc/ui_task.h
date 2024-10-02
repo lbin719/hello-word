@@ -3,6 +3,8 @@
 
 #include "stdint.h"
 
+#define DISPLAY_DEBUG_INFO              1
+
 #define DRAW_UPDATE_DISH_BIT            (0x1UL << 0)       
 #define DRAW_UPDATE_PRICE_BIT           (0x1UL << 1)  
 #define DRAW_UPDATE_PRICE_UNIT_BIT      (0x1UL << 2)

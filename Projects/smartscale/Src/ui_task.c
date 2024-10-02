@@ -241,119 +241,26 @@ void ui_init(void)
   memcpy(&caiping_data, store, sizeof(caiping_data_t));
 
   draw_update();
-  // // draw single
-  // draw_single(430, 0, 2);
 
-  // text_show_string_middle(DISH_XPOST, DISH_YPOST, 
-  //                         DISH_WIDTH, DISH_SIZE, 
-  //                         ui_draw.dish_str, 
-  //                         DISH_SIZE, 
-  //                         0, 
-  //                         BLACK);    
-
-
-
-  // text_show_string_left(NUM_LINE_XPOST, FIRST_LINE_YPOST, 
-  //                   NUM_WIDTH, NUM_SIZE, 
-  //                   ui_draw.price_str, 
-  //                   NUM_SIZE, 
-  //                   0, 
-  //                   BLACK);
-  // text_show_string(UNIT_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
-  //                   UNIT_WIDTH, UNIT_SIZE, 
-  //                   ui_draw.price_unit_str, 
-  //                   UNIT_SIZE, 
-  //                   0, 
-  //                   BLACK);
-
-  // // second line
-
-  // text_show_string_left(NUM_LINE_XPOST, SECOUND_LINE_YPOST, 
-  //                       NUM_WIDTH, NUM_SIZE, 
-  //                       ui_draw.weight_str, 
-  //                       NUM_SIZE, 
-  //                       0, 
-  //                       BLACK);
-  // text_show_string(UNIT_LINE_XPOST, SECOUND_LINE_YPOST+(NUM_SIZE-24), 
-  //                   UNIT_WIDTH, UNIT_SIZE, 
-  //                   ui_draw.weight_unit_str, 
-  //                   UNIT_SIZE, 
-  //                   0, 
-  //                   BLACK);
-
-
-  // // third line
-
-  // text_show_string_left(NUM_LINE_XPOST, THIRD_LINE_YPOST, 
-  //                       NUM_WIDTH, NUM_SIZE, 
-  //                       ui_draw.sum_price_str, 
-  //                       NUM_SIZE, 
-  //                       0, 
-  //                       BLACK);
-
-
-  // // fourth line
-
-  // text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST, 
-  //                       NUM_WIDTH, NUM_SIZE, 
-  //                       ui_draw.sumsum_price_str, 
-  //                       NUM_SIZE, 
-  //                       0, 
-  //                       BLACK);
-
-
-  // //system number width 4
-  // text_show_string_middle(DEVICE_NUM_LINE_XPOST, DEVICE_NUM_LINE_YPOST, 
-  //                         DEVICE_NUM_WIDTH, DEVICE_NUM_SIZE, 
-  //                         ui_draw.devicenum_str, 
-  //                         DEVICE_NUM_SIZE, 
-  //                         0, 
-  //                         RED);
-
-  // //left down width 8
-  // text_show_string_middle((480/4*1-DOWN_SIZE/2*4), DOWN_LINE_YPOST, 
-  //                         DOWN_SIZE/2*8, DOWN_SIZE, 
-  //                         ui_draw.status_str, 
-  //                         DOWN_SIZE, 
-  //                         0, 
-  //                         BLACK);
-
-  // //right down width 10
-  // text_show_string_middle((480/4*3-DOWN_SIZE/2*5), DOWN_LINE_YPOST, 
-  //                         DOWN_SIZE/2*10, DOWN_SIZE, 
-  //                         ui_draw.usernum_str, 
-  //                         DOWN_SIZE, 
-  //                         0, 
-  //                         RED);
-
+#if DISPLAY_DEBUG_INFO
+  char disp_str[32] = {0};
+  snprintf(disp_str, sizeof(disp_str), "v:%s", MCU_FW_VERSION);
+  text_show_string_left(0, 0, 12*6, 12, disp_str, 12, 0, BLUE);
+#endif
 }
 
 
-// static float weigth = 0;
-// static uint8_t level = 0;
+
 void ui_task_handle(void)
 {
-
   draw_update();
-#if 1 // debug
+
+#if DISPLAY_DEBUG_INFO
   char disp_str[32] = {0};
-  snprintf(disp_str, sizeof(disp_str), "v:%s", MCU_FW_VERSION);
-  text_show_string_left(0, 0, 12*12, 12, disp_str, 12, 0, BLUE);
-
   snprintf(disp_str, sizeof(disp_str), "w:%dg", hx711_get_weight_value());
-  text_show_string_left(0, 12, 12*12, 12, disp_str, 12, 0, BLUE);
+  text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
+
+  snprintf(disp_str, sizeof(disp_str), "wl:%d", wl.state);
+  text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
 #endif
-  return ;
-
-  // uint8_t test_buf[64];
-  // weigth += (float)HAL_GetTick() / 1000.0f;
-  // weigth = 125.4;
-  // snprintf(test_buf, sizeof(test_buf), "%.1f", weigth);
-  // // text_show_string(480/2, 65, 48*3, 48, test_buf, 48, 0, BLACK);
-  // // text_show_string(480/2, 65 + 48 * 1, 48*3, 48, test_buf, 48, 0, BLACK);
-  // // text_show_string(480/2, 65 + 48 * 2, 48*3, 48, test_buf, 48, 0, BLACK);
-  // // text_show_string(480/2, 65 + 48 * 3, 48*3, 48, test_buf, 48, 0, GREEN);
-
-  // level++;
-  // draw_single(430, 0, level % 4);
 }
