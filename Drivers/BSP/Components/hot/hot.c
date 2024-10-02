@@ -9,6 +9,7 @@
 
 void hot_ctrl(uint8_t ctrl)
 {
+    LOG_I("[HOT]ctrl:%d\r\n", ctrl);
     if(ctrl == HOT_ON)
     {
         HOT_CTRL_ON();
