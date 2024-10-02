@@ -57,7 +57,7 @@ uint32_t ec800e_get_rx_buf(uint8_t *buf, uint32_t len)
     // if(len_act > 0)
     {
         buf[len_act] = '\0';
-        LOG_I("[EC] R:%s", buf);
+        LOG_I("[EC]Recv len:%d :%s", len_act, buf);
     }
 
     return len_act;

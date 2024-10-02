@@ -131,10 +131,12 @@ uint32_t str_split(char *str, uint32_t strsize, char *argv[], uint32_t argcm)
     for (unsigned short i = 0; i < strsize; i++)
     {
         if ((quotes != 0 ||
-             (*(str + i) != ' ' &&
+             (*(str + i) != ' '  &&
               *(str + i) != '\t' &&
 			  *(str + i) != '\/' &&
-			  *(str + i) != ':' &&
+			  *(str + i) != ':'  &&
+			  *(str + i) != '{'  &&
+			  *(str + i) != '}'  &&
               *(str + i) != ',')) &&
             *(str + i) != 0)
         {

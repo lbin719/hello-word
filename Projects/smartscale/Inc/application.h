@@ -30,21 +30,6 @@ at_cmd_t at_table[] = {
 };
 #endif
 
-typedef struct
-{
-	const unsigned char *content;
-	uint16_t length;
-	uint16_t offset;
-} parse_buffer;
-
-/* check if the given size is left to read in a given parse buffer (starting with 1) */
-#define can_read(buffer, size) ((buffer != NULL) && (((buffer)->offset + size) <= (buffer)->length))
-/* check if the buffer can be accessed at the given index (starting with 0) */
-#define can_access_at_index(buffer, index) ((buffer != NULL) && (((buffer)->offset + index) < (buffer)->length))
-#define cannot_access_at_index(buffer, index) (!can_access_at_index(buffer, index))
-/* get a pointer to the buffer at the position */
-#define buffer_at_offset(buffer) ((buffer)->content + (buffer)->offset)
-
 #define ARGC_LIMIT      (12)
 
 typedef enum
@@ -94,7 +79,7 @@ typedef enum
 
 
     WL_STATE_PRIV_SEND, 
-
+    WL_STATE_PRIV_WAIT_SEND, 
     WL_STATE_TXRX,            
 } wlstate_e;
 
@@ -136,7 +121,7 @@ typedef struct{
     uint32_t       priv_fnum;
     bool           priv_register;
     bool           send_status;
-
+    bool           wait_send_status;
     uint8_t        device_status;
 
     uint8_t        respond_result; //回复结果

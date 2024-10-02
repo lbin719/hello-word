@@ -190,6 +190,21 @@ bool rx_priv_parse(int argc, char *argv[])
 
 bool wl_ctrl_cmd(int argc, char *argv[])
 {
+    if (strncmp((const char*)argv[0], "+QIURC", 5) == 0)
+    {
+        if(argc == 4 && strcmp((const char*)argv[1], "recv") == 0)
+        {
+            uint16_t recv_len = str_toint(argv[3]);
+            return true;
+        }
+
+        if(argc == 3 && strcmp((const char*)argv[1], "closed") == 0)
+        {
+            return true;
+        }
+		
+    }
+
     if (strncmp((const char*)argv[0], "+CGSN", 5) == 0)
     {
         memcpy(wl.sn, argv[1], WL_SN_LEN);
@@ -292,31 +307,23 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     return false;
 }
 
-bool wl_rx_parse(parse_buffer * const input_buffer)
+bool wl_rx_parse(char *ptr, uint16_t len)
 {
-	if ((input_buffer == NULL) || (input_buffer->content == NULL))
-	{
-		return false; /* no input */
-	}
-
     bool priv_data = false;
     uint32_t argc = 0;
     char *argv[ARGC_LIMIT] = { (char *)0 };
 
-    char *ptr = buffer_at_offset(input_buffer);
-    uint16_t len = input_buffer->length - input_buffer->offset;
-    if(buffer_at_offset(input_buffer)[0] == '{')
-    {
+	if ((ptr == NULL) || (len == 0))
+		return false; /* no input */
+
+#if 0
+    LOG_I("[WL]parse: len:%d ptr:%s \r\n", len, ptr);
+#endif
+    if(ptr[0] == '{')
         priv_data = true;
-        ptr++;
-        if(len > 0)
-            len--;
-    }
 
-    argc = str_split((char*)buffer_at_offset(input_buffer), len, argv, argc);
-
+    argc = str_split((char*)ptr, len, argv, argc);
 #if 1
-    LOG_I("[WL]parse:%s \r\n", buffer_at_offset(input_buffer));
     LOG_I("[WL]argc: %d argv:", argc);
     for (int i = 0; i < argc; i++)
         LOG_I_NOTICK(" %s", argv[i]);
@@ -343,7 +350,10 @@ bool wl_rx_parse(parse_buffer * const input_buffer)
 	if ((argc == 2) && (strncmp((const char*)argv[0], "SEND", 4) == 0))
     {
         if(strncmp((const char*)argv[1], "OK", 2) == 0)
+        {
+            wl.wait_send_status = true;
             return true;
+        }
         else
             return false;
     }
@@ -374,64 +384,43 @@ bool wl_rx_parse(parse_buffer * const input_buffer)
     return false;
 }
 
-//todu
-uint8_t t_b[] = "SEND OK\r\n\r\n+QIURC: \"recv\",0,9\r\n{142,1,1}\r\n\r\n>";
-
 bool wl_rx_handle(uint8_t *buf, int16_t len)
 {
-    buf = t_b;
-    len = strlen(t_b);
-
-    bool result = false;
-    bool index_header = false;
-
-    parse_buffer p_buffer = {
-        .content = (const unsigned char *)buf,
-        .length = 0,
-        .offset = 0,
-    };
+    char *ptr = NULL;
+    uint16_t ptr_len = 0;
 
     do{
-        if(index_header == false) //还未找到head
+        if(ptr == NULL)
         {
-            if(p_buffer.content[p_buffer.length] == '\0' ||
-               p_buffer.content[p_buffer.length] == '\r' ||
-               p_buffer.content[p_buffer.length] == '\n')
+            if(*buf != '\0' && *buf != '\r' && *buf != '\n')
             {
-                p_buffer.offset++; //filter
-            }
-            else
-            {
-                index_header = true;
-            }
-            p_buffer.length++;
-
-            if((len == 1) && (p_buffer.offset != p_buffer.length))//特殊处理，就一个字符
-            {
-                result = wl_rx_parse(&p_buffer);//长度不包括\r\n
-                if(result == false)
-                    return result;
+                ptr = buf;
+                ptr_len++;
             }
         }
-        else //已经找到head
+        else
         {
-            if(p_buffer.content[p_buffer.length] == '\r' ||
-               p_buffer.content[p_buffer.length] == '\0' )
-            {
-                p_buffer.length++;
-                result = wl_rx_parse(&p_buffer);//长度不包括\r\n
-                if(result == false)
-                    return result;
+             if(*buf == '\r')
+             {
+                if(wl_rx_parse(ptr, ptr_len) == false)//长度不包括\r\n
+                    return false;
 
-                p_buffer.offset = p_buffer.length;
-                index_header = false;
-            }
-            else
-            {
-                p_buffer.length++;
-            }
+                ptr = NULL;
+                ptr_len = 0;
+             }
+             else
+             {
+                ptr_len++;
+             }
         }
-    }while(--len >= 0);
+        buf++;
+    }while(--len);
+
+    if(ptr != NULL && ptr_len > 0)
+    {
+        if(wl_rx_parse(ptr, ptr_len) == false)//长度不包括\r\n
+            return false;
+    }
 
     return true;
 }
@@ -440,6 +429,7 @@ void wl_set_priv_send(uint8_t event)
 {
     priv_send_event = event;
     ec800e_uart_printf("AT+QISEND=0\r\n");
+    wl.send_status = false;
     WL_SET_STATE(WL_STATE_PRIV_SEND);
     timer_start(wl.respond_timer, WL_ATRESPOND_TIMEOUT_MS);
 }
@@ -470,10 +460,6 @@ void wl_priv_txrx(void)
     if(wl.priv_register == false)
     {
         wl_set_priv_send(WL_PRIVSEND_RIGISTER_EVENT);
-
-        // wl.priv_register = true;//todu test 后续去掉
-        // sys_status = SYS_STATUS_SBZC;
-        // set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
         return ;
     }
 
@@ -752,15 +738,29 @@ void wl_task_handle(void)
                 {
                     wl_priv_send();
                     ec800e_uart_printf("%c", 0x1A);
-                    wl.send_status = false;
-                    WL_SET_STATE(WL_STATE_TXRX);
+                    wl.wait_send_status = false;
+                    WL_SET_STATE(WL_STATE_PRIV_WAIT_SEND);
                     break;
                 }
             }
             if(timer_isexpired(wl.respond_timer))
             {
                 ec800e_uart_printf("%c", 0x1A);
-                wl.send_status = false;
+                WL_SET_STATE(WL_STATE_TXRX);
+            }
+        }
+        break;
+        case WL_STATE_PRIV_WAIT_SEND: {
+            uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+            if(act_len && wl_rx_handle(wl_rx_buf, act_len))
+            {
+                if(wl.wait_send_status)
+                {
+                    WL_SET_STATE(WL_STATE_TXRX);
+                }
+            }
+            if(timer_isexpired(wl.respond_timer))
+            {
                 WL_SET_STATE(WL_STATE_TXRX);
             }
         }
