@@ -108,10 +108,6 @@ int main(void)
 
   while (1)
   {
-    ui_task_handle();
-
-    led_task_handle();
-
     fct_task_handle();
 
     if(get_stmencrypt_status() == false)// 解密失败，后面的模块不运行
@@ -120,16 +116,15 @@ int main(void)
       HAL_Delay(5000);
       continue;
     }
+    weight_task_handle(); // input
 
-    mj8000_task_handle();
+    mj8000_task_handle(); // input
 
-    weight_task_handle();
+    wl_task_handle(); // tx rx
 
-    wl_task_handle();
+    led_task_handle(); // output
 
-    // LOG_I("Hello world\r\n");
-    /* Insert delay 100 ms */
-    // HAL_Delay(1000);
+    ui_task_handle(); // output
   }
 }
 

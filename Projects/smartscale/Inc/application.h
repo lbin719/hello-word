@@ -91,6 +91,7 @@ typedef enum
   SYS_STATUS_BHZ,      // 补货中
   SYS_STATUS_QBDCP,    // 请绑定餐盘
   SYS_STATUS_QQC,      // 请取餐
+  SYS_STATUS_QQFHCP,   // 请先放好餐盘
 }sys_status_e;
 
 typedef enum
@@ -185,7 +186,12 @@ typedef enum
 extern wl_t wl;
 extern sys_status_e sys_status;
 
+int get_change_weight(void);
 void weight_task_handle(void);
+
+void mj8000_task_handle(void);
+
+void sys_task_handle(void);
 
 uint8_t get_sys_status(void);
 void wl_task_handle(void);

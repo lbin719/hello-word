@@ -14,26 +14,62 @@
 sys_status_e sys_status = SYS_STATUS_ZZDL;
 
 uint32_t weitht_lasttime = 0;
-uint32_t last_weight = 0;
+
+uint32_t update_timer = 0;
+int current_weight = 0;
+int change_weight = 0;
+int last_dis_weight = 0;
+
+int get_change_weight(void)
+{
+    return change_weight;
+}
 
 void weight_task_handle(void)
 {
-    if(HAL_GetTick() - weitht_lasttime < 200)
+    if(HAL_GetTick() - weitht_lasttime < 100)
         return ;
     weitht_lasttime = HAL_GetTick();
 
-	uint32_t current_weight = hx711_get_weight();
-	if(current_weight != last_weight)
-	{
-//		int len = snprintf(ui_draw.weight_str, STRING_NUM_LEN, "%ld", current_weight);
-//		if(len > STRING_NUM_LEN)
-//			Error_Handler();
-//		ui_draw.weight_str[len] = '\0';
-//		// LOG_I("ui_draw.weight_str:%s\r\n", ui_draw.weight_str);
-//		set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT);
+	int weight = hx711_get_weight();
+    if(abs(weight - current_weight) > caiping_data.zhendongwucha)
+    {
+        change_weight = weight - current_weight;
+        current_weight = weight;
+        timer_start(update_timer, 2000); 
+    }
 
-		last_weight = current_weight;
-	}
+  
+    if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
+    {
+        if(change_weight)
+        {
+            set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT);
+        }
+    }
+    else if(sys_status == SYS_STATUS_SBZC)
+    {
+        if(change_weight)
+        {
+            sys_status = SYS_STATUS_QQFHCP;
+            set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT | DRAW_UPDATE_STATUS_BIT);
+            wtn6040_play(WTN_WSBDCP_PLAY);
+        }
+    }
+    else if(sys_status == SYS_STATUS_BHZ)
+    {
+
+    }
+    else if(sys_status == SYS_STATUS_QQFHCP)
+    {
+        if(timer_isexpired(update_timer))
+        {
+            //上报服务器
+            change_weight = 0;
+            sys_status = SYS_STATUS_SBZC;
+            set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT | DRAW_UPDATE_STATUS_BIT);
+        }
+    }
 }
 
 
@@ -42,7 +78,6 @@ void weight_task_handle(void)
 char mj_str[MJ_STR_MAX_LEN + 1];
 uint16_t mj_len = 0;
 uint32_t mj_bp_time = 0;
-
 
 void mj8000_rx_parse(const char *buf, uint16_t len)
 {
@@ -88,6 +123,10 @@ void mj8000_task_handle(void)
     }
 }
 
+void sys_task_handle(void)
+{
+
+}
 
 #define WL_SET_STATE(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
 
@@ -263,7 +302,7 @@ bool wl_rx_parse(char *ptr, uint16_t len)
     if(argc == 0)
         return false;
 
-	if (priv_data)
+	if(priv_data) // 私有协议
 	{
         return wl_rx_priv_parse(argc, argv);
 	}

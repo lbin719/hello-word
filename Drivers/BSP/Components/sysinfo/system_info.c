@@ -105,7 +105,7 @@ void sysinfo_store_voice(uint8_t voice)
 }
 uint8_t sysinfo_get_voice(void)
 {
-  sysinfo_store.wtn_voice;
+  return sysinfo_store.wtn_voice;
 }
 
 static void sysinfo_init(void)

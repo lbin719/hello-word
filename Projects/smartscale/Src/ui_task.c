@@ -154,7 +154,8 @@ static void draw_update(void)
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_WEIGHT_BIT))
   {
-    snprintf(disp_str, sizeof(disp_str), "%d", 154);          
+    int weight = abs(get_change_weight());
+    snprintf(disp_str, sizeof(disp_str), "%d", weight);          
     text_show_string_left(NUM_LINE_XPOST, SECOUND_LINE_YPOST,       // text 称重重量
                           NUM_WIDTH, NUM_SIZE, 
                           disp_str, 
@@ -173,7 +174,9 @@ static void draw_update(void)
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_SUM_PRICE_BIT))
   {
-    snprintf(disp_str, sizeof(disp_str), "%.2f", 1.25);                 
+    int weight = abs(get_change_weight());
+    float sum_price = (float)weight * caiping_data.price / caiping_data.price_unit;
+    snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price);                 
     text_show_string_left(NUM_LINE_XPOST, THIRD_LINE_YPOST,            // text 总价
                           NUM_WIDTH, NUM_SIZE, 
                           disp_str, 
@@ -183,7 +186,9 @@ static void draw_update(void)
   }
   if(draw_update_bit & (DRAW_UPDATE_ALL_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT))
   {
-    snprintf(disp_str, sizeof(disp_str), "%.2f", 5.25);
+    int weight = abs(get_change_weight());
+    float sum_price = (float)weight * caiping_data.price / caiping_data.price_unit;
+    snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price + 12);
     text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST,          // text 消费总额
                           NUM_WIDTH, NUM_SIZE, 
                           disp_str, 
@@ -207,8 +212,8 @@ static void draw_update(void)
     //left down width 8
     uint8_t status = get_sys_status();
     LOG_I("device status:%s\r\n", ld_str[status]);
-    text_show_string_middle((480/4*1-DOWN_SIZE/2*4), DOWN_LINE_YPOST,  // text status
-                            DOWN_SIZE/2*8, DOWN_SIZE, 
+    text_show_string_middle((480/4*1-DOWN_SIZE/2*6), DOWN_LINE_YPOST,  // text status
+                            DOWN_SIZE/2*12, DOWN_SIZE, 
                             ld_str[status], 
                             DOWN_SIZE, 
                             0, 
@@ -260,7 +265,10 @@ void ui_task_handle(void)
   snprintf(disp_str, sizeof(disp_str), "w:%dg", hx711_get_weight_value());
   text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
 
-  snprintf(disp_str, sizeof(disp_str), "wl:%d", wl.state);
+  snprintf(disp_str, sizeof(disp_str), "sys:%d", sys_status);
   text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
+
+  snprintf(disp_str, sizeof(disp_str), "wl:%d", wl.state);
+  text_show_string_left(0, 36, 12*6, 12, disp_str, 12, 0, BLUE);
 #endif
 }

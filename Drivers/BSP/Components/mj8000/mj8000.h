@@ -17,7 +17,6 @@ extern mj_uart_rx_t mj_uart_rx_frame;
 
 void mj8000_setconfig(void);
 void mj8000_init(void);
-void mj8000_task_handle(void);
 
 #endif /* _MJ8000_H */
 
