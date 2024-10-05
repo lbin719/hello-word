@@ -38,17 +38,97 @@ void weight_task_handle(void)
         current_weight = weight;
         timer_start(update_timer, 2000); 
     }
+}
 
-  
+
+#define MJ_BP_LIVE_TIMEOUT          (1500) 
+#define MJ_STR_MAX_LEN              (MJ8000_UART_RX_BUF_SIZE)
+char mj_str[MJ_STR_MAX_LEN + 1];
+uint8_t mj_len = 0;
+uint32_t mj_bp_time = 0;
+
+#define MJ_STATUS_IDLE              (0)
+#define MJ_STATUS_BUHUO             (1)
+#define MJ_STATUS_BANGPAN           (2)
+uint8_t mj_status = MJ_STATUS_IDLE;
+
+void mj8000_rx_parse(const char *buf, uint16_t len)
+{
+    char *strx = NULL;
+    if(strstr((const char*)buf,"user")) // 补货
+    {
+        if(mj_status != MJ_STATUS_BUHUO)
+            mj_status = MJ_STATUS_BUHUO;
+        else
+            mj_status = MJ_STATUS_IDLE;
+
+        LOG_I("[MJ] buhuo\r\n");
+        return ;
+    }
+    else if(strstr((const char*)buf,"zh")) // 绑盘
+    {
+        timer_start(mj_bp_time, MJ_BP_LIVE_TIMEOUT);
+        mj_status = MJ_STATUS_BANGPAN;
+        LOG_I("[MJ] pangpan\r\n");
+        return ;
+    }
+}
+
+void mj8000_task_handle(void)
+{
+    if(mj_uart_rx_frame.finsh)
+    {
+        mj_uart_rx_frame.buf[mj_uart_rx_frame.len] = '\0';
+        LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_uart_rx_frame.len, mj_uart_rx_frame.buf);
+        mj8000_rx_parse(mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
+
+        mj_uart_rx_frame.finsh = 0;
+        uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);
+    }
+
+    if((mj_status == MJ_STATUS_BANGPAN) && (timer_isexpired(mj_bp_time)))
+    {
+        mj_status = MJ_STATUS_IDLE;
+        LOG_I("[MJ] exit\r\n");
+    }
+}
+bool send_banpan_cmd = false;
+void sys_task_handle(void)
+{
     if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
     {
         if(change_weight)
         {
             set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT);
         }
+
+        if(wl.priv_register)//注册成功
+        {
+            sys_status = SYS_STATUS_SBZC;
+            set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+        }
     }
     else if(sys_status == SYS_STATUS_SBZC)
     {
+        if(mj_status == MJ_STATUS_BUHUO)
+        {
+            sys_status = SYS_STATUS_BHZ;
+            // todu 显示重量清零
+            set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+            wtn6040_play(WTN_KSBH_PLAY);
+            return ;
+        }
+        else if(mj_status == MJ_STATUS_BANGPAN)
+        {
+            // 发送绑盘指令
+            send_banpan_cmd = true;
+            // sys_status = SYS_STATUS_BHZ;
+            // // todu 显示重量清零
+            // set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+            // wtn6040_play(WTN_KSBH_PLAY);
+            return ;
+        }
+
         if(change_weight)
         {
             sys_status = SYS_STATUS_QQFHCP;
@@ -58,7 +138,12 @@ void weight_task_handle(void)
     }
     else if(sys_status == SYS_STATUS_BHZ)
     {
-
+        if(mj_status == MJ_STATUS_IDLE)
+        {
+            wtn6040_play(WTN_BHWC_PLAY);
+            sys_status = SYS_STATUS_SBZC;
+            return ;
+        }
     }
     else if(sys_status == SYS_STATUS_QQFHCP)
     {
@@ -70,62 +155,6 @@ void weight_task_handle(void)
             set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT | DRAW_UPDATE_STATUS_BIT);
         }
     }
-}
-
-
-#define MJ_BP_LIVE_TIMEOUT       (1500)
-#define MJ_STR_MAX_LEN          (32)
-char mj_str[MJ_STR_MAX_LEN + 1];
-uint16_t mj_len = 0;
-uint32_t mj_bp_time = 0;
-
-void mj8000_rx_parse(const char *buf, uint16_t len)
-{
-    char *strx = NULL;
-    if(strstr((const char*)buf,"user")) // 补货
-    {
-        if(sys_status == SYS_STATUS_BHZ)
-        {
-            //exit buhuo
-            wtn6040_play(WTN_BHWC_PLAY);
-            sys_status = SYS_STATUS_SBZC;
-        }
-        else if(sys_status == SYS_STATUS_SBZC)
-        {
-            //enter buhuo
-            wtn6040_play(WTN_KSBH_PLAY);
-            sys_status = SYS_STATUS_BHZ;
-        }
-        LOG_I("[MJ] buhuo\r\n");
-        return ;
-    }
-    else if(strstr((const char*)buf,"zh")) // 绑盘
-    {
-//        mj_status = MJ_STATUS_BANPANG;
-        timer_start(mj_bp_time, MJ_BP_LIVE_TIMEOUT);
-        LOG_I("[MJ] pangpan\r\n");
-        return ;
-    }
-}
-
-void mj8000_task_handle(void)
-{
-    if(mj_uart_rx_frame.finsh)
-    {
-        mj_len = MIN(MJ_STR_MAX_LEN, mj_uart_rx_frame.len);
-        memcpy(mj_str, mj_uart_rx_frame.buf, mj_len);
-        mj_str[mj_len] = '\0';
-        LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_len, mj_str);
-        mj8000_rx_parse(mj_str, mj_len);
-
-        mj_uart_rx_frame.finsh = 0;
-        uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);
-    }
-}
-
-void sys_task_handle(void)
-{
-
 }
 
 #define WL_SET_STATE(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
@@ -171,7 +200,6 @@ bool wl_ctrl_cmd(int argc, char *argv[])
         {
             return true;
         }
-		
     }
 
     if (strncmp((const char*)argv[0], "+CGSN", 5) == 0)

@@ -4,7 +4,7 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-#define MJ8000_UART_RX_BUF_SIZE (128)
+#define MJ8000_UART_RX_BUF_SIZE (64)
 
 typedef struct
 {

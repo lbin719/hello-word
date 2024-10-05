@@ -122,6 +122,8 @@ int main(void)
 
     wl_task_handle(); // tx rx
 
+    sys_task_handle();
+
     led_task_handle(); // output
 
     ui_task_handle(); // output

@@ -130,9 +130,6 @@ static bool wl_priv_set_reboot(int argc, char *argv[])
 static bool wl_priv_res_register(int argc, char *argv[])
 {
     wl.priv_register = true;
-    sys_status = SYS_STATUS_SBZC;
-    set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
-
     return true;
 }
 
