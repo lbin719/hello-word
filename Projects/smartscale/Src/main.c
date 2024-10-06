@@ -16,6 +16,8 @@
 #include "hot.h"
 #include "key.h"
 #include "application.h"
+#include "ui_task.h"
+#include "cmsis_os.h"
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -35,24 +37,13 @@ void board_init(void)
 
 }
 
-extern void ui_init(void);
-extern void ui_task_handle(void);
 extern void fct_task_handle(void);
 
+static osThreadId SystemThreadHandle;
 
-int main(void)
+void System_Thread(void const * argument)
 {
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-
-  /* Configure the system clock to 72 MHz */
-  SystemClock_Config();
-
-  delay_init(72);
-
-  //PA15 PB3 PB4 use gpio
-  __HAL_RCC_AFIO_CLK_ENABLE();
-  __HAL_AFIO_REMAP_SWJ_NOJTAG();
+  (void) argument;
 
 #ifdef LOG_DEBUG_ENABLE
   ulog_init();
@@ -62,7 +53,7 @@ int main(void)
   stmencrypt_init();
 
   /* CmBacktrace initialize */
-  cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
+  // cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
   // cm_backtrace_set_callback(NULL);
 
   sys_data_init();
@@ -87,15 +78,15 @@ int main(void)
 
 #if 0
   usbd_port_config(0);
-  HAL_Delay(500);
+  osDelay(500);
   usbd_port_config(1);
-  HAL_Delay(500);
+  osDelay(500);
   USBD_Init(&USBD_Device, &MSC_Desc, 0);
   USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
   USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);
   USBD_Start(&USBD_Device);
   while(1);
-  HAL_Delay(5000);
+  osDelay(5000);
 #endif
 
   fs_init();
@@ -113,7 +104,7 @@ int main(void)
     if(get_stmencrypt_status() == false)// 解密失败，后面的模块不运行
     {
       LOG_I("warnning: key error\r\n");
-      HAL_Delay(5000);
+      osDelay(5000);
       continue;
     }
     weight_task_handle(); // input
@@ -125,9 +116,34 @@ int main(void)
     sys_task_handle();
 
     led_task_handle(); // output
-
-    ui_task_handle(); // output
   }
+
+  osThreadTerminate(osThreadGetId());
+  while(1);
+}
+
+
+int main(void)
+{
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* Configure the system clock to 72 MHz */
+  SystemClock_Config();
+
+  delay_init(72);
+
+  //PA15 PB3 PB4 use gpio
+  __HAL_RCC_AFIO_CLK_ENABLE();
+  __HAL_AFIO_REMAP_SWJ_NOJTAG();
+
+  osThreadDef(SystemThread, System_Thread, osPriorityAboveNormal, 0, 1024);
+  SystemThreadHandle = osThreadCreate(osThread(SystemThread), NULL);
+
+  /* Start scheduler */
+  osKernelStart();
+
+  while (1);
 }
 
 /**

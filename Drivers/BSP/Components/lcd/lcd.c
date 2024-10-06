@@ -72,7 +72,7 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
         if (CMD_TYPE_WR_CMD == cmd[CMD_IDX_TYPE])
             lcd_write_cmddata(&cmd[CMD_IDX_CODE], cmd[CMD_IDX_LEN]);
         else if (CMD_TYPE_DLY_MS == cmd[CMD_IDX_TYPE])
-        	HAL_Delay(cmd[CMD_IDX_CODE]);
+        	osDelay(cmd[CMD_IDX_CODE]);
 
         offset += (cmd[CMD_IDX_LEN] + CMD_HEADER_LEN);
         cmd = cmd_table + offset;
@@ -154,9 +154,9 @@ void lcd_init(void)
     spi1_init();
 
 	LCD_RST_LOW();
-	HAL_Delay(20);
+	osDelay(20);
     LCD_RST_HIGH();
-	HAL_Delay(20);
+	osDelay(20);
 
     lcd_drv->Init();
 

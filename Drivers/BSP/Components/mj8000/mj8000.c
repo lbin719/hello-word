@@ -64,9 +64,9 @@ void mj8000_uart_rx_callback(UART_HandleTypeDef *huart)
 void mj8000_setconfig(void)
 {
     uart4_sync_output(set_config_cmd, sizeof(set_config_cmd));
-    HAL_Delay(100);
+    osDelay(100);
     uart4_sync_output(save_flash_cmd, sizeof(save_flash_cmd));
-    HAL_Delay(500);
+    osDelay(500);
     if(mj_uart_rx_frame.finsh)//clear
     {
         mj_uart_rx_frame.finsh = 0;

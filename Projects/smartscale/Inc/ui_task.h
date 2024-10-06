@@ -3,22 +3,31 @@
 
 #include "stdint.h"
 
+
 #define DISPLAY_DEBUG_INFO              1
 
-#define DRAW_UPDATE_DISH_BIT            (0x1UL << 0)       
-#define DRAW_UPDATE_PRICE_BIT           (0x1UL << 1)  
-#define DRAW_UPDATE_PRICE_UNIT_BIT      (0x1UL << 2)
-#define DRAW_UPDATE_WEIGHT_BIT          (0x1UL << 3)
-#define DRAW_UPDATE_WEIGHT_UNIT_BIT     (0x1UL << 4)
-#define DRAW_UPDATE_SUM_PRICE_BIT       (0x1UL << 5)
-#define DRAW_UPDATE_SUMSUM_PRICE_BIT    (0x1UL << 6)
-#define DRAW_UPDATE_DEVICENUM_BIT       (0x1UL << 7)
-#define DRAW_UPDATE_STATUS_BIT          (0x1UL << 8)
-#define DRAW_UPDATE_USERNUM_BIT         (0x1UL << 9)
-#define DRAW_UPDATE_SIGNEL_BIT          (0x1UL << 11)
+#if DISPLAY_DEBUG_INFO
+#define UI_TASK_DELAY                   (200)
+#else
+#define UI_TASK_DELAY                   (osWaitForever)
+#endif
 
-#define DRAW_UPDATE_LOCK_BIT            (0x1UL << 30)
-#define DRAW_UPDATE_ALL_BIT             (0x1UL << 31)
+#define UI_TASK_NOTIFY                  (0xFFFFFFFFUL)
+
+#define UI_NOTIFY_LOCK_BIT              (0x1UL << 0)
+#define UI_NOTIFY_DISH_BIT              (0x1UL << 1)       
+#define UI_NOTIFY_PRICE_BIT             (0x1UL << 2)  
+#define UI_NOTIFY_PRICE_UNIT_BIT        (0x1UL << 3)
+#define UI_NOTIFY_WEIGHT_BIT            (0x1UL << 4)
+#define UI_NOTIFY_WEIGHT_UNIT_BIT       (0x1UL << 5)
+#define UI_NOTIFY_SUM_PRICE_BIT         (0x1UL << 6)
+#define UI_NOTIFY_SUMSUM_PRICE_BIT      (0x1UL << 7)
+#define UI_NOTIFY_DEVICENUM_BIT         (0x1UL << 8)
+#define UI_NOTIFY_STATUS_BIT            (0x1UL << 9)
+#define UI_NOTIFY_USERNUM_BIT           (0x1UL << 10)
+#define UI_NOTIFY_SIGNEL_BIT            (0x1UL << 11)
+
+#define UI_NOTIFY_ALL_BIT               (0xFFFFUL)
 
 #define STRING_DISH_LEN                 (12)
 #define STRING_NUM_LEN                  (6)
@@ -46,6 +55,7 @@ typedef struct
 extern const caiping_data_t default_caiping_data;
 extern caiping_data_t caiping_data;
 
-void set_draw_update_bit(uint32_t data_bit);
+int32_t ui_ossignal_notify(int32_t signals);
+extern void ui_init(void);
 
 #endif /* _UI_TASK_H */

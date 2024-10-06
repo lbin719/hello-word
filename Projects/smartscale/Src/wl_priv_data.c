@@ -37,7 +37,7 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
     //TODU 
     memcpy(&caiping_data, &rx_caiping, sizeof(caiping_data_t));
     sysinfo_store_caipin(&caiping_data);
-    set_draw_update_bit(DRAW_UPDATE_DISH_BIT | DRAW_UPDATE_PRICE_BIT | DRAW_UPDATE_PRICE_UNIT_BIT | DRAW_UPDATE_ALL_BIT);
+    ui_ossignal_notify(UI_NOTIFY_DISH_BIT | UI_NOTIFY_PRICE_BIT | UI_NOTIFY_PRICE_UNIT_BIT | UI_NOTIFY_ALL_BIT);
 
 exit:
     wl_set_priv_send(WL_PRIVRSEND_SETCAIPING_EVENT);

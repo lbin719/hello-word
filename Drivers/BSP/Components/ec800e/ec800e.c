@@ -115,9 +115,9 @@ void ec800e_init(void)
     //POWER ON
     EC_RST_RESET();
     EC_PWR_SET();
-    HAL_Delay(30);
+    osDelay(30);
     EC_PWR_RESET();
-    HAL_Delay(300);
+    osDelay(300);
     EC_RST_SET();
 
     uart2_init();

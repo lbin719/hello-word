@@ -99,13 +99,13 @@ void sys_task_handle(void)
     {
         if(change_weight)
         {
-            set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT);
+            ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
 
         if(wl.priv_register)//注册成功
         {
             sys_status = SYS_STATUS_SBZC;
-            set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
         }
     }
     else if(sys_status == SYS_STATUS_SBZC)
@@ -114,7 +114,7 @@ void sys_task_handle(void)
         {
             sys_status = SYS_STATUS_BHZ;
             // todu 显示重量清零
-            set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             wtn6040_play(WTN_KSBH_PLAY);
             return ;
         }
@@ -124,7 +124,7 @@ void sys_task_handle(void)
             send_banpan_cmd = true;
             // sys_status = SYS_STATUS_BHZ;
             // // todu 显示重量清零
-            // set_draw_update_bit(DRAW_UPDATE_STATUS_BIT);
+            // ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             // wtn6040_play(WTN_KSBH_PLAY);
             return ;
         }
@@ -132,7 +132,7 @@ void sys_task_handle(void)
         if(change_weight)
         {
             sys_status = SYS_STATUS_QQFHCP;
-            set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT | DRAW_UPDATE_STATUS_BIT);
+            ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT | UI_NOTIFY_STATUS_BIT);
             wtn6040_play(WTN_WSBDCP_PLAY);
         }
     }
@@ -152,7 +152,7 @@ void sys_task_handle(void)
             //上报服务器
             change_weight = 0;
             sys_status = SYS_STATUS_SBZC;
-            set_draw_update_bit(DRAW_UPDATE_WEIGHT_BIT | DRAW_UPDATE_SUM_PRICE_BIT | DRAW_UPDATE_SUMSUM_PRICE_BIT | DRAW_UPDATE_STATUS_BIT);
+            ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT | UI_NOTIFY_STATUS_BIT);
         }
     }
 }

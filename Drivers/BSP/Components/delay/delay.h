@@ -17,24 +17,27 @@
  * 购买地址:openedv.taobao.com
  *
  * 修改说明
- * V1.0 20211103
+ * V1.0 20200417
  * 第一次发布
+ * V1.0 20200523
+ * 增加 HAL_Delay 函数，用于Hal库内部函数的延时退出
  *
  ****************************************************************************************************
  */
-
+ 
 #ifndef __DELAY_H
 #define __DELAY_H
 
 #include "stdint.h"
 
-void delay_init(uint16_t sysclk);       /* 初始化延迟函数 */
-void delay_ms(uint16_t nms);            /* 延时nms */
-void delay_us(uint32_t nus);            /* 延时nus */
+#define SYS_SUPPORT_OS     (1)
 
-#if (!SYS_SUPPORT_OS)                   /* 如果不支持OS */
-    void HAL_Delay(uint32_t Delay);     /* HAL库的延时函数，HAL库内部用到 */
+void delay_init(uint16_t sysclk);   /* 初始化延迟函数 */
+void delay_ms(uint16_t nms);        /* 延时nms */
+void delay_us(uint32_t nus);        /* 延时nus */
+
+#if (!SYS_SUPPORT_OS)       /* 没有使用Systick中断 */
+    void HAL_Delay(uint32_t Delay);     /* HAL库的延时函数，SDIO等需要用到 */
 #endif
 
 #endif
-

@@ -196,6 +196,26 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/unicode.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/Third_party/FreeRTOS/list.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/list.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Third_party/FreeRTOS/queue.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/queue.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Third_party/FreeRTOS/tasks.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/tasks.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Third_party/FreeRTOS/timers.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/timers.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/delay/delay.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/delay/delay.c</locationURI>
@@ -374,6 +394,21 @@
 			<name>Middlewares/STM32_USBD_Library/Class/MSC/usbd_msc_scsi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_scsi.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Third_party/FreeRTOS/CMSIS_RTOS/cmsis_os.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Third_party/FreeRTOS/portable/heap_4.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Third_party/FreeRTOS/portable/port.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/port.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
