@@ -5,12 +5,11 @@
 #include "hx711.h"
 #include "ec800e.h"
 #include "timer.h"
-#include "application.h"
+#include "sys_task.h"
 #include "str.h"
 #include "rtc_timer.h"
 #include "mj8000.h"
 #include "wtn6040.h"
-#include "application.h"
 #include "hot.h"
 #include "wl_task.h"
 
@@ -40,7 +39,7 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
     ui_ossignal_notify(UI_NOTIFY_DISH_BIT | UI_NOTIFY_PRICE_BIT | UI_NOTIFY_PRICE_UNIT_BIT | UI_NOTIFY_ALL_BIT);
 
 exit:
-    wl_set_priv_send(WL_PRIVRSEND_SETCAIPING_EVENT);
+    wl_priv_send(WL_PRIVRSEND_SETCAIPING_EVENT);
 
     return true;
 }
@@ -50,7 +49,7 @@ static bool wl_priv_set_qupi(int argc, char *argv[])
     hx711_set_zero();
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_QUPI_EVENT);
+    wl_priv_send(WL_PRIVRSEND_QUPI_EVENT);
     return true;
 }
 
@@ -60,21 +59,21 @@ static bool wl_priv_set_jiaozhun(int argc, char *argv[])
     hx711_set_calibration(cali);
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_JIAOZHUN_EVENT);
+    wl_priv_send(WL_PRIVRSEND_JIAOZHUN_EVENT);
     return true;
 }
 
 static bool wl_priv_get_weight(int argc, char *argv[])
 {
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_GETWEIGHT_EVENT);
+    wl_priv_send(WL_PRIVRSEND_GETWEIGHT_EVENT);
     return true;
 }
 
 static bool wl_priv_get_status(int argc, char *argv[])
 {
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_GETSTATUS_EVENT);
+    wl_priv_send(WL_PRIVRSEND_GETSTATUS_EVENT);
     return true;
 }
 
@@ -83,7 +82,7 @@ static bool wl_priv_set_saomatou(int argc, char *argv[])
     mj8000_setconfig();
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_SETSAOMATOU_EVENT);
+    wl_priv_send(WL_PRIVRSEND_SETSAOMATOU_EVENT);
     return true;
 }
 
@@ -94,7 +93,7 @@ static bool wl_priv_set_voice(int argc, char *argv[])
     wtn6040_set_voice_store(level);
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_SETVOICE_EVENT);
+    wl_priv_send(WL_PRIVRSEND_SETVOICE_EVENT);
 
     return true;
 }
@@ -105,7 +104,7 @@ static bool wl_priv_set_hot(int argc, char *argv[])
     hot_ctrl(status);
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_SETHOT_EVENT);
+    wl_priv_send(WL_PRIVRSEND_SETHOT_EVENT);
     return true;
 }
 
@@ -114,7 +113,7 @@ static bool wl_priv_set_hottimer(int argc, char *argv[])
     uint32_t hot_timer = str_toint(argv[2]);
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_SETHOTTIMER_EVENT);
+    wl_priv_send(WL_PRIVRSEND_SETHOTTIMER_EVENT);
     return true;
 }
 
@@ -122,7 +121,7 @@ static bool wl_priv_set_reboot(int argc, char *argv[])
 {
 
     wl.respond_result = WL_OK;
-    wl_set_priv_send(WL_PRIVRSEND_REBOOT_EVENT);
+    wl_priv_send(WL_PRIVRSEND_REBOOT_EVENT);
     return true;
 }
 

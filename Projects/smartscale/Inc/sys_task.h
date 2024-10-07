@@ -1,6 +1,12 @@
 
-#ifndef __APPLICATION_H
-#define __APPLICATION_H
+#ifndef __SYS_TASK_H
+#define __SYS_TASK_H
+
+#define SYS_TASK_NOTIFY                  (0xFFFFFFFFUL)
+#define SYS_NOTIFY_FCT_BIT               (0x1UL << 0)
+#define SYS_NOTIFY_MJ_BIT                (0x1UL << 1)
+#define SYS_NOTIFY_WLLX_BIT              (0x1UL << 2)
+#define SYS_NOTIFY_WLREGISTER_BIT        (0x1UL << 3)
 
 typedef enum
 {
@@ -25,4 +31,7 @@ void sys_task_handle(void);
 
 uint8_t get_sys_status(void);
 
-#endif /* __APPLICATION_H */
+int32_t sys_ossignal_notify(int32_t signals);
+void sys_init(void);
+
+#endif /* __SYS_TASK_H */

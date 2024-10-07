@@ -31,11 +31,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f103rctx.s</locationURI>
 		</link>
 		<link>
-			<name>Application/User/application.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/application.c</locationURI>
-		</link>
-		<link>
 			<name>Application/User/fct_task.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/fct_task.c</locationURI>
@@ -54,6 +49,11 @@
 			<name>Application/User/stm32f1xx_msp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f1xx_msp.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/sys_task.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/sys_task.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/ui_task.c</name>

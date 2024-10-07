@@ -6,7 +6,7 @@
 #include "ui_task.h"
 #include "version.h"
 #include "gbk.h"
-#include "application.h"
+#include "sys_task.h"
 #include "wl_task.h"
 #include "cmsis_os.h"
 
@@ -77,6 +77,8 @@ int32_t ui_ossignal_notify(int32_t signals)
 static void UI_Thread(void const *argument)
 {
   osEvent event = {0};
+
+  osSignalSet(UI_ThreadHandle, UI_NOTIFY_ALL_BIT); // update all
 
   while(1) 
   {
@@ -282,7 +284,4 @@ void ui_init(void)
 
   osThreadDef(UIThread, UI_Thread, osPriorityAboveNormal, 0, 512);
   UI_ThreadHandle = osThreadCreate(osThread(UIThread), NULL);
-
-  osDelay(500);
-  osSignalSet(UI_ThreadHandle, UI_NOTIFY_ALL_BIT);
 }

@@ -4,14 +4,16 @@
 #include "hx711.h"
 #include "ec800e.h"
 #include "timer.h"
-#include "application.h"
+#include "sys_task.h"
 #include "str.h"
 #include "rtc_timer.h"
 #include "mj8000.h"
 #include "wtn6040.h"
 #include "wl_priv_data.h"
 #include "wl_task.h"
+#include "cmsis_os.h"
 
+static osThreadId Sys_ThreadHandle;
 sys_status_e sys_status = SYS_STATUS_ZZDL;
 
 uint32_t weitht_lasttime = 0;
@@ -166,4 +168,71 @@ uint8_t get_sys_status(void)
     return sys_status;
 }
 
+int32_t sys_ossignal_notify(int32_t signals)
+{
+    if(!Sys_ThreadHandle)
+        return -1;
 
+    return osSignalSet(Sys_ThreadHandle, signals);
+}
+
+void SYS_Thread(void const *argument)
+{
+    osEvent event = {0};
+
+    while(1) 
+    {
+        event = osSignalWait(SYS_TASK_NOTIFY, 100);
+        if(event.status == osEventSignal)
+        {
+            if(event.value.signals & SYS_NOTIFY_FCT_BIT)
+            {
+                fct_task_handle();
+            }
+
+            if(get_stmencrypt_status() == false)// 解密失败，后面的模块不运行
+            {
+                LOG_I("warnning: key error\r\n");
+                osDelay(5000);
+                continue;
+            }
+
+            if(event.value.signals & SYS_NOTIFY_MJ_BIT)
+            {
+                fct_task_handle();
+            }
+            
+            if(event.value.signals & SYS_NOTIFY_WLREGISTER_BIT)
+            {
+                if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
+                {
+                    sys_status = SYS_STATUS_SBZC;
+                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+                }
+            }
+
+            if(event.value.signals & SYS_NOTIFY_WLLX_BIT)
+            {
+                sys_status = SYS_STATUS_SBLX;
+                ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+            }
+
+
+        }
+//        else if(event.status == osEventTimeout)
+//        {
+            weight_task_handle(); // input
+//        }
+    }
+
+//    weight_task_handle(); // input
+//    sys_task_handle();
+//    led_task_handle(); // output
+
+}
+
+void sys_init(void)
+{
+  osThreadDef(SYSThread, SYS_Thread, osPriorityAboveNormal, 0, 256);
+  Sys_ThreadHandle = osThreadCreate(osThread(SYSThread), NULL);
+}

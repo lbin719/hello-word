@@ -5,7 +5,7 @@
 #include "hx711.h"
 #include "mj8000.h"
 #include "hot.h"
-
+#include "sys_task.h"
 
 typedef void (*fct_test_func_t)(uint8_t argc, char **argv);
 typedef struct
@@ -173,6 +173,7 @@ void usmart_recive_callback(uint8_t *rx_data, uint16_t len)
                 else                                    /* 接收到的是0x0a（即换行键） */
                 {
                     shell.sta |= 0x80;                  /* 接收完成了 */
+                    sys_ossignal_notify(SYS_NOTIFY_FCT_BIT);
                 }
             }
             else                                        /* 还没收到0X0d（即回车键） */

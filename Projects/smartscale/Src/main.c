@@ -15,7 +15,7 @@
 #include "led.h"
 #include "hot.h"
 #include "key.h"
-#include "application.h"
+#include "sys_task.h"
 #include "ui_task.h"
 #include "cmsis_os.h"
 
@@ -99,24 +99,7 @@ void System_Thread(void const * argument)
 
   wl_init();
 
-//  while (1)
-//  {
-//    fct_task_handle();
-//
-//    if(get_stmencrypt_status() == false)// 解密失败，后面的模块不运行
-//    {
-//      LOG_I("warnning: key error\r\n");
-//      osDelay(5000);
-//      continue;
-//    }
-//    weight_task_handle(); // input
-//
-//    mj8000_task_handle(); // input
-//
-//    sys_task_handle();
-//
-//    led_task_handle(); // output
-//  }
+  sys_init();
 
   osThreadTerminate(osThreadGetId());
   while(1);

@@ -25,6 +25,12 @@ uint8_t ecuart_rx_buf[ECUART_RX_BUF_SIZE];
 ring_buf_t ecrx_rb_handle = {0};
 uint8_t ecrx_rbuf[ECRX_BUF_SIZE];
 
+void ec800e_uart_output(char *buf, uint16_t len)
+{
+    uart2_sync_output(buf, len);
+    LOG_I("[EC] T:%s", buf);
+}
+
 void ec800e_uart_printf(char *fmt, ...)
 {
     va_list ap;
@@ -38,6 +44,8 @@ void ec800e_uart_printf(char *fmt, ...)
     uart2_sync_output(g_uart_tx_buf, len);
     LOG_I("[EC] T:%s", g_uart_tx_buf);
 }
+
+
 
 
 void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)

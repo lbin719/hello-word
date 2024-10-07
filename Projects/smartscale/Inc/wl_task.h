@@ -4,8 +4,10 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-#define WL_TASK_NOTIFY                  (0xFFFFFFFFUL)
-#define WL_NOTIFY_RECEIVE_BIT            (0x1UL << 0)
+#define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
+#define WL_NOTIFY_RECEIVE_BIT                  (0x1UL << 0)
+#define WL_NOTIFY_PRIVSEND_RIGISTER_BIT        (0x1UL << 1)
+#define WL_NOTIFY_PRIVSEND_HEART_BIT           (0x1UL << 1)
 
 #if 0
 tyepdef struct {
