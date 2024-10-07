@@ -12,7 +12,7 @@
 #include "wtn6040.h"
 #include "application.h"
 #include "hot.h"
-
+#include "wl_task.h"
 
 static bool wl_priv_set_caiping(int argc, char *argv[])
 {

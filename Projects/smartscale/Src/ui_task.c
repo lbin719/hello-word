@@ -7,6 +7,7 @@
 #include "version.h"
 #include "gbk.h"
 #include "application.h"
+#include "wl_task.h"
 #include "cmsis_os.h"
 
 #define DISH_SIZE            (48)

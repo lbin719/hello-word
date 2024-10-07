@@ -271,13 +271,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     /* Associate the initialized DMA handle to the the UART handle */
     __HAL_LINKDMA(huart, hdmarx, hdma_uart2rx);
 
-    HAL_NVIC_SetPriority(USART2_TX_DMA_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(USART2_TX_DMA_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(USART2_TX_DMA_IRQn);
 
-    HAL_NVIC_SetPriority(USART2_RX_DMA_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART2_RX_DMA_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USART2_RX_DMA_IRQn);
 
-    HAL_NVIC_SetPriority(USART2_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(USART2_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 
     __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);

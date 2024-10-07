@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "board.h"
 #include "ringbuffer.h"
+#include "wl_task.h"
 
 #define EC_RST_SET()        	    (EC_RST_GPIO_PORT->BSRR = (uint32_t)(EC_RST_GPIO_PIN  << 16u))
 #define EC_RST_RESET()       		(EC_RST_GPIO_PORT->BSRR = EC_RST_GPIO_PIN)
@@ -42,6 +43,8 @@ void ec800e_uart_printf(char *fmt, ...)
 void ec800e_uart_rx_callback(UART_HandleTypeDef *huart)
 {
     ring_buf_put(&ecrx_rb_handle, ecuart_rx_buf, (ECUART_RX_BUF_SIZE -  __HAL_DMA_GET_COUNTER(huart->hdmarx)));
+    wl_ossignal_notify(WL_NOTIFY_RECEIVE_BIT);
+
     uart2_recive_dma(ecuart_rx_buf, ECUART_RX_BUF_SIZE);   
 }
 
