@@ -4,6 +4,7 @@
 #include "uart.h"
 #include "stm32f1xx_hal.h"
 #include "delay.h"
+#include "cmsis_os.h"
 
 #define WTN6040_DATA(x)     do{ x ? \
                                   HAL_GPIO_WritePin(WTN6040_DATA_GPIO_PORT, WTN6040_DATA_GPIO_PIN, GPIO_PIN_SET) : \
@@ -19,7 +20,8 @@ void wtn6040_write_data(uint8_t data)
 {
     WTN6040_DATA(1);
     WTN6040_DATA(0);
-    delay_ms(5);
+    osDelay(5);
+    portENTER_CRITICAL();
     for(uint8_t i = 0; i < 8; i++)
 	{
         WTN6040_DATA(1);
@@ -38,6 +40,7 @@ void wtn6040_write_data(uint8_t data)
         data = data >> 1;
 	}
     WTN6040_DATA(1);
+    portEXIT_CRITICAL();
 }
 
 
