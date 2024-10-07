@@ -60,12 +60,14 @@ void System_Thread(void const * argument)
 
   board_init();
 
+  norflash_init();
+
   hot_init();
 
   led_init();
 
   key_init();
-
+  
   hx711_init();
   
   mj8000_init();
@@ -73,8 +75,6 @@ void System_Thread(void const * argument)
   ec800e_init();
 
   wtn6040_init();
-
-  norflash_init();
 
 #if 0
   usbd_port_config(0);
@@ -120,7 +120,7 @@ int main(void)
   __HAL_RCC_AFIO_CLK_ENABLE();
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
-  osThreadDef(SystemThread, System_Thread, osPriorityHigh, 0, 256);
+  osThreadDef(SystemThread, System_Thread, osPriorityHigh, 0, 512);
   SystemThreadHandle = osThreadCreate(osThread(SystemThread), NULL);
 
   /* Start scheduler */
