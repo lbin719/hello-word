@@ -4,9 +4,12 @@
 
 #define SYS_TASK_NOTIFY                  (0xFFFFFFFFUL)
 #define SYS_NOTIFY_FCT_BIT               (0x1UL << 0)
-#define SYS_NOTIFY_MJ_BIT                (0x1UL << 1)
-#define SYS_NOTIFY_WLLX_BIT              (0x1UL << 2)
-#define SYS_NOTIFY_WLREGISTER_BIT        (0x1UL << 3)
+#define SYS_NOTIFY_MJRX_BIT              (0x1UL << 1)
+#define SYS_NOTIFY_MJIDLE_BIT            (0x1UL << 2)
+#define SYS_NOTIFY_MJBUHUO_BIT           (0x1UL << 3)
+#define SYS_NOTIFY_MJBANPANG_BIT         (0x1UL << 4)
+#define SYS_NOTIFY_WLLX_BIT              (0x1UL << 5)
+#define SYS_NOTIFY_WLREGISTER_BIT        (0x1UL << 6)
 
 typedef enum
 {
@@ -23,9 +26,7 @@ typedef enum
 extern sys_status_e sys_status;
 
 int get_change_weight(void);
-void weight_task_handle(void);
 
-void mj8000_task_handle(void);
 
 void sys_task_handle(void);
 

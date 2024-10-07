@@ -7,7 +7,12 @@
 #define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
 #define WL_NOTIFY_RECEIVE_BIT                  (0x1UL << 0)
 #define WL_NOTIFY_PRIVSEND_RIGISTER_BIT        (0x1UL << 1)
-#define WL_NOTIFY_PRIVSEND_HEART_BIT           (0x1UL << 1)
+#define WL_NOTIFY_PRIVSEND_HEART_BIT           (0x1UL << 2)
+#define WL_NOTIFY_PRIVSEND_BUHUO_BIT           (0x1UL << 3)
+#define WL_NOTIFY_PRIVSEND_BUHUOEND_BIT        (0x1UL << 4)
+#define WL_NOTIFY_PRIVSEND_BANGPAN_BIT         (0x1UL << 5)
+// 
+
 
 #if 0
 tyepdef struct {

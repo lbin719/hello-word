@@ -58,7 +58,7 @@ void mj8000_uart_rx_callback(UART_HandleTypeDef *huart)
 {
     mj_uart_rx_frame.len = MJ8000_UART_RX_BUF_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx);
     mj_uart_rx_frame.finsh = 1;                                      /* 标记帧接收完成 */
-    sys_ossignal_notify(SYS_NOTIFY_MJ_BIT);
+    sys_ossignal_notify(SYS_NOTIFY_MJRX_BIT);
 }
 
 
