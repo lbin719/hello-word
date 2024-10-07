@@ -46,8 +46,8 @@ void get_weight_period(void)
 #define MJ_STR_MAX_LEN              (MJ8000_UART_RX_BUF_SIZE)
 char mj_str[MJ_STR_MAX_LEN + 1];
 uint8_t mj_len = 0;
-uint32_t mj_bp_time = 0;
 
+uint32_t mj_parse_lasttime = 0;
 uint8_t mj_status = MJ_STATUS_IDLE;
 
 static osTimerId mj_timehandle = NULL;
@@ -68,6 +68,12 @@ void mj8000_rx_parse(const char *buf, uint16_t len)
 
     if(strstr((const char*)buf,"user")) // 补货
     {
+        if((osKernelSysTick() - mj_parse_lasttime) < 1600)
+        {
+            return ;// ingore
+        }
+        mj_parse_lasttime = osKernelSysTick();
+
         if(mj_status != MJ_STATUS_BUHUO)
             mj_status = MJ_STATUS_BUHUO;
         else
@@ -99,7 +105,7 @@ void mj_rx_handle(void)
 }
 
 bool send_banpan_cmd = false;
-
+#if 0
 void sys_task_handle(void)
 {
     if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
@@ -163,7 +169,7 @@ void sys_task_handle(void)
         }
     }
 }
-
+#endif
 
 
 
