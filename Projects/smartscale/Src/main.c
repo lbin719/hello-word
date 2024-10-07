@@ -120,7 +120,7 @@ int main(void)
   __HAL_RCC_AFIO_CLK_ENABLE();
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
-  osThreadDef(SystemThread, System_Thread, osPriorityAboveNormal, 0, 1024);
+  osThreadDef(SystemThread, System_Thread, osPriorityHigh, 0, 256);
   SystemThreadHandle = osThreadCreate(osThread(SystemThread), NULL);
 
   /* Start scheduler */

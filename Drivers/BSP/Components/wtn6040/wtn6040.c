@@ -21,7 +21,7 @@ void wtn6040_write_data(uint8_t data)
     WTN6040_DATA(1);
     WTN6040_DATA(0);
     osDelay(5);
-    portENTER_CRITICAL();
+    // portENTER_CRITICAL();
     for(uint8_t i = 0; i < 8; i++)
 	{
         WTN6040_DATA(1);
@@ -40,7 +40,7 @@ void wtn6040_write_data(uint8_t data)
         data = data >> 1;
 	}
     WTN6040_DATA(1);
-    portEXIT_CRITICAL();
+    // portEXIT_CRITICAL();
 }
 
 
@@ -94,7 +94,7 @@ void wtn6040_init(void)
     // HAL_GPIO_Init(WTN6040_BUSY_GPIO_PORT, &gpio_init_struct);
 
     uint8_t voice = sysinfo_get_voice();
-    wtn6040_set_voice(voice);    
+    wtn6040_set_voice(voice);   
 
     LOG_I("%s\r\n", __FUNCTION__);
 }
