@@ -639,7 +639,7 @@ wl_reset:
             }
             
         }
-        else if(event.value.signals == osEventTimeout)
+        else if(event.status == osEventTimeout)
         {
             wl_priv_send(WL_PRIVSEND_HEART_EVENT);
         }
