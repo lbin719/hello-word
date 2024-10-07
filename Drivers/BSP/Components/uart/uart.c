@@ -214,14 +214,14 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     /* Associate the initialized DMA handle to the the UART handle */
     __HAL_LINKDMA(huart, hdmarx, hdma_uart1rx);
 
-    HAL_NVIC_SetPriority(USART1_TX_DMA_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(USART1_TX_DMA_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(USART1_TX_DMA_IRQn);
 
-    HAL_NVIC_SetPriority(USART1_RX_DMA_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART1_RX_DMA_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USART1_RX_DMA_IRQn);
 #endif
 
-    HAL_NVIC_SetPriority(USART1_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(USART1_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
 
   }
@@ -328,13 +328,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     /* Associate the initialized DMA handle to the the UART handle */
     __HAL_LINKDMA(huart, hdmarx, hdma_uart4rx);
 
-    HAL_NVIC_SetPriority(UART4_TX_DMA_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(UART4_TX_DMA_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(UART4_TX_DMA_IRQn);
 
-    HAL_NVIC_SetPriority(UART4_RX_DMA_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(UART4_RX_DMA_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(UART4_RX_DMA_IRQn);
 
-    HAL_NVIC_SetPriority(UART4_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(UART4_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(UART4_IRQn);
 
     __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
