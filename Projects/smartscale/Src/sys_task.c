@@ -16,6 +16,9 @@
 #define SYS_BPLIVE_TIMEOUT          (1500) 
 #define SYS_WEIGHT_TIMEOUT          (200) 
 
+#define SYS_IWEIGHT_TIMEOUT         (4 * 5)// 4s
+#define SYS_BWEIGHT_TIMEOUT         (8 * 5)// 8s
+
 static osThreadId Sys_ThreadHandle;
 static osTimerId bp_timehandle = NULL;
 static osTimerId weight_timehandle = NULL;
@@ -24,12 +27,11 @@ static sys_status_e sys_status = SYS_STATUS_ZZDL;
 
 bool quest_enter_banpan = false;
 
-
-
-uint32_t update_timer = 0;
-int sys_weight = 0;
-int change_weight = 0;
-int last_dis_weight = 0;
+static int last_weight = 0;
+static int sys_weight = 0;
+static int change_weight = 0;
+static int upload_weight = 0;
+static uint32_t upload_weight_num = 0;
 
 static void bp_ostimercallback(void const * argument)
 {
@@ -51,22 +53,63 @@ int get_change_weight(void)
     return change_weight;
 }
 
-void weight_period_handle(void)
+void weight_upload(void)
+{
+    upload_weight_num = 0;
+
+    sys_weight += change_weight;
+
+    upload_weight = change_weight;
+    change_weight = 0;
+    // wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);      
+}
+
+void weight_period_handle(void) // 200ms 周期
 {
 	int weight = hx711_get_weight();
-    if(abs(weight - sys_weight) > caiping_data.zhendongwucha) // update
+    if(abs(weight - last_weight) > caiping_data.zhendongwucha) // update
     {
+        upload_weight_num = 0;
         change_weight = weight - sys_weight;
-        // sys_weight = weight;
         ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+
+        if(sys_status == SYS_STATUS_SBZC)
+        {
+            sys_status = SYS_STATUS_QBDCP;
+            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+            wtn6040_play(WTN_WSBDCP_PLAY);
+        }
+    }
+    else if(change_weight && (sys_status == SYS_STATUS_QBDCP))// 空闲状态下重量未变化
+    {
+        if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)
+        {
+            //状态更新 上传重量
+            sys_status = SYS_STATUS_SBZC;
+            weight_upload();
+            wl_ossignal_notify(WL_NOTIFY_PRIVSEND_IWEIGHT_BIT); 
+            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+        }
+    }
+    else if(change_weight && (sys_status == SYS_STATUS_BHZ))// 补货中重量未变化
+    {
+        if(++upload_weight_num >= SYS_BWEIGHT_TIMEOUT)
+        {
+            //状态更新 上传重量
+            sys_status = SYS_STATUS_SBZC;
+            weight_upload();
+            wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT); 
+            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+        }
     }
     else
     {
-        change_weight = 0;
-        ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT); 
-        //上传重量
+        upload_weight_num = 0;
     }
+
+    last_weight = weight;
 }
+
 
 
 #define MJ_STR_MAX_LEN              (MJ8000_UART_RX_BUF_SIZE)
@@ -111,73 +154,6 @@ void mj_rx_handle(void)
 }
 
 bool send_banpan_cmd = false;
-#if 0
-void sys_task_handle(void)
-{
-    if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
-    {
-        if(change_weight)
-        {
-            ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
-        }
-
-        if(wl.priv_register)//注册成功
-        {
-            sys_status = SYS_STATUS_SBZC;
-            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-        }
-    }
-    else if(sys_status == SYS_STATUS_SBZC)
-    {
-        if(mj_status == MJ_STATUS_BUHUO)
-        {
-            sys_status = SYS_STATUS_BHZ;
-            // todu 显示重量清零
-            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-            wtn6040_play(WTN_KSBH_PLAY);
-            return ;
-        }
-        else if(mj_status == MJ_STATUS_BANGPAN)
-        {
-            // 发送绑盘指令
-            send_banpan_cmd = true;
-            // sys_status = SYS_STATUS_BHZ;
-            // // todu 显示重量清零
-            // ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-            // wtn6040_play(WTN_KSBH_PLAY);
-            return ;
-        }
-
-        if(change_weight)
-        {
-            sys_status = SYS_STATUS_QQFHCP;
-            ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT | UI_NOTIFY_STATUS_BIT);
-            wtn6040_play(WTN_WSBDCP_PLAY);
-        }
-    }
-    else if(sys_status == SYS_STATUS_BHZ)
-    {
-        if(mj_status == MJ_STATUS_IDLE)
-        {
-            wtn6040_play(WTN_BHWC_PLAY);
-            sys_status = SYS_STATUS_SBZC;
-            return ;
-        }
-    }
-    else if(sys_status == SYS_STATUS_QQFHCP)
-    {
-        if(timer_isexpired(update_timer))
-        {
-            //上报服务器
-            change_weight = 0;
-            sys_status = SYS_STATUS_SBZC;
-            ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT | UI_NOTIFY_STATUS_BIT);
-        }
-    }
-}
-#endif
-
-
 
 uint8_t get_sys_status(void)
 {
@@ -191,7 +167,6 @@ int32_t sys_ossignal_notify(int32_t signals)
 
     return osSignalSet(Sys_ThreadHandle, signals);
 }
-
 
 void SYS_Thread(void const *argument)
 {
@@ -234,8 +209,9 @@ void SYS_Thread(void const *argument)
                 else if(sys_status == SYS_STATUS_BHZ) // exit
                 {
                     sys_status = SYS_STATUS_SBZC;
+                    weight_upload();
                     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);
-                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
                     wtn6040_play(WTN_BHWC_PLAY);
                 }
             }
