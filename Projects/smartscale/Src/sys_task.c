@@ -13,52 +13,67 @@
 #include "wl_task.h"
 #include "cmsis_os.h"
 
-static osThreadId Sys_ThreadHandle;
+#define SYS_BPLIVE_TIMEOUT          (1500) 
+#define SYS_WEIGHT_TIMEOUT          (200) 
 
-sys_status_e sys_status = SYS_STATUS_ZZDL;
+static osThreadId Sys_ThreadHandle;
+static osTimerId bp_timehandle = NULL;
+static osTimerId weight_timehandle = NULL;
+
+static sys_status_e sys_status = SYS_STATUS_ZZDL;
+
+bool quest_enter_banpan = false;
+
 
 
 uint32_t update_timer = 0;
-int current_weight = 0;
+int sys_weight = 0;
 int change_weight = 0;
 int last_dis_weight = 0;
+
+static void bp_ostimercallback(void const * argument)
+{
+    (void) argument;
+    sys_ossignal_notify(SYS_NOTIFY_MJBPEXIT_BIT);
+    LOG_I("[MJ] timeout exit\r\n");
+}
+
+static void weight_ostimercallback(void const * argument)
+{
+    (void) argument;
+    sys_ossignal_notify(SYS_NOTIFY_WEIGHTTIME_BIT);
+}
+
+
 
 int get_change_weight(void)
 {
     return change_weight;
 }
 
-void get_weight_period(void)
+void weight_period_handle(void)
 {
 	int weight = hx711_get_weight();
-    if(abs(weight - current_weight) > caiping_data.zhendongwucha)
+    if(abs(weight - sys_weight) > caiping_data.zhendongwucha) // update
     {
-        change_weight = weight - current_weight;
-        current_weight = weight;
+        change_weight = weight - sys_weight;
+        // sys_weight = weight;
+        ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+    }
+    else
+    {
+        change_weight = 0;
+        ui_ossignal_notify(UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT); 
+        //上传重量
     }
 }
 
-#define MJ_STATUS_IDLE              (0)
-#define MJ_STATUS_BUHUO             (1)
-#define MJ_STATUS_BANGPAN           (2)
 
-#define MJ_BP_LIVE_TIMEOUT          (1500) 
 #define MJ_STR_MAX_LEN              (MJ8000_UART_RX_BUF_SIZE)
 char mj_str[MJ_STR_MAX_LEN + 1];
 uint8_t mj_len = 0;
 
 uint32_t mj_parse_lasttime = 0;
-uint8_t mj_status = MJ_STATUS_IDLE;
-
-static osTimerId mj_timehandle = NULL;
-
-static void mj_ostimercallback(void const * argument)
-{
-    (void) argument;
-
-    mj_status = MJ_STATUS_IDLE;
-    LOG_I("[MJ] timeout exit\r\n");
-}
 
 void mj8000_rx_parse(const char *buf, uint16_t len)
 {
@@ -69,24 +84,15 @@ void mj8000_rx_parse(const char *buf, uint16_t len)
     if(strstr((const char*)buf,"user")) // 补货
     {
         if((osKernelSysTick() - mj_parse_lasttime) < 1600)
-        {
             return ;// ingore
-        }
         mj_parse_lasttime = osKernelSysTick();
 
-        if(mj_status != MJ_STATUS_BUHUO)
-            mj_status = MJ_STATUS_BUHUO;
-        else
-            mj_status = MJ_STATUS_IDLE;
         sys_ossignal_notify(SYS_NOTIFY_MJBUHUO_BIT);
-        LOG_I("[MJ] buhuo\r\n");
         return ;
     }
     else if(strstr((const char*)buf,"zh")) // 绑盘
     {
-        osTimerStart(mj_timehandle, MJ_BP_LIVE_TIMEOUT);
-        mj_status = MJ_STATUS_BANGPAN;
-        LOG_I("[MJ] pangpan\r\n");
+        sys_ossignal_notify(SYS_NOTIFY_MJBPENTER_BIT);
         return ;
     }
 }
@@ -186,13 +192,16 @@ int32_t sys_ossignal_notify(int32_t signals)
     return osSignalSet(Sys_ThreadHandle, signals);
 }
 
+
 void SYS_Thread(void const *argument)
 {
     osEvent event = {0};
 
+    osTimerStart(weight_timehandle, SYS_WEIGHT_TIMEOUT);
+
     while(1) 
     {
-        event = osSignalWait(SYS_TASK_NOTIFY, 200);
+        event = osSignalWait(SYS_TASK_NOTIFY, osWaitForever);
         if(event.status == osEventSignal)
         {
             if(event.value.signals & SYS_NOTIFY_FCT_BIT)
@@ -214,14 +223,15 @@ void SYS_Thread(void const *argument)
 
             if(event.value.signals & SYS_NOTIFY_MJBUHUO_BIT)
             {
-                if(sys_status == SYS_STATUS_SBZC)
+                if(sys_status == SYS_STATUS_SBZC) // enter
                 {
+                    // 重量要清零
                     sys_status = SYS_STATUS_BHZ;
                     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUO_BIT);
                     ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
                     wtn6040_play(WTN_KSBH_PLAY);
                 }
-                else if(sys_status == SYS_STATUS_BHZ)
+                else if(sys_status == SYS_STATUS_BHZ) // exit
                 {
                     sys_status = SYS_STATUS_SBZC;
                     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);
@@ -230,12 +240,27 @@ void SYS_Thread(void const *argument)
                 }
             }
             
-            if(event.value.signals & SYS_NOTIFY_MJBANPANG_BIT)
+            if(event.value.signals & SYS_NOTIFY_MJBPENTER_BIT)
             {
-                if(sys_status == SYS_STATUS_SBZC)
+                if(sys_status == SYS_STATUS_SBZC) // enter
                 {
-
+                    osTimerStart(bp_timehandle, SYS_BPLIVE_TIMEOUT);
+                    if(quest_enter_banpan)
+                        return;
+                    quest_enter_banpan = true;
+                    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPAN_BIT);
                 }
+                else if(sys_status == SYS_STATUS_BHZ)
+                {
+                    sys_status == SYS_STATUS_SBZC;
+                }
+            } 
+            if(event.value.signals & SYS_NOTIFY_MJBPEXIT_BIT)
+            {
+                // else if(sys_status == SYS_STATUS_BHZ)
+                // {
+                //     sys_status == SYS_STATUS_SBZC;
+                // }
             } 
 
             if(event.value.signals & SYS_NOTIFY_WLREGISTER_BIT)
@@ -253,20 +278,24 @@ void SYS_Thread(void const *argument)
                 ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             }
 
+            if(event.value.signals & SYS_NOTIFY_WEIGHTTIME_BIT)
+            {
+                weight_period_handle(); // input
+            }
         }
-       else if(event.status == osEventTimeout)
-       {
-            get_weight_period(); // input
-       }
     }
 }
 
 void sys_init(void)
 {
-    osTimerDef(mj_timer, mj_ostimercallback);
-    mj_timehandle = osTimerCreate(osTimer(mj_timer), osTimerOnce, NULL);
-    assert_param(mj_timehandle);
+    osTimerDef(bp_timer, bp_ostimercallback);
+    bp_timehandle = osTimerCreate(osTimer(bp_timer), osTimerOnce, NULL);
+    assert_param(bp_timehandle);
 
-  osThreadDef(SYSThread, SYS_Thread, osPriorityAboveNormal, 0, 256);
-  Sys_ThreadHandle = osThreadCreate(osThread(SYSThread), NULL);
+    osTimerDef(weight_timer, weight_ostimercallback);
+    weight_timehandle = osTimerCreate(osTimer(weight_timer), osTimerPeriodic, NULL);
+    assert_param(weight_timehandle);
+
+    osThreadDef(SYSThread, SYS_Thread, osPriorityAboveNormal, 0, 256);
+    Sys_ThreadHandle = osThreadCreate(osThread(SYSThread), NULL);
 }
