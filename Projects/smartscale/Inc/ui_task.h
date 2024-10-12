@@ -5,12 +5,8 @@
 
 
 #define DISPLAY_DEBUG_INFO              1
+#define DEBUG_INFO_TIME                 (200)
 
-#if DISPLAY_DEBUG_INFO
-#define UI_TASK_DELAY                   (200)
-#else
-#define UI_TASK_DELAY                   (osWaitForever)
-#endif
 
 #define UI_TASK_NOTIFY                  (0xFFFFFFFFUL)
 
@@ -26,6 +22,7 @@
 #define UI_NOTIFY_STATUS_BIT            (0x1UL << 9)
 #define UI_NOTIFY_USERNUM_BIT           (0x1UL << 10)
 #define UI_NOTIFY_SIGNEL_BIT            (0x1UL << 11)
+#define UI_NOTIFY_DEBUGINFO_BIT         (0x1UL << 12)
 
 #define UI_NOTIFY_ALL_BIT               (0xFFFFUL)
 

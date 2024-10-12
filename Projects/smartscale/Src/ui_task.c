@@ -48,12 +48,22 @@ const caiping_data_t default_caiping_data = {
   .price = 0.30,
   .price_unit = 100,
   .tool_weight = 50,
-  .zhendongwucha = 15,
+  .zhendongwucha = 5,
   .devicenum = 12,
 };
 
 static char disp_str[64] = {0};
 caiping_data_t caiping_data = {0};
+
+#if DISPLAY_DEBUG_INFO
+static osTimerId debug_timehandle = NULL;
+
+static void debug_ostimercallback(void const * argument)
+{
+    (void) argument;
+    ui_ossignal_notify(UI_NOTIFY_DEBUGINFO_BIT);
+}
+#endif
 
 static void draw_single(uint16_t x, uint16_t y, uint8_t level)
 {
@@ -79,10 +89,13 @@ static void UI_Thread(void const *argument)
   osEvent event = {0};
 
   osSignalSet(UI_ThreadHandle, UI_NOTIFY_ALL_BIT); // update all
+#if DISPLAY_DEBUG_INFO
+  osTimerStart(debug_timehandle, DEBUG_INFO_TIME);
+#endif
 
   while(1) 
   {
-    event = osSignalWait(UI_TASK_NOTIFY, UI_TASK_DELAY);
+    event = osSignalWait(UI_TASK_NOTIFY, osWaitForever);
     if(event.status == osEventSignal)
     {
       if(event.value.signals & UI_NOTIFY_LOCK_BIT)
@@ -258,22 +271,22 @@ static void UI_Thread(void const *argument)
         // draw single
         draw_single(430, 0, 2);
       }
-    }
-    else if(event.status == osEventTimeout)
-    {
+
 #if DISPLAY_DEBUG_INFO
-      char disp_str[32] = {0};
-      snprintf(disp_str, sizeof(disp_str), "w:%dg", hx711_get_weight_value());
-      text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
+      if(event.value.signals & UI_NOTIFY_DEBUGINFO_BIT)
+      {
+        char disp_str[32] = {0};
+        snprintf(disp_str, sizeof(disp_str), "w:%dg", hx711_get_weight_value());
+        text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
 
-      snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
-      text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
+        snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
+        text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
 
-      snprintf(disp_str, sizeof(disp_str), "wl:%d", wl.state);
-      text_show_string_left(0, 36, 12*6, 12, disp_str, 12, 0, BLUE);
+        snprintf(disp_str, sizeof(disp_str), "wl:%d", wl.state);
+        text_show_string_left(0, 36, 12*6, 12, disp_str, 12, 0, BLUE);
+      }
 #endif
     }
-
   }
 }
 
@@ -281,6 +294,12 @@ void ui_init(void)
 {
   caiping_data_t *store = sysinfo_get_caipin();
   memcpy(&caiping_data, store, sizeof(caiping_data_t));
+
+#if DISPLAY_DEBUG_INFO
+  osTimerDef(debug_timer, debug_ostimercallback);
+  debug_timehandle = osTimerCreate(osTimer(debug_timer), osTimerPeriodic, NULL);
+  assert_param(debug_timehandle);
+#endif
 
   osThreadDef(UIThread, UI_Thread, osPriorityAboveNormal, 0, 512);
   UI_ThreadHandle = osThreadCreate(osThread(UIThread), NULL);
