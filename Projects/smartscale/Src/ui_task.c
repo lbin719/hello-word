@@ -263,10 +263,11 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_USERNUM_BIT)
       {
         //right down width 10
-        // snprintf(disp_str, sizeof(disp_str), "%d", caiping_data.devicenum);
+        uint8_t status = get_sys_status();
+        snprintf(disp_str, sizeof(disp_str), "%s", (status == SYS_STATUS_QQC || status == SYS_STATUS_QBDCP) ? mj_str : UI_HYSY_STR);
         text_show_string_middle((480/4*3-DOWN_SIZE/2*5), DOWN_LINE_YPOST, // 扫码的编码，或者扫码识别的编码
                                 DOWN_SIZE/2*10, DOWN_SIZE, 
-                                UI_HYSY_STR, 
+                                disp_str, 
                                 DOWN_SIZE, 
                                 0, 
                                 RED);

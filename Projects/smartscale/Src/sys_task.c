@@ -3,11 +3,11 @@
 #include "main.h"
 #include "hx711.h"
 #include "ec800e.h"
+#include "mj8000.h"
 #include "timer.h"
 #include "sys_task.h"
 #include "str.h"
 #include "rtc_timer.h"
-#include "mj8000.h"
 #include "wtn6040.h"
 #include "wl_priv_data.h"
 #include "wl_task.h"
@@ -70,7 +70,19 @@ void weight_upload(void)
     sys_weight += change_weight;
 
     upload_weight = change_weight;
-    change_weight = 0;  
+    change_weight = 0; 
+
+    if(sys_status == SYS_STATUS_BHZ)
+    {
+         wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);
+    }
+    else if(sys_status == SYS_STATUS_QBDCP)// 空闲状态下重量未变化
+    {
+        if(upload_weight)
+        {
+            wl_ossignal_notify(WL_NOTIFY_PRIVSEND_IWEIGHT_BIT);
+        }
+    }
 }
 
 void weight_period_handle(void) // 200ms 周期
@@ -93,9 +105,8 @@ void weight_period_handle(void) // 200ms 周期
     {
         if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)// 空闲状态下重量变化 并上传重量
         {
-            sys_status = SYS_STATUS_SBZC;
             weight_upload();
-            wl_ossignal_notify(WL_NOTIFY_PRIVSEND_IWEIGHT_BIT); 
+            sys_status = SYS_STATUS_SBZC;
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
     }
@@ -103,9 +114,8 @@ void weight_period_handle(void) // 200ms 周期
     {
         if(++upload_weight_num >= SYS_BWEIGHT_TIMEOUT) // 超时退出补货 并上传重量
         {
-            sys_status = SYS_STATUS_SBZC;
             weight_upload();
-            wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT); 
+            sys_status = SYS_STATUS_SBZC;
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
     }
@@ -124,11 +134,7 @@ void weight_period_handle(void) // 200ms 周期
 }
 
 
-
-#define MJ_STR_MAX_LEN              (MJ8000_UART_RX_BUF_SIZE)
 char mj_str[MJ_STR_MAX_LEN + 1];
-uint8_t mj_len = 0;
-
 uint32_t mj_parse_lasttime = 0;
 
 void mj8000_rx_parse(const char *buf, uint16_t len)
@@ -157,6 +163,8 @@ void mj_rx_handle(void)
 {
     if(mj_uart_rx_frame.finsh)
     {
+        if(mj_uart_rx_frame.len  > 1 && mj_uart_rx_frame.buf[mj_uart_rx_frame.len -1] == '\r')
+            mj_uart_rx_frame.len --;
         mj_uart_rx_frame.buf[mj_uart_rx_frame.len] = '\0';
         LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_uart_rx_frame.len, mj_uart_rx_frame.buf);
         mj8000_rx_parse(mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
@@ -221,9 +229,8 @@ void SYS_Thread(void const *argument)
                 }
                 else if(sys_status == SYS_STATUS_BHZ) // exit
                 {
-                    sys_status = SYS_STATUS_SBZC;
                     weight_upload();
-                    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);
+                    sys_status = SYS_STATUS_SBZC;
                     ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
                     wtn6040_play(WTN_BHWC_PLAY);
                 }
@@ -237,13 +244,31 @@ void SYS_Thread(void const *argument)
                     if(quest_enter_banpan)
                         return;
                     quest_enter_banpan = true;
+
                     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPAN_BIT);
                 }
-                else if(sys_status == SYS_STATUS_BHZ)
+            } 
+
+            if(event.value.signals & SYS_NOTIFY_WLBPENTER_BIT)
+            {
+                if(sys_status == SYS_STATUS_SBZC) // enter
                 {
-                    sys_status == SYS_STATUS_SBZC;
+                    if(wlpriv_banpan_result)
+                    {
+                        weight_upload();
+                        sys_status = SYS_STATUS_QQC;
+                        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+                        wtn6040_play(WTN_SMCGQQC_PLAY);
+                    }
+                    else
+                    {
+                        sys_status = SYS_STATUS_QBDCP;
+                        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT);
+                        wtn6040_play(WTN_CPHWBD_PLAY);
+                    }
                 }
             } 
+            
             if(event.value.signals & SYS_NOTIFY_MJBPEXIT_BIT)
             {
                 // else if(sys_status == SYS_STATUS_BHZ)

@@ -134,7 +134,7 @@ typedef struct{
 
 // Cmd ID	命令名称
 #define WL_PRIV_DBUHUO_CMD              (1) // 1	设备发起补货
-#define WL_PRIV_DWEIGHT_CMD             (2) // 2	设备传感器重量变化上报
+#define WL_PRIV_DBHWEIGHT_CMD           (2) // 2	设备补货完成传感器重量变化上报
 #define WL_PRIV_DUSER_CMD               (3) // 3	设备发起用户绑盘称重
 #define WL_PRIV_FCAIPING_CMD            (4) // 4	服务器设置菜品
 #define WL_PRIV_FQUPI_CMD               (5) // 5	传感器操作（去皮）
@@ -150,7 +150,7 @@ typedef struct{
 #define WL_PRIV_DXINTIAOBAO_CMD         (15) // 15	设备发送心跳包
 
 #define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
-#define WL_PRIV_DWEIGHT_RECMD           (2 + 128) // 2	设备传感器重量变化上报
+#define WL_PRIV_DBHWEIGHT_RECMD         (2 + 128) // 2	设备补货完成传感器重量变化上报
 #define WL_PRIV_DUSER_RECMD             (3 + 128) // 3	设备发起用户绑盘称重
 #define WL_PRIV_FCAIPING_RECMD          (4 + 128) // 4	服务器设置菜品
 #define WL_PRIV_FQUPI_RECMD             (5 + 128) // 5	传感器操作（去皮）

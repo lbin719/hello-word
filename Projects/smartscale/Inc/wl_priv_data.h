@@ -12,6 +12,8 @@ typedef struct
     priv_func_t func;
 } priv_func_mapping_t;
 
+extern bool wlpriv_banpan_result;
+
 bool wl_rx_priv_parse(int argc, char *argv[]);
 
 #endif

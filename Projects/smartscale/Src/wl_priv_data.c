@@ -13,6 +13,8 @@
 #include "hot.h"
 #include "wl_task.h"
 
+bool wlpriv_banpan_result = false;
+
 static bool wl_priv_set_caiping(int argc, char *argv[])
 {
     caiping_data_t rx_caiping = {0};
@@ -125,6 +127,27 @@ static bool wl_priv_set_reboot(int argc, char *argv[])
     return true;
 }
 
+/* ------------------------------------ */
+static bool wl_priv_res_buhuo(int argc, char *argv[])
+{
+    return true;
+}
+
+static bool wl_priv_res_weight(int argc, char *argv[])
+{
+    return true;
+}
+
+static bool wl_priv_res_user(int argc, char *argv[])
+{
+    if(argv[2][0] == '0')
+        wlpriv_banpan_result = true;
+    else
+        wlpriv_banpan_result = false;
+
+    sys_ossignal_notify(SYS_NOTIFY_WLBPENTER_BIT);
+    return true;
+}
 
 static bool wl_priv_res_register(int argc, char *argv[])
 {
@@ -132,7 +155,9 @@ static bool wl_priv_res_register(int argc, char *argv[])
     return true;
 }
 
+
 static const priv_func_mapping_t priv_func[]={
+    //服务器主动出发的指令解析
     {WL_PRIV_FCAIPING_CMD,          wl_priv_set_caiping},   // 4	服务器设置菜品
     {WL_PRIV_FQUPI_CMD,             wl_priv_set_qupi},      // 5	传感器操作（去皮）
     {WL_PRIV_FJIAOZHUN_CMD,         wl_priv_set_jiaozhun},  // 6	传感器操作（校准）
@@ -144,7 +169,11 @@ static const priv_func_mapping_t priv_func[]={
     {WL_PRIV_FHOTTIMER_CMD,         wl_priv_set_hottimer},  // 12   设置加热等级
     {WL_PRIV_FREBOOT_CMD,           wl_priv_set_reboot},    // 13   设备重启
 
-    {WL_PRIV_DREGISTER_RECMD,       wl_priv_res_register}   // 14	设备注册
+    // 发起指令回复的数据解析
+    {WL_PRIV_DBUHUO_RECMD,          wl_priv_res_buhuo},     // (1 + 128) // 1	设备发起补货
+    {WL_PRIV_DBHWEIGHT_RECMD,       wl_priv_res_weight},    // (2 + 128) // 2	设备补货完成传感器重量变化上报
+    {WL_PRIV_DUSER_RECMD,           wl_priv_res_user},      // (3 + 128) // 3	设备发起用户绑盘称重
+    {WL_PRIV_DREGISTER_RECMD,       wl_priv_res_register},  // (14 + 128)// 14	设备注册
 };
 
 bool wl_rx_priv_parse(int argc, char *argv[])

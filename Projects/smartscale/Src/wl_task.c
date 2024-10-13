@@ -306,7 +306,7 @@ void wl_priv_send(uint8_t event)
 	ec800e_uart_printf("AT+QISEND=0\r\n");
 	osDelay(2);
 // #define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
-// #define WL_PRIV_DWEIGHT_RECMD           (2 + 128) // 2	设备传感器重量变化上报
+// #define WL_PRIV_DBHWEIGHT_RECMD           (2 + 128) // 2	设备传感器重量变化上报
 // #define WL_PRIV_DUSER_RECMD             (3 + 128) // 3	设备发起用户绑盘称重
 // #define WL_PRIV_DREGISTER_RECMD         (14 + 128) // 14	设备注册
 // #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
@@ -320,6 +320,10 @@ void wl_priv_send(uint8_t event)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
     }
+    else if(event == WL_PRIVSEND_BANGPAN_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,%s,}\r\n", WL_PRIV_DUSER_CMD, ++wl.priv_dnum, get_timestamp(), mj_str);
+    } 
 
     else if(event == WL_PRIVRSEND_SETCAIPING_EVENT)
     {
@@ -364,7 +368,7 @@ void wl_priv_send(uint8_t event)
         LOG_I("system reboot\r\n");
         HAL_Delay(500);
         NVIC_SystemReset();
-    }
+    } 
     ec800e_uart_printf("%c", 0x1A);//发送完成函数          
     // priv_send_event = 0;
 }
@@ -637,7 +641,10 @@ wl_reset:
             {
                 wl_priv_send(WL_PRIVSEND_RIGISTER_EVENT);
             }
-            
+            if(event.value.signals == WL_NOTIFY_PRIVSEND_BANGPAN_BIT)
+            {
+                wl_priv_send(WL_PRIVSEND_BANGPAN_EVENT);
+            }
         }
         else if(event.status == osEventTimeout)
         {
