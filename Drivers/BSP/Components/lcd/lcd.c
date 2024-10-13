@@ -100,6 +100,8 @@ void lcd_draw_vline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Len
 
 void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
 {
+    if(sx  > ex || sy > ey)
+        return ;
     // if(lcd_drv->DrawFill)
     //     lcd_drv->DrawFill(RGBCode, sx, sy, ex, ey);
     uint16_t i, j;

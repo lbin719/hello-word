@@ -353,10 +353,10 @@ void text_show_string_left(uint16_t x, uint16_t y, uint16_t width, uint16_t heig
     strlenth = strlen((const char *)str);
     strlenth *= size / 2;
 
-    text_show_string(x, y, lcd_dev.width, lcd_dev.height, str, size, mode, color);
+    text_show_string(x, y, width, height, str, size, mode, color);
     if ((mode == 0) && (width > strlenth)) /* 将末尾清空 */
     {
-        lcd_draw_fill(g_back_color, (x + strlenth), y, (x + (width - strlenth)), (y + size));
+        lcd_draw_fill(g_back_color, (x + strlenth), y, (x + width), (y + size));
     }
 }
 
