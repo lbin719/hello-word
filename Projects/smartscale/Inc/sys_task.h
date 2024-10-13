@@ -28,6 +28,8 @@ typedef enum
 }sys_status_e;
 
 extern char mj_str[MJ_STR_MAX_LEN + 1];
+extern int upload_cweight;
+extern int upload_sweight;
 
 uint8_t get_sys_status(void);
 int get_change_weight(void);

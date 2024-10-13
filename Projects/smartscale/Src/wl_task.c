@@ -22,6 +22,14 @@ static bool wl_moudle_status = false;
 static bool wl_get_cimi = false;
 #define WL_RX_BUFFER_SIZE   (256)
 uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
+static osTimerId heart_timehandle = NULL;
+
+
+static void heart_ostimercallback(void const * argument)
+{
+    (void) argument;
+    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_HEART_BIT);
+}
 
 int32_t wl_ossignal_notify(int32_t signals)
 {
@@ -305,11 +313,6 @@ void wl_priv_send(uint8_t event)
 {
 	ec800e_uart_printf("AT+QISEND=0\r\n");
 	osDelay(2);
-// #define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
-// #define WL_PRIV_DBHWEIGHT_RECMD           (2 + 128) // 2	设备传感器重量变化上报
-// #define WL_PRIV_DUSER_RECMD             (3 + 128) // 3	设备发起用户绑盘称重
-// #define WL_PRIV_DREGISTER_RECMD         (14 + 128) // 14	设备注册
-// #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
     if(event == WL_PRIVSEND_RIGISTER_EVENT)
     {
         //test
@@ -320,10 +323,28 @@ void wl_priv_send(uint8_t event)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
     }
+    else if(event == WL_PRIVSEND_BUHUO_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%s,%d,}\r\n", WL_PRIV_DBUHUO_CMD, ++wl.priv_dnum, mj_str, get_timestamp());
+    }
+    else if(event == WL_PRIVSEND_BHWEIGHT_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DBHWEIGHT_CMD, ++wl.priv_dnum, upload_cweight, upload_sweight, get_timestamp());
+    }
     else if(event == WL_PRIVSEND_BANGPAN_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%d,%s,}\r\n", WL_PRIV_DUSER_CMD, ++wl.priv_dnum, get_timestamp(), mj_str);
+    }
+    else if(event == WL_PRIVSEND_BPWEIGHT_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%s,%d,%d,}\r\n", WL_PRIV_DBPWEIGHT_CMD, ++wl.priv_dnum, mj_str, upload_cweight, get_timestamp());
+    }  
+    else if(event == WL_PRIVSEND_IWEIGHT_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DIWEIGHT_CMD, ++wl.priv_dnum, upload_cweight, upload_sweight, get_timestamp());
     } 
+
+
 
     else if(event == WL_PRIVRSEND_SETCAIPING_EVENT)
     {
@@ -624,40 +645,59 @@ wl_reset:
     }
 
     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_RIGISTER_BIT);
+    osTimerStart(heart_timehandle, WL_HEART_PERIOD_MS);
 
     while(1)
     {
-        event = osSignalWait(WL_TASK_NOTIFY, 60*1000);
+        event = osSignalWait(WL_TASK_NOTIFY, osWaitForever);
         if(event.status == osEventSignal)
         {
-            if(event.value.signals == WL_NOTIFY_RECEIVE_BIT)
+            if(event.value.signals & WL_NOTIFY_RECEIVE_BIT) // 接收到数据包处理
             {
                 uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
                 if(act_len && wl_rx_handle(wl_rx_buf, act_len))
                 {
                 }
             }
-            if(event.value.signals == WL_NOTIFY_PRIVSEND_RIGISTER_BIT)
+
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_RIGISTER_BIT)
             {
                 wl_priv_send(WL_PRIVSEND_RIGISTER_EVENT);
             }
-            if(event.value.signals == WL_NOTIFY_PRIVSEND_BANGPAN_BIT)
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_BUHUO_BIT)
+            {
+                wl_priv_send(WL_PRIVSEND_BUHUO_EVENT);
+            }
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_BUHUOEND_BIT)
+            {
+                wl_priv_send(WL_PRIVSEND_BHWEIGHT_EVENT);
+            }            
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_BANGPAN_BIT)
             {
                 wl_priv_send(WL_PRIVSEND_BANGPAN_EVENT);
             }
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_BANGPANEND_BIT)
+            {
+                wl_priv_send(WL_PRIVSEND_BPWEIGHT_EVENT);
+            }
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_IWEIGHT_BIT)
+            {
+                wl_priv_send(WL_PRIVSEND_IWEIGHT_EVENT);
+            }
+            if(event.value.signals & WL_NOTIFY_PRIVSEND_HEART_BIT)
+            {
+                wl_priv_send(WL_PRIVSEND_HEART_EVENT);
+            }           
         }
-        else if(event.status == osEventTimeout)
-        {
-            wl_priv_send(WL_PRIVSEND_HEART_EVENT);
-        }
-
     }
 }
 
-
 void wl_init(void)
 {
+    osTimerDef(heart_timer, heart_ostimercallback);
+    heart_timehandle = osTimerCreate(osTimer(heart_timer), osTimerPeriodic, NULL);
+    assert_param(heart_timehandle);
 
-  osThreadDef(WLThread, WL_Thread, osPriorityAboveNormal, 0, 512);
-  WL_ThreadHandle = osThreadCreate(osThread(WLThread), NULL);
+    osThreadDef(WLThread, WL_Thread, osPriorityAboveNormal, 0, 512);
+    WL_ThreadHandle = osThreadCreate(osThread(WLThread), NULL);
 }

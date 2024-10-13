@@ -30,8 +30,10 @@ bool quest_enter_banpan = false;
 static int last_weight = 0;
 static int sys_weight = 0;
 static int change_weight = 0;
-static int upload_weight = 0;
 static uint32_t upload_weight_num = 0;
+
+int upload_cweight = 0;
+int upload_sweight = 0;
 
 static void bp_ostimercallback(void const * argument)
 {
@@ -67,7 +69,8 @@ void weight_upload(void)
 
     sys_weight += change_weight;
 
-    upload_weight = change_weight;
+    upload_cweight = change_weight;
+    upload_sweight = sys_weight;
     change_weight = 0; 
 
     if(sys_status == SYS_STATUS_BHZ)
@@ -80,7 +83,7 @@ void weight_upload(void)
     }
     else if(sys_status == SYS_STATUS_QBDCP || sys_status == SYS_STATUS_QXFHCP)// 空闲状态下重量未变化
     {
-        if(upload_weight)
+        if(upload_cweight)
         {
             wl_ossignal_notify(WL_NOTIFY_PRIVSEND_IWEIGHT_BIT);
         }

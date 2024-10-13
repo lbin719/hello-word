@@ -4,6 +4,9 @@
 #include "stdint.h"
 #include "stdbool.h"
 
+#define WL_HEART_PERIOD_MS                     (60*1000)
+
+
 #define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
 #define WL_NOTIFY_RECEIVE_BIT                  (0x1UL << 0)
 #define WL_NOTIFY_PRIVSEND_RIGISTER_BIT        (0x1UL << 1)
@@ -12,7 +15,9 @@
 #define WL_NOTIFY_PRIVSEND_BUHUOEND_BIT        (0x1UL << 4)
 #define WL_NOTIFY_PRIVSEND_BANGPAN_BIT         (0x1UL << 5)
 #define WL_NOTIFY_PRIVSEND_BANGPANEND_BIT      (0x1UL << 6)
-#define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7)
+#define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7) // 空闲状态下重量变化上报
+
+#define WL_NOTIFY_PRIVSEND_HEART_BIT           (0x1UL << 31)
 // 
 
 
@@ -149,6 +154,8 @@ typedef struct{
 #define WL_PRIV_FREBOOT_CMD             (13) // 13	设备重启
 #define WL_PRIV_DREGISTER_CMD           (14) // 14	设备注册
 #define WL_PRIV_DXINTIAOBAO_CMD         (15) // 15	设备发送心跳包
+#define WL_PRIV_DBPWEIGHT_CMD           (16) // 16	设备绑盘传感器重量变化上报
+#define WL_PRIV_DIWEIGHT_CMD            (17) // 17	设备空闲状态传感器重量变化上报
 
 #define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
 #define WL_PRIV_DBHWEIGHT_RECMD         (2 + 128) // 2	设备补货完成传感器重量变化上报
@@ -165,14 +172,17 @@ typedef struct{
 #define WL_PRIV_FREBOOT_RECMD           (13 + 128) // 13	设备重启
 #define WL_PRIV_DREGISTER_RECMD         (14 + 128) // 14	设备注册
 #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
-
-
+#define WL_PRIV_FBPWEIGHT_RECMD         (16 + 128) // 16	
+#define WL_PRIV_FIWEIGHT_RECMD          (17 + 128) // 17	
 typedef enum
 {
   WL_PRIVSEND_RIGISTER_EVENT = 1, 
   WL_PRIVSEND_HEART_EVENT,    
-  WL_PRIVSEND_BUHUO_EVENT,  
+  WL_PRIVSEND_BUHUO_EVENT,
+  WL_PRIVSEND_BHWEIGHT_EVENT,    
   WL_PRIVSEND_BANGPAN_EVENT,
+  WL_PRIVSEND_BPWEIGHT_EVENT,
+  WL_PRIVSEND_IWEIGHT_EVENT,
 
   WL_PRIVRSEND_SETCAIPING_EVENT,
   WL_PRIVRSEND_QUPI_EVENT,
