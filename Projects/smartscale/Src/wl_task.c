@@ -503,7 +503,7 @@ static bool module_init(void)
     }while(1);
 
     // 获取网络状态
-    retry_cnt = 5;
+    retry_cnt = 10;
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CGREG?\r\n");
@@ -518,7 +518,7 @@ static bool module_init(void)
     }while(1);
 
     // 获取网络状态
-    retry_cnt = 5;
+    retry_cnt = 10;
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CEREG?\r\n");
