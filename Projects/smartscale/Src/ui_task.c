@@ -143,7 +143,6 @@ static void UI_Thread(void const *argument)
                         0, 
                         BLACK);
 #if DISPLAY_DEBUG_INFO
-        char disp_str[32] = {0};
         snprintf(disp_str, sizeof(disp_str), "v:%s", MCU_FW_VERSION);
         text_show_string_left(0, 0, 12*6, 12, disp_str, 12, 0, BLUE);
 #endif
@@ -282,7 +281,6 @@ static void UI_Thread(void const *argument)
 #if DISPLAY_DEBUG_INFO
       if(event.value.signals & UI_NOTIFY_DEBUGINFO_BIT)
       {
-        char disp_str[32] = {0};
         snprintf(disp_str, sizeof(disp_str), "w:%dg", hx711_get_weight_value());
         text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
 
