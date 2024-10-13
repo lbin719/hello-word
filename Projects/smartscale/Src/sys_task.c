@@ -13,7 +13,7 @@
 #include "wl_task.h"
 #include "cmsis_os.h"
 
-#define SYS_BPLIVE_TIMEOUT          (1500) 
+#define SYS_BPLIVE_TIMEOUT          (3000) 
 #define SYS_WEIGHT_TIMEOUT          (200) 
 
 #define SYS_IWEIGHT_TIMEOUT         (4 * 5)// 4s
@@ -37,7 +37,6 @@ static void bp_ostimercallback(void const * argument)
 {
     (void) argument;
     sys_ossignal_notify(SYS_NOTIFY_MJBPEXIT_BIT);
-    LOG_I("[MJ] timeout exit\r\n");
 }
 
 static void weight_ostimercallback(void const * argument)
@@ -45,7 +44,6 @@ static void weight_ostimercallback(void const * argument)
     (void) argument;
     sys_ossignal_notify(SYS_NOTIFY_WEIGHTTIME_BIT);
 }
-
 
 
 int get_change_weight(void)
@@ -76,7 +74,11 @@ void weight_upload(void)
     {
          wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);
     }
-    else if(sys_status == SYS_STATUS_QBDCP)// 空闲状态下重量未变化
+    else if(sys_status == SYS_STATUS_QQC)
+    {
+         wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPANEND_BIT);
+    }
+    else if(sys_status == SYS_STATUS_QBDCP || sys_status == SYS_STATUS_QXFHCP)// 空闲状态下重量未变化
     {
         if(upload_weight)
         {
@@ -96,12 +98,12 @@ void weight_period_handle(void) // 200ms 周期
 
         if(sys_status == SYS_STATUS_SBZC)
         {
-            sys_status = SYS_STATUS_QBDCP;
+            sys_status = SYS_STATUS_QXFHCP;
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             wtn6040_play(WTN_WSBDCP_PLAY);
         }
     }
-    else if(change_weight && (sys_status == SYS_STATUS_QBDCP))// 空闲状态下重量未变化
+    else if(change_weight && (sys_status == SYS_STATUS_QXFHCP))// 空闲状态下重量未变化
     {
         if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)// 空闲状态下重量变化 并上传重量
         {
@@ -121,7 +123,7 @@ void weight_period_handle(void) // 200ms 周期
     }
     else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
     {
-        sys_status = SYS_STATUS_QBDCP;
+        sys_status = SYS_STATUS_QXFHCP;
         ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
         wtn6040_play(WTN_WSBDCP_PLAY);
     }
@@ -150,12 +152,10 @@ void mj8000_rx_parse(const char *buf, uint16_t len)
         mj_parse_lasttime = osKernelSysTick();
 
         sys_ossignal_notify(SYS_NOTIFY_MJBUHUO_BIT);
-        return ;
     }
     else if(strstr((const char*)buf,"zh")) // 绑盘
     {
         sys_ossignal_notify(SYS_NOTIFY_MJBPENTER_BIT);
-        return ;
     }
 }
 
@@ -221,7 +221,7 @@ void SYS_Thread(void const *argument)
             {
                 if(sys_status == SYS_STATUS_SBZC) // enter
                 {
-                    // 重量要清零
+                    weight_upload();
                     sys_status = SYS_STATUS_BHZ;
                     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUO_BIT);
                     ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
@@ -235,20 +235,18 @@ void SYS_Thread(void const *argument)
                     wtn6040_play(WTN_BHWC_PLAY);
                 }
             }
-            
             if(event.value.signals & SYS_NOTIFY_MJBPENTER_BIT)
             {
                 if(sys_status == SYS_STATUS_SBZC) // enter
                 {
                     osTimerStart(bp_timehandle, SYS_BPLIVE_TIMEOUT);
-                    if(quest_enter_banpan)
-                        return;
-                    quest_enter_banpan = true;
-
-                    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPAN_BIT);
+                    if(false == quest_enter_banpan)
+                    {
+                        quest_enter_banpan = true;
+                        wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPAN_BIT);
+                    }
                 }
             } 
-
             if(event.value.signals & SYS_NOTIFY_WLBPENTER_BIT)
             {
                 if(sys_status == SYS_STATUS_SBZC) // enter
@@ -271,10 +269,14 @@ void SYS_Thread(void const *argument)
             
             if(event.value.signals & SYS_NOTIFY_MJBPEXIT_BIT)
             {
-                // else if(sys_status == SYS_STATUS_BHZ)
-                // {
-                //     sys_status == SYS_STATUS_SBZC;
-                // }
+                quest_enter_banpan = false;
+
+                if(sys_status == SYS_STATUS_QQC || sys_status == SYS_STATUS_QBDCP)
+                {
+                    weight_upload();
+                    sys_status = SYS_STATUS_SBZC;
+                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT);
+                }
             } 
 
             if(event.value.signals & SYS_NOTIFY_WLREGISTER_BIT)
@@ -308,6 +310,6 @@ void sys_init(void)
     bp_timehandle = osTimerCreate(osTimer(bp_timer), osTimerOnce, NULL);
     assert_param(bp_timehandle);
 
-    osThreadDef(SYSThread, SYS_Thread, osPriorityAboveNormal, 0, 256);
+    osThreadDef(SYSThread, SYS_Thread, osPriorityAboveNormal, 0, 512);
     Sys_ThreadHandle = osThreadCreate(osThread(SYSThread), NULL);
 }

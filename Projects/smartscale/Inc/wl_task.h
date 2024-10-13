@@ -11,7 +11,8 @@
 #define WL_NOTIFY_PRIVSEND_BUHUO_BIT           (0x1UL << 3)
 #define WL_NOTIFY_PRIVSEND_BUHUOEND_BIT        (0x1UL << 4)
 #define WL_NOTIFY_PRIVSEND_BANGPAN_BIT         (0x1UL << 5)
-#define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 6)
+#define WL_NOTIFY_PRIVSEND_BANGPANEND_BIT      (0x1UL << 6)
+#define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7)
 // 
 
 

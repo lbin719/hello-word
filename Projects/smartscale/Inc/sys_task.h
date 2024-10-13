@@ -24,7 +24,7 @@ typedef enum
   SYS_STATUS_BHZ,      // 补货中
   SYS_STATUS_QBDCP,    // 请绑定餐盘
   SYS_STATUS_QQC,      // 请取餐
-  SYS_STATUS_QQFHCP,   // 请先放好餐盘
+  SYS_STATUS_QXFHCP,   // 请先放好餐盘
 }sys_status_e;
 
 extern char mj_str[MJ_STR_MAX_LEN + 1];
