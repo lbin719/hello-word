@@ -53,6 +53,16 @@ int get_change_weight(void)
     return change_weight;
 }
 
+void weight_init(void)
+{
+    // get sys_weight
+    last_weight = sys_weight;
+
+    osTimerDef(weight_timer, weight_ostimercallback);
+    weight_timehandle = osTimerCreate(osTimer(weight_timer), osTimerPeriodic, NULL);
+    assert_param(weight_timehandle);
+}
+
 void weight_upload(void)
 {
     upload_weight_num = 0;
@@ -60,8 +70,7 @@ void weight_upload(void)
     sys_weight += change_weight;
 
     upload_weight = change_weight;
-    change_weight = 0;
-    // wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT);      
+    change_weight = 0;  
 }
 
 void weight_period_handle(void) // 200ms 周期
@@ -82,9 +91,8 @@ void weight_period_handle(void) // 200ms 周期
     }
     else if(change_weight && (sys_status == SYS_STATUS_QBDCP))// 空闲状态下重量未变化
     {
-        if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)
+        if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)// 空闲状态下重量变化 并上传重量
         {
-            //状态更新 上传重量
             sys_status = SYS_STATUS_SBZC;
             weight_upload();
             wl_ossignal_notify(WL_NOTIFY_PRIVSEND_IWEIGHT_BIT); 
@@ -93,14 +101,19 @@ void weight_period_handle(void) // 200ms 周期
     }
     else if(change_weight && (sys_status == SYS_STATUS_BHZ))// 补货中重量未变化
     {
-        if(++upload_weight_num >= SYS_BWEIGHT_TIMEOUT)
+        if(++upload_weight_num >= SYS_BWEIGHT_TIMEOUT) // 超时退出补货 并上传重量
         {
-            //状态更新 上传重量
             sys_status = SYS_STATUS_SBZC;
             weight_upload();
             wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUOEND_BIT); 
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
+    }
+    else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
+    {
+        sys_status = SYS_STATUS_QBDCP;
+        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+        wtn6040_play(WTN_WSBDCP_PLAY);
     }
     else
     {
@@ -264,13 +277,11 @@ void SYS_Thread(void const *argument)
 
 void sys_init(void)
 {
+    weight_init();
+
     osTimerDef(bp_timer, bp_ostimercallback);
     bp_timehandle = osTimerCreate(osTimer(bp_timer), osTimerOnce, NULL);
     assert_param(bp_timehandle);
-
-    osTimerDef(weight_timer, weight_ostimercallback);
-    weight_timehandle = osTimerCreate(osTimer(weight_timer), osTimerPeriodic, NULL);
-    assert_param(weight_timehandle);
 
     osThreadDef(SYSThread, SYS_Thread, osPriorityAboveNormal, 0, 256);
     Sys_ThreadHandle = osThreadCreate(osThread(SYSThread), NULL);

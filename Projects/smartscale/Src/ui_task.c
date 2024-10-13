@@ -34,7 +34,7 @@
 #define NUM_LINE_XPOST          (480/2+BIAOTI_SIZE/4)
 
 #define UNIT_SIZE               (24)
-#define UNIT_WIDTH              (24*4)
+#define UNIT_WIDTH              (24*4)//(24/2*7)
 #define UNIT_LINE_XPOST         (390)
 
 #define DOWN_SIZE               (28)
@@ -174,12 +174,12 @@ static void UI_Thread(void const *argument)
       {
         //"元\/100g"
         snprintf(disp_str, sizeof(disp_str), "%s\/%dg", UI_YUAN_STR, caiping_data.price_unit); // text 单价单位
-        text_show_string(UNIT_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
-                          UNIT_WIDTH, UNIT_SIZE, 
-                          disp_str, 
-                          UNIT_SIZE, 
-                          0, 
-                          BLACK);
+        text_show_string_left(UNIT_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
+                              UNIT_WIDTH, UNIT_SIZE, 
+                              disp_str, 
+                              UNIT_SIZE, 
+                              0, 
+                              BLACK);
       }
 
       if(event.value.signals & UI_NOTIFY_WEIGHT_BIT)
@@ -207,7 +207,9 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_SUM_PRICE_BIT)
       {
         int weight = abs(get_change_weight());
-        float sum_price = (float)weight * caiping_data.price / caiping_data.price_unit;
+        float sum_price = sum_price = (float)weight * caiping_data.price;
+        if(caiping_data.price_unit)
+          sum_price = sum_price / caiping_data.price_unit;
         snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price);                 
         text_show_string_left(NUM_LINE_XPOST, THIRD_LINE_YPOST,            // text 总价
                               NUM_WIDTH, NUM_SIZE, 
@@ -220,8 +222,12 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_SUMSUM_PRICE_BIT)
       {
         int weight = abs(get_change_weight());
-        float sum_price = (float)weight * caiping_data.price / caiping_data.price_unit;
-        snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price + 12);
+        float sum_price = sum_price = (float)weight * caiping_data.price;
+        if(caiping_data.price_unit)
+          sum_price = sum_price / caiping_data.price_unit;
+        if(get_sys_status() == SYS_STATUS_QQC)
+          sum_price += 12.34;
+        snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price);
         text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST,          // text 消费总额
                               NUM_WIDTH, NUM_SIZE, 
                               disp_str, 
