@@ -52,6 +52,7 @@ int32_t wl_ossignal_notify(int32_t signals)
 wl_t wl = {
     .connect = false,
     .state = WL_STATE_INIT,
+    .rssi = 99,
     .priv_dnum = 0,
     .priv_register = false,
     .send_status = false,
@@ -72,6 +73,9 @@ bool wl_ctrl_cmd(int argc, char *argv[])
 
         if(argc == 3 && strcmp((const char*)argv[1], "closed") == 0)
         {
+            LOG_I("wl close system reboot\r\n");
+            HAL_Delay(10);
+            NVIC_SystemReset();
             return true;
         }
     }
@@ -101,6 +105,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     if (strncmp((const char*)argv[0], "+CSQ", 4) == 0)
     {
         wl.rssi = str_toint(argv[1]);
+        ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
         return true;
     }
 

@@ -275,7 +275,17 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_SIGNEL_BIT)
       {
         // draw single
-        draw_single(430, 0, 2);
+        uint8_t rssi = 0;
+        if(wl.rssi == 0)
+          rssi = 1;
+        else if(wl.rssi == 1)
+          rssi = 2;
+        else if(wl.rssi <= 30)
+          rssi = 3;
+        else if(wl.rssi == 31) 
+          rssi = 4;
+
+        draw_single(430, 0, rssi);
       }
 
 #if DISPLAY_DEBUG_INFO
