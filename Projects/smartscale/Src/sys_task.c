@@ -56,6 +56,7 @@ int get_change_weight(void)
 void weight_init(void)
 {
     // get sys_weight
+    sys_weight = hx711_get_weight();
     last_weight = sys_weight;
 
     osTimerDef(weight_timer, weight_ostimercallback);
