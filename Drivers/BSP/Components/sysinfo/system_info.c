@@ -87,7 +87,7 @@ float sysinfo_get_hxgap(void)
 
 void sysinfo_store_caipin(caiping_data_t *caipin)
 {
-  memcpy(&sysinfo_store.caiping_store, &caipin, sizeof(caiping_data_t));
+  memcpy(&sysinfo_store.caiping_store, caipin, sizeof(caiping_data_t));
   stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
   stmflash_write(STMFLASH_SYSINFO_START_ADDR, (uint32_t *)&sysinfo_store, sizeof(sysinfo_store));
 }
