@@ -12,6 +12,7 @@
 #include "wtn6040.h"
 #include "hot.h"
 #include "wl_task.h"
+#include <stdlib.h>
 
 bool wlpriv_banpan_result = false;
 
@@ -19,14 +20,16 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
 {
     caiping_data_t rx_caiping = {0};
 
-    rx_caiping.mode = str_toint(argv[2]);
-    if(strlen(argv[3])*2 <= STRING_DISH_LEN)
-        str_tohex(argv[3], rx_caiping.dish_str);
-    rx_caiping.price_unit = str_toint(argv[4]);
-    rx_caiping.tool_weight = str_toint(argv[5]);
-    rx_caiping.price = str_toint(argv[6]);
-    rx_caiping.zhendongwucha = str_toint(argv[7]);
-    rx_caiping.devicenum = str_toint(argv[8]);
+    rx_caiping.mode = atoi(argv[2]);
+    // if(strlen(argv[3])*2 <= STRING_DISH_LEN)
+    //     str_tohex(argv[3], rx_caiping.dish_str);
+    memcpy(rx_caiping.dish_str, argv[3], MIN(strlen(argv[3]), STRING_DISH_LEN));
+
+    rx_caiping.price_unit = atoi(argv[4]);
+    rx_caiping.tool_weight = atoi(argv[5]);
+    rx_caiping.price = strtof(argv[6], NULL);
+    rx_caiping.zhendongwucha = atoi(argv[7]);
+    rx_caiping.devicenum = atoi(argv[8]);
 
     wl.respond_result = WL_OK;
     if(rx_caiping.mode > 1)
@@ -35,7 +38,15 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
         goto exit;
     }
 
-    //TODU 
+    LOG_I("[WL] set caiping: %d %s %d, %d, %.2f, %d, %d\r\n",   
+            rx_caiping.mode, 
+            rx_caiping.dish_str, 
+            rx_caiping.price_unit, 
+            rx_caiping.tool_weight, 
+            rx_caiping.price,
+            rx_caiping.zhendongwucha,
+            rx_caiping.devicenum);
+
     memcpy(&caiping_data, &rx_caiping, sizeof(caiping_data_t));
     sysinfo_store_caipin(&caiping_data);
     ui_ossignal_notify(UI_NOTIFY_DISH_BIT | UI_NOTIFY_PRICE_BIT | UI_NOTIFY_PRICE_UNIT_BIT | UI_NOTIFY_ALL_BIT);
