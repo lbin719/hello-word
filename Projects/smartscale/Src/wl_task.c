@@ -338,7 +338,7 @@ void wl_priv_send(uint8_t event)
     }
     else if(event == WL_PRIVSEND_BANGPAN_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,%s,}\r\n", WL_PRIV_DUSER_CMD, ++wl.priv_dnum, get_timestamp(), mj_str);
+        ec800e_uart_printf("{%d,%d,%s,%d,}\r\n", WL_PRIV_DUSER_CMD, ++wl.priv_dnum, mj_str, get_timestamp());
     }
     else if(event == WL_PRIVSEND_BPWEIGHT_EVENT)
     {

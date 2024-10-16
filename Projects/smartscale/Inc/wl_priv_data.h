@@ -13,7 +13,7 @@ typedef struct
 } priv_func_mapping_t;
 
 extern bool wlpriv_banpan_result;
-
+extern uint32_t hx711_cali_value;
 bool wl_rx_priv_parse(int argc, char *argv[]);
 
 #endif

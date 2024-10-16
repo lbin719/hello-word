@@ -15,6 +15,7 @@
 #include <stdlib.h>
 
 bool wlpriv_banpan_result = false;
+uint32_t hx711_cali_value = 0;
 
 static bool wl_priv_set_caiping(int argc, char *argv[])
 {
@@ -59,7 +60,7 @@ exit:
 
 static bool wl_priv_set_qupi(int argc, char *argv[])
 {
-    hx711_set_zero();
+    sys_ossignal_notify(SYS_NOTIFY_WEIGHZERO_BIT);
 
     wl.respond_result = WL_OK;
     wl_priv_send(WL_PRIVRSEND_QUPI_EVENT);
@@ -68,8 +69,8 @@ static bool wl_priv_set_qupi(int argc, char *argv[])
 
 static bool wl_priv_set_jiaozhun(int argc, char *argv[])
 {
-    uint32_t cali = str_toint(argv[2]);
-    hx711_set_calibration(cali);
+    uint32_t hx711_cali_value = str_toint(argv[2]);
+    sys_ossignal_notify(SYS_NOTIFY_WEIGHZERO_BIT);
 
     wl.respond_result = WL_OK;
     wl_priv_send(WL_PRIVRSEND_JIAOZHUN_EVENT);

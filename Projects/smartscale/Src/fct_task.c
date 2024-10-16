@@ -231,6 +231,7 @@ void fct_hx711_test(uint8_t argc, char **argv)
 {
     if (argc == 3 && !strcmp(argv[2], "zero"))
     {
+        weight_clear();
         hx711_set_zero();
     }
     else if (argc == 4 && !strcmp(argv[2], "cala"))

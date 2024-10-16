@@ -64,6 +64,15 @@ void weight_init(void)
     assert_param(weight_timehandle);
 }
 
+void weight_clear(void)
+{
+    last_weight = 0;
+    upload_weight_num = 0;
+
+    sys_weight = 0;
+    change_weight = 0;
+}
+
 void weight_upload(void)
 {
     upload_weight_num = 0;
@@ -143,23 +152,62 @@ void weight_period_handle(void) // 200ms 周期
 char mj_str[MJ_STR_MAX_LEN + 1];
 uint32_t mj_parse_lasttime = 0;
 
+void mj_buhuo_handle(void)
+{
+    if((osKernelSysTick() - mj_parse_lasttime) < 1600)
+        return ;// ingore
+    mj_parse_lasttime = osKernelSysTick();
+
+    if(sys_status == SYS_STATUS_SBZC) // enter
+    {
+        weight_upload();
+        sys_status = SYS_STATUS_BHZ;
+        wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUO_BIT);
+        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+        wtn6040_play(WTN_KSBH_PLAY);
+    }
+    else if(sys_status == SYS_STATUS_BHZ) // exit
+    {
+        weight_upload();
+        sys_status = SYS_STATUS_SBZC;
+        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+        wtn6040_play(WTN_BHWC_PLAY);
+    }
+}
+
+void mj_banpan_handle(void)
+{
+    if(sys_status == SYS_STATUS_SBZC) // enter
+    {
+        osTimerStart(bp_timehandle, SYS_BPLIVE_TIMEOUT);
+        if(false == quest_enter_banpan)
+        {
+            quest_enter_banpan = true;
+            wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPAN_BIT);
+        }
+    }
+    else if(sys_status == SYS_STATUS_QQC || sys_status == SYS_STATUS_QBDCP)
+    {
+        osTimerStart(bp_timehandle, SYS_BPLIVE_TIMEOUT);
+    }
+}
+
 void mj8000_rx_parse(const char *buf, uint16_t len)
 {
     uint16_t ptr_len = MIN(MJ_STR_MAX_LEN, len);
     memcpy(mj_str, buf, ptr_len);
     mj_str[ptr_len] = '\0';
 
-    if(strstr((const char*)buf,"user")) // 补货
+    if(buf[0] == '0')
     {
-        if((osKernelSysTick() - mj_parse_lasttime) < 1600)
-            return ;// ingore
-        mj_parse_lasttime = osKernelSysTick();
-
-        sys_ossignal_notify(SYS_NOTIFY_MJBUHUO_BIT);
-    }
-    else if(strstr((const char*)buf,"zh")) // 绑盘
-    {
-        sys_ossignal_notify(SYS_NOTIFY_MJBPENTER_BIT);
+        if(buf[1] == '1') // 补货
+        {
+            mj_buhuo_handle();
+        }
+        else if(buf[1] == '2') // 绑盘
+        {
+            mj_banpan_handle();
+        }
     }
 }
 
@@ -221,36 +269,6 @@ void SYS_Thread(void const *argument)
                 mj_rx_handle();
             }
 
-            if(event.value.signals & SYS_NOTIFY_MJBUHUO_BIT)
-            {
-                if(sys_status == SYS_STATUS_SBZC) // enter
-                {
-                    weight_upload();
-                    sys_status = SYS_STATUS_BHZ;
-                    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUO_BIT);
-                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-                    wtn6040_play(WTN_KSBH_PLAY);
-                }
-                else if(sys_status == SYS_STATUS_BHZ) // exit
-                {
-                    weight_upload();
-                    sys_status = SYS_STATUS_SBZC;
-                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
-                    wtn6040_play(WTN_BHWC_PLAY);
-                }
-            }
-            if(event.value.signals & SYS_NOTIFY_MJBPENTER_BIT)
-            {
-                if(sys_status == SYS_STATUS_SBZC) // enter
-                {
-                    osTimerStart(bp_timehandle, SYS_BPLIVE_TIMEOUT);
-                    if(false == quest_enter_banpan)
-                    {
-                        quest_enter_banpan = true;
-                        wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BANGPAN_BIT);
-                    }
-                }
-            } 
             if(event.value.signals & SYS_NOTIFY_WLBPENTER_BIT)
             {
                 if(sys_status == SYS_STATUS_SBZC) // enter
@@ -302,6 +320,18 @@ void SYS_Thread(void const *argument)
             {
                 weight_period_handle(); // input
             }
+
+            if(event.value.signals & SYS_NOTIFY_WEIGHZERO_BIT)
+            {
+                weight_clear();
+                hx711_set_zero();
+            }
+            if(event.value.signals & SYS_NOTIFY_WEIGHCALI_BIT)
+            {
+                weight_clear();
+                hx711_set_calibration(hx711_cali_value);
+            }            
+            
         }
     }
 }
