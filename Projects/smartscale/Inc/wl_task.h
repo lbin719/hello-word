@@ -4,8 +4,9 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-#define WL_HEART_PERIOD_MS                     (60*1000)
 
+#define WL_HEART_PERIOD_MS                     (60*1000)
+#define WL_WAIT_RECEIVE_TIMEOUT                (500)
 
 #define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
 #define WL_NOTIFY_RECEIVE_BIT                  (0x1UL << 0)
@@ -17,9 +18,46 @@
 #define WL_NOTIFY_PRIVSEND_BANGPANEND_BIT      (0x1UL << 6)
 #define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7) // 空闲状态下重量变化上报
 
-// 
 
-
+/* 
++CME ERROR 
+0 phone failure 拨打电话失败
+1 no connection to phone 电话未连接
+2 phone-adaptor link reserved 保留电话适配器连接
+3 operation not allowed 操作不允许
+4 operation not supported 操作不支持
+5 PH-SIM PIN required 需要 PH-SIM 卡 PIN 码
+6 PH-FSIM PIN required 需要 PH-FSIM 卡 PIN 码
+7 PH-FSIM PUK required 需要 PH-FSIM 卡 PUK 码
+10 SIM not inserted 未插入 SIM 卡
+11 SIM PIN required 需要 SIM 卡 PIN 码
+12 SIM PUK required 需要 SIM 卡 PUK 码
+13 SIM failure SIM 卡失败
+14 SIM busy SIM 卡忙
+15 SIM wrong SIM 卡错误
+16 incorrect password 密码不正确
+17 SIM PIN2 required 需要 SIM 卡 PIN2 码
+18 SIM PUK2 required 需要 SIM 卡 PUK2 码
+20 memory full 内存已满
+21 invalid index 无效索引
+22 not found 未发现
+23 memory failure 内存不足
+24 text string too long 文本字符过长
+25 invalid characters in text string 无效文本字符
+26 dial string too long 拨号字符过长
+27 invalid characters in dial string 无效拨号字符
+30 no network service 无网络服务
+31 network timeout 网络超时
+32 network not allowed - emergency calls only 网络不允许-仅支持紧急通话
+40 network personalization PIN required 需要网络个性化 PIN 码
+41 network personalization PUK required 需要网络个性化 PUK 码
+42 network subset personalization PIN required 需要网络子集个性化 PIN 码
+43 network subset personalization PUK required 需要网络子集个性化 PUK 码
+44 service provider personalization PIN required 需要网络服务商个性化 PIN 码
+45 service provider personalization PUK required 需要网络服务商个性化 PUK 码
+46 corporate personalization PIN required 需要企业个性化 PIN 码
+47 corporate personalization PUK required 需要企业个性化 PUK 码
+*/
 #if 0
 tyepdef struct {
     char *cmd;	/* AT指令 */
@@ -48,59 +86,24 @@ at_cmd_t at_table[] = {
 };
 #endif
 
+// #define WL_STATUS_AT_BIT                    (0x1UL << 0)
+// #define WL_STATUS_ATE0_BIT                  (0x1UL << 1)
+#define WL_STATUS_CGSN_BIT                  (0x1UL << 2)
+#define WL_STATUS_CPIN_BIT                  (0x1UL << 3)
+#define WL_STATUS_CIMI_BIT                  (0x1UL << 4)
+#define WL_STATUS_CSQ_BIT                   (0x1UL << 5)
+// #define WL_STATUS_QICLOSE_BIT               (0x1UL << 6)
+#define WL_STATUS_CGREG_BIT                 (0x1UL << 7)
+#define WL_STATUS_CEREG_BIT                 (0x1UL << 8)
+#define WL_STATUS_QLTS_BIT                  (0x1UL << 9)
+#define WL_STATUS_QCCID_BIT                 (0x1UL << 10)
+#define WL_STATUS_QIACT_BIT                 (0x1UL << 11)
+#define WL_STATUS_QIOPEN_BIT                (0x1UL << 12)
+#define WL_STATUS_RECV_BIT                  (0x1UL << 13)
+#define WL_STATUS_ENTERSEND_BIT             (0x1UL << 14)
+#define WL_STATUS_SENDFINSH_BIT             (0x1UL << 15)
+
 #define ARGC_LIMIT      (12)
-
-typedef enum
-{
-    WL_STATE_INIT,
-    WL_STATE_WAIT_UART_CONNECT,
-
-    WL_STATE_CLOSE_DIS,    
-    WL_STATE_WAIT_CLOSE_DIS,
-
-    WL_STATE_CGSN,    
-    WL_STATE_WAIT_CGSN,
-
-    WL_STATE_CHECK_SIM,    
-    WL_STATE_WAIT_CHECK_SIM,
-
-    WL_STATE_CHECK_CSQ,    
-    WL_STATE_WAIT_CHECK_CSQ,
-
-    WL_STATE_CIMI,    
-    WL_STATE_WAIT_CIMI,
-
-    WL_STATE_QCCID,    
-    WL_STATE_WAIT_QCCID,
-
-    WL_STATE_QICLOSE,    
-    WL_STATE_WAIT_QICLOSE,
-
-    WL_STATE_CGREG,    
-    WL_STATE_WAIT_CGREG, 
-
-    WL_STATE_CEREG,    
-    WL_STATE_WAIT_CEREG, 
-
-    WL_STATE_QLTS,    
-    WL_STATE_WAIT_QLTS,    
-                            //AT+QICSGP=1,1,"CMIOT","","",1//配置 TCP/IP 场景参数
-
-    WL_STATE_QIACT,         // AT+QIACT=1 
-    WL_STATE_WAIT_QIACT, 
-                        
-    WL_STATE_GET_QIACT,     // AT+QIACT?
-    WL_STATE_WAIT_GET_QIACT,  
-
-    WL_STATE_GET_QIOPEN,     
-    WL_STATE_WAIT_QIOPEN,  
-
-
-    WL_STATE_PRIV_SEND, 
-    WL_STATE_PRIV_WAIT_SEND, 
-    WL_STATE_TXRX,            
-} wlstate_e;
-
 
 typedef enum
 {
@@ -115,11 +118,8 @@ typedef enum
 #define WL_IP_LEN                       (16)   
 
 typedef struct{
-    wlstate_e      state;
-    uint32_t       respond_timer;
-    uint32_t       heart_timer;
-    bool           connect;
-    bool           sim_status; 
+    uint32_t       status;
+    uint8_t        device_status;
     uint8_t        rssi; 
     char           sn[WL_SN_LEN + 1];
     char           imsi[WL_IMSI_LEN + 1];
@@ -129,16 +129,12 @@ typedef struct{
     uint32_t       priv_dnum;
     uint32_t       priv_fnum;
     bool           priv_register;
-    bool           send_status;
-    bool           wait_send_status;
-    uint8_t        device_status;
-
-    uint8_t        respond_result; //回复结果
+    uint8_t        priv_res_result; //回复结果
 } wl_t;
 
 extern wl_t wl;
 
 int32_t wl_ossignal_notify(int32_t signals);
-extern void wl_init(void);
+void wl_init(void);
 
 #endif /* _WL_TASK_H */

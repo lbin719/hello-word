@@ -41,25 +41,30 @@ int32_t wl_ossignal_notify(int32_t signals)
     return osSignalSet(WL_ThreadHandle, signals);
 }
 
-#define WL_SET_STATE(st) do { wl.state = (st); LOG_I("[WL]State: %s (%d)\r\n", #st, st); } while (0)
-
-#define WL_TIMEOUT_STATE(st)    if(timer_isexpired(wl.respond_timer)) WL_SET_STATE(st)
 
 #define WL_ATRESPOND_TIMEOUT_MS         (2000)
 #define WL_HEART_TIMEOUT_MS             (60*1000)
 
 
 wl_t wl = {
-    .connect = false,
-    .state = WL_STATE_INIT,
+    .status = 0,
+    .device_status = SYS_STATUS_ZZDL,
     .rssi = 99,
     .priv_dnum = 0,
     .priv_register = false,
-    .send_status = false,
-    .device_status = SYS_STATUS_ZZDL,
 };
 
 volatile uint8_t priv_send_event = 0;
+
+void wl_set_status_bit(uint32_t status)
+{
+    wl.status |= status;
+}
+
+void wl_clear_status_bit(uint32_t status)
+{
+    wl.status &= ~status;
+}
 
 bool wl_ctrl_cmd(int argc, char *argv[])
 {
@@ -68,6 +73,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
         if(argc == 4 && strcmp((const char*)argv[1], "recv") == 0)
         {
 //            uint16_t recv_len = atoi(argv[3]);
+            wl_set_status_bit(WL_STATUS_RECV_BIT);
             return true;
         }
 
@@ -84,6 +90,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     {
         memcpy(wl.sn, argv[1], WL_SN_LEN);
         wl.sn[WL_SN_LEN] = '\0';
+        wl_set_status_bit(WL_STATUS_CGSN_BIT);
 		return true;
     }
 
@@ -91,20 +98,28 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     {
         memcpy(wl.iccid, argv[1], WL_ICCID_LEN);
         wl.iccid[WL_ICCID_LEN] = '\0';
+        wl_set_status_bit(WL_STATUS_QCCID_BIT);
 		return true;
     }
 
     if (strncmp((const char*)argv[0], "+CPIN", 6) == 0)
     {
         if (strncmp((const char*)argv[1], "READY", 5) == 0)
+        {
+            wl_set_status_bit(WL_STATUS_CPIN_BIT);
             return true;
+        }
         else
+        {
+            wl_clear_status_bit(WL_STATUS_CPIN_BIT);
             return false;
+        }
     }
 
     if (strncmp((const char*)argv[0], "+CSQ", 4) == 0)
     {
         wl.rssi = atoi(argv[1]);
+        wl_set_status_bit(WL_STATUS_CSQ_BIT);
         ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
         return true;
     }
@@ -112,17 +127,29 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     if (strncmp((const char*)argv[0], "+CGREG", 6) == 0)
     {
         if(argv[1][0] == '0' && (argv[2][0] == '1' || argv[2][0] == '5')) //返回正常 或漫游
+        {
+            wl_set_status_bit(WL_STATUS_CGREG_BIT);
             return true;
+        }
         else
+        {
+            wl_clear_status_bit(WL_STATUS_CGREG_BIT);
             return false;
+        }
     }
 
     if (strncmp((const char*)argv[0], "+CEREG", 6) == 0)
     {
         if(argv[1][0] == '0' && (argv[2][0] == '1' || argv[2][0] == '5')) //返回正常 或漫游
+        {
+            wl_set_status_bit(WL_STATUS_CEREG_BIT);
             return true;
+        }
         else
+        {
+            wl_clear_status_bit(WL_STATUS_CEREG_BIT);
             return false;
+        }
     }
 
     if (strncmp((const char*)argv[0], "+QLTS", 5) == 0)
@@ -149,6 +176,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
                tm.year, tm.month, tm.day,
                tm.hour, tm.minute, tm.second,
                get_timestamp());
+        wl_set_status_bit(WL_STATUS_QLTS_BIT);
         return true;
     }
 
@@ -157,6 +185,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
         int len = MIN(strlen(argv[4]), WL_IP_LEN);
         memcpy(wl.ip, argv[4], len);
         wl.ip[len] = '\0';
+        wl_set_status_bit(WL_STATUS_QIACT_BIT);
         return true;
     }
 
@@ -164,11 +193,14 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     {
         if((argc >= 3) && (argv[1][0] == '0') &&  (argv[2][0] == '0'))
         {
-            wl.connect = true;
+            wl_set_status_bit(WL_STATUS_QIOPEN_BIT);
             return true;
         }
         else
+        {
+            wl_clear_status_bit(WL_STATUS_QIOPEN_BIT);
             return false;
+        }
     }
 
     if ((argc >= 3) && (strncmp((const char*)argv[0], "+CME", 7) == 0) && (strncmp((const char*)argv[1], "ERROR", 7) == 0))
@@ -213,7 +245,6 @@ bool wl_rx_parse(char *ptr, uint16_t len)
 #endif
 
 
-
 	if(priv_data) // 私有协议
 	{
         return wl_priv_rx_parse(argc, argv);
@@ -221,7 +252,7 @@ bool wl_rx_parse(char *ptr, uint16_t len)
 
     if ((argc == 1) && argv[0][0] == '>')
     {
-        wl.send_status = true;
+        wl_set_status_bit(WL_STATUS_ENTERSEND_BIT);
         return true;
     }
 
@@ -232,11 +263,14 @@ bool wl_rx_parse(char *ptr, uint16_t len)
     {
         if(strncmp((const char*)argv[1], "OK", 2) == 0)
         {
-            wl.wait_send_status = true;
+            wl_set_status_bit(WL_STATUS_SENDFINSH_BIT);
             return true;
         }
         else
+        {
+            wl_clear_status_bit(WL_STATUS_SENDFINSH_BIT);
             return false;
+        }
     }
 
 	if ((argc == 1) && (strncmp((const char*)argv[0], "ERROR", 5) == 0))
@@ -254,10 +288,10 @@ bool wl_rx_parse(char *ptr, uint16_t len)
     if((argc == 1) && argv[0][0] >= '0' && argv[0][0] <= '9')
 	{
     	if(wl_get_cimi)
-//        if(wl.state == WL_STATE_WAIT_CIMI)
         {
             memcpy(wl.imsi, (char *)argv[0], WL_IMSI_LEN);
             wl.imsi[WL_IMSI_LEN] = '\0';
+            wl_set_status_bit(WL_STATUS_CIMI_BIT);
             return true;
         }
 	}
@@ -308,20 +342,6 @@ bool wl_rx_handle(uint8_t *buf, int16_t len)
 }
 
 
-// static uint8_t wl_tx_buf[128]; /* UART发送缓冲 */
-
-// void wl_priv_tx(char *buff)
-// {
-// 	ec800e_uart_printf("AT+QISEND=0\r\n");
-// 	osDelay(2);
-// 	ec800e_uart_printf("%s",buff);
-//     osDelay(2);	
-//     ec800e_uart_printf("%c", 0x1A);//发送完成函数   
-// }
-
-
-
-// #define WL_RETRY_
 void wl_event_clear(void)
 {
     ec800e_clear_rx_buf();
@@ -334,17 +354,15 @@ void wl_event_clear(void)
     }
 }
 
-#define WL_WAIT_RECEIVE_TIMEOUT      (500)
-
-static bool module_init(void)
+static bool wl_module_init(void)
 {
     uint16_t retry_cnt;
     uint32_t act_len;
 
     // 通信检测
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
@@ -358,8 +376,8 @@ static bool module_init(void)
 
     // 关回显
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("ATE0\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
@@ -373,28 +391,34 @@ static bool module_init(void)
 
     // 获取设备SN
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+CGSN=1\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_CGSN_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
     }while(1);
 
     // 检测SIM卡
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+CPIN?\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_CPIN_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
         osDelay(500);
@@ -402,15 +426,18 @@ static bool module_init(void)
 
     // 获取SIM卡编号
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         wl_get_cimi = true;
         ec800e_uart_printf("AT+CIMI\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_CIMI_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
         {
             wl_get_cimi = false;
@@ -421,28 +448,32 @@ static bool module_init(void)
 
     // 获取信号强度
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+CSQ\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_CSQ_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
     }while(1);
 
     // 断开连接
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+QICLOSE=1\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
+        {
+            if(strstr((const char*)wl_rx_buf,(const char*)"OK"))
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
     }while(1);
@@ -454,9 +485,12 @@ static bool module_init(void)
         ec800e_uart_printf("AT+CGREG?\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_CGREG_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
         osDelay(1000);
@@ -469,9 +503,12 @@ static bool module_init(void)
         ec800e_uart_printf("AT+CEREG?\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_CEREG_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
         osDelay(1000);
@@ -479,57 +516,65 @@ static bool module_init(void)
 
     // 获取网络时间
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+QLTS=2\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_QLTS_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
     }while(1);
 
     // 激活 PDP 场景
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+QIACT=1\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
+        {
+            if(strstr((const char*)wl_rx_buf,(const char*)"OK"))
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
     }while(1);
 
     // 查询 PDP 场景
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+QIACT?\r\n");
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
-            break;
-
+        if(act_len)
+        {
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_QIACT_BIT)
+                break;
+        }
         if(--retry_cnt == 0)
             goto exit;
     }while(1);
 
     // 打开 Socket 服务
     retry_cnt = 5;
+    wl_event_clear();
     do{
-        wl_event_clear();
         ec800e_uart_printf("AT+QIOPEN=1,0,\"TCP\",\"39.106.91.24\",10181,0,1\r\n");
 wait_qiopen:
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
-        if(act_len && wl_rx_handle(wl_rx_buf, act_len))
+        if(act_len)
         {
-            if(wl.connect)
+            wl_rx_handle(wl_rx_buf, act_len);
+            if(wl.status & WL_STATUS_QIOPEN_BIT)
                 break;
             else
                 goto wait_qiopen;
@@ -539,7 +584,7 @@ wait_qiopen:
             goto exit;
     }while(1);
 
-    LOG_I("[WL]sim_status: %s, rssi: %d\r\n", wl.sim_status ? "fail" : "sucess", wl.rssi);
+    LOG_I("[WL]sim: %s, rssi: %d\r\n", wl.status & WL_STATUS_CPIN_BIT ? "success" : "fail", wl.rssi);
     LOG_I("[WL]sn:%s\r\n", wl.sn);
     LOG_I("[WL]imsi:%s\r\n", wl.imsi);           
     LOG_I("[WL]ip:%s\r\n", wl.ip);
@@ -556,7 +601,7 @@ void WL_Thread(void const *argument)
     osEvent event = {0};
 
 wl_reset:
-    if(!module_init())
+    if(!wl_module_init())
     {
         sys_ossignal_notify(SYS_NOTIFY_WLLX_BIT);
         osDelay(20000);

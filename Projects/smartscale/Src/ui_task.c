@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdio.h>
 #include "fs.h"
 #include "lcd.h"
 #include "fonts.h"
@@ -10,9 +13,8 @@
 #include "wl_task.h"
 #include "cmsis_os.h"
 #include "lcd.h"
-#include <stdio.h>
-#include <string.h>
 #include "hx711.h"
+#include "system_info.h"
 
 
 #define DISH_SIZE            (48)
@@ -177,7 +179,7 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_PRICE_UNIT_BIT)
       {
         //"元\/100g"
-        snprintf(disp_str, sizeof(disp_str), "%s\/%dg", UI_YUAN_STR, caiping_data.price_unit); // text 单价单位
+        snprintf(disp_str, sizeof(disp_str), "%s/%dg", UI_YUAN_STR, caiping_data.price_unit); // text 单价单位
         text_show_string_left(UNIT_LINE_XPOST, FIRST_LINE_YPOST+(NUM_SIZE-UNIT_SIZE), 
                               UNIT_WIDTH, UNIT_SIZE, 
                               disp_str, 
@@ -302,7 +304,7 @@ static void UI_Thread(void const *argument)
         snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
         text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
 
-        snprintf(disp_str, sizeof(disp_str), "wl:%d", wl.state);
+        snprintf(disp_str, sizeof(disp_str), "wl:0x%x", wl.status);
         text_show_string_left(0, 36, 12*6, 12, disp_str, 12, 0, BLUE);
       }
 #endif
