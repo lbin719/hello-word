@@ -6,6 +6,7 @@
 #include "mj8000.h"
 #include "hot.h"
 #include "sys_task.h"
+#include "stdlib.h"
 
 typedef void (*fct_test_func_t)(uint8_t argc, char **argv);
 typedef struct
@@ -236,7 +237,7 @@ void fct_hx711_test(uint8_t argc, char **argv)
     }
     else if (argc == 4 && !strcmp(argv[2], "cala"))
     {
-        uint32_t cali_weight = str_toint(argv[3]);
+        uint32_t cali_weight = atoi(argv[3]);
         hx711_set_calibration(cali_weight);
     }
     else
@@ -250,12 +251,12 @@ void fct_wtn6040_test(uint8_t argc, char **argv)
 {
     if (argc == 4 && !strcmp(argv[2], "level"))
     {
-        uint8_t level = str_toint(argv[3]);
+        uint8_t level = atoi(argv[3]);
         wtn6040_set_voice_store(level);
     }
     else if (argc == 4 && !strcmp(argv[2], "play"))
     {
-        uint8_t index = str_toint(argv[3]);
+        uint8_t index = atoi(argv[3]);
         wtn6040_play(index);
     }   
     else

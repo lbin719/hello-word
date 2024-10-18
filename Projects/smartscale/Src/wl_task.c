@@ -16,6 +16,7 @@
 #include "wtn6040.h"
 #include "wl_priv_data.h"
 #include "wl_task.h"
+#include "stdlib.h"
 
 static osThreadId WL_ThreadHandle;
 static bool wl_moudle_status = false;
@@ -67,7 +68,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     {
         if(argc == 4 && strcmp((const char*)argv[1], "recv") == 0)
         {
-            uint16_t recv_len = str_toint(argv[3]);
+            uint16_t recv_len = atoi(argv[3]);
             return true;
         }
 
@@ -104,7 +105,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
 
     if (strncmp((const char*)argv[0], "+CSQ", 4) == 0)
     {
-        wl.rssi = str_toint(argv[1]);
+        wl.rssi = atoi(argv[1]);
         ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
         return true;
     }
@@ -137,12 +138,12 @@ bool wl_ctrl_cmd(int argc, char *argv[])
         LOG_I_NOTICK("\r\n");
 #endif
         clock_date_t tm = {0};
-        tm.year = str_toint(m_argv[0]);
-        tm.month = str_toint(m_argv[1]);
-        tm.day = str_toint(m_argv[2]);
-        tm.hour = str_toint(m_argv[3]);
-        tm.minute = str_toint(m_argv[4]);
-        tm.second = str_toint(m_argv[5]);
+        tm.year = atoi(m_argv[0]);
+        tm.month = atoi(m_argv[1]);
+        tm.day = atoi(m_argv[2]);
+        tm.hour = atoi(m_argv[3]);
+        tm.minute = atoi(m_argv[4]);
+        tm.second = atoi(m_argv[5]);
         tm.timezone = 32;
         set_timestamp(date_to_seconds(&tm));
         LOG_I("tm time: %d-%d-%d %d:%d:%d timestamp:%d\r\n", 

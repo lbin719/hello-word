@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "str.h"
 
+#if 0
 int str_toint(const char* str) 
 {
     int num = 0;
@@ -56,7 +57,6 @@ void str_tohex(const char* str, char* out)
     }
     out[i / 2] = '\0';
 }
- 
 
 int str_length(char *buf)
 {
@@ -117,6 +117,8 @@ int str_num_offest(char *str)
 
     return i;
 }
+
+#endif 
 
 uint32_t str_split(char *str, uint32_t strsize, char *argv[], uint32_t argcm)
 {

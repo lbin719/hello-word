@@ -69,7 +69,7 @@ static bool wl_priv_set_qupi(int argc, char *argv[])
 
 static bool wl_priv_set_jiaozhun(int argc, char *argv[])
 {
-    uint32_t hx711_cali_value = str_toint(argv[2]);
+    uint32_t hx711_cali_value = atoi(argv[2]);
     sys_ossignal_notify(SYS_NOTIFY_WEIGHZERO_BIT);
 
     wl.respond_result = WL_OK;
@@ -102,7 +102,7 @@ static bool wl_priv_set_saomatou(int argc, char *argv[])
 
 static bool wl_priv_set_voice(int argc, char *argv[])
 {
-    uint8_t level = str_toint(argv[2]);
+    uint8_t level = atoi(argv[2]);
 
     wtn6040_set_voice_store(level);
 
@@ -114,7 +114,7 @@ static bool wl_priv_set_voice(int argc, char *argv[])
 
 static bool wl_priv_set_hot(int argc, char *argv[])
 {
-    uint8_t status = str_toint(argv[2]);
+    uint8_t status = atoi(argv[2]);
     hot_ctrl(status);
 
     wl.respond_result = WL_OK;
@@ -124,7 +124,7 @@ static bool wl_priv_set_hot(int argc, char *argv[])
 
 static bool wl_priv_set_hottimer(int argc, char *argv[])
 {
-    uint32_t hot_timer = str_toint(argv[2]);
+    uint32_t hot_timer = atoi(argv[2]);
 
     wl.respond_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETHOTTIMER_EVENT);
@@ -192,8 +192,8 @@ bool wl_priv_rx_parse(int argc, char *argv[])
 {
     bool ret = true;
 
-   int cmd = str_toint(argv[0]);
-   wl.priv_fnum = str_toint(argv[1]);
+   int cmd = atoi(argv[0]);
+   wl.priv_fnum = atoi(argv[1]);
 
    for (uint32_t i = 0; i < (sizeof(priv_func) / sizeof(priv_func_mapping_t)); i++)
    {
