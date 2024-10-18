@@ -4,7 +4,7 @@
 #include "stdbool.h"
 #include "stdint.h"
 
-typedef bool (*priv_func_t)(uint8_t argc, char *argv[]);
+typedef bool (*priv_func_t)(int argc, char *argv[]);
 
 typedef struct
 {

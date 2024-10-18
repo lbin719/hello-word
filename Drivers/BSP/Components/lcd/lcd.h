@@ -175,6 +175,7 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len);
 
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color);
 void lcd_draw_hline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);
+void lcd_draw_vline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);
 void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey);
 void lcd_init(void);
 
