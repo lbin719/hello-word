@@ -7,6 +7,7 @@
 #include "hot.h"
 #include "sys_task.h"
 #include "stdlib.h"
+#include "wtn6040.h"
 
 typedef void (*fct_test_func_t)(uint8_t argc, char **argv);
 typedef struct

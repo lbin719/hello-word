@@ -5,6 +5,7 @@
 #include "stm32f1xx_hal.h"
 #include "delay.h"
 #include "cmsis_os.h"
+#include "system_info.h"
 
 #define WTN6040_DATA(x)     do{ x ? \
                                   HAL_GPIO_WritePin(WTN6040_DATA_GPIO_PORT, WTN6040_DATA_GPIO_PIN, GPIO_PIN_SET) : \

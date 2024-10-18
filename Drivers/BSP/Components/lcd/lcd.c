@@ -6,6 +6,7 @@
 #include "ulog.h"
 #include "main.h"
 #include "spi.h"
+#include "cmsis_os.h"
 
 LCD_DrvTypeDef *lcd_drv;
 
@@ -70,7 +71,7 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
     while (offset < len)
     {
         if (CMD_TYPE_WR_CMD == cmd[CMD_IDX_TYPE])
-            lcd_write_cmddata(&cmd[CMD_IDX_CODE], cmd[CMD_IDX_LEN]);
+            lcd_write_cmddata((uint8_t *)&cmd[CMD_IDX_CODE], cmd[CMD_IDX_LEN]);
         else if (CMD_TYPE_DLY_MS == cmd[CMD_IDX_TYPE])
         	osDelay(cmd[CMD_IDX_CODE]);
 

@@ -1,6 +1,8 @@
 #include "main.h"
 #include "ulog.h"
+#if 0
 #include "usbd_storage.h"
+#endif
 #include "norflash.h"
 #include "fs.h"
 #include "stmflash.h"
@@ -18,6 +20,9 @@
 #include "sys_task.h"
 #include "ui_task.h"
 #include "cmsis_os.h"
+#include "system_info.h"
+#include "hx711.h"
+#include "wl_task.h"
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
@@ -36,8 +41,6 @@ void board_init(void)
 {
 
 }
-
-extern void fct_task_handle(void);
 
 static osThreadId SystemThreadHandle;
 

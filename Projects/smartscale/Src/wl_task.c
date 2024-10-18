@@ -8,7 +8,6 @@
 #include "main.h"
 #include "hx711.h"
 #include "ec800e.h"
-#include "timer.h"
 #include "sys_task.h"
 #include "str.h"
 #include "rtc_timer.h"
@@ -19,7 +18,7 @@
 #include "stdlib.h"
 
 static osThreadId WL_ThreadHandle;
-static bool wl_moudle_status = false;
+// static bool wl_moudle_status = false;
 static bool wl_get_cimi = false;
 #define WL_RX_BUFFER_SIZE   (256)
 uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
@@ -68,7 +67,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     {
         if(argc == 4 && strcmp((const char*)argv[1], "recv") == 0)
         {
-            uint16_t recv_len = atoi(argv[3]);
+//            uint16_t recv_len = atoi(argv[3]);
             return true;
         }
 
@@ -130,7 +129,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     {
         uint32_t m_argc = 0;
         char *m_argv[ARGC_LIMIT] = { (char *)0 };
-        m_argc = str_split((char*)argv[1], strlen(argv[1]), m_argv, m_argc);
+        m_argc = str_split((char*)argv[1], strlen(argv[1]), m_argv, 0);
 #if 1
         LOG_I("[WL]margc: %d margv:", m_argc);
         for (int i = 0; i < m_argc; i++)
@@ -199,7 +198,13 @@ bool wl_rx_parse(char *ptr, uint16_t len)
     if(ptr[0] == '{')
         priv_data = true;
 
-    argc = str_split((char*)ptr, len, argv, argc);
+    argc = str_split((char*)ptr, len, argv, 0);
+    if(argc == 0)
+    {
+        LOG_I("[WL]str_split error\r\n");
+        return false;
+    }
+
 #if 1
     LOG_I("[WL]argc: %d argv:", argc);
     for (int i = 0; i < argc; i++)
@@ -207,8 +212,7 @@ bool wl_rx_parse(char *ptr, uint16_t len)
     LOG_I_NOTICK("\r\n");
 #endif
 
-    if(argc == 0)
-        return false;
+
 
 	if(priv_data) // 私有协议
 	{
@@ -264,7 +268,7 @@ bool wl_rx_parse(char *ptr, uint16_t len)
 
 bool wl_rx_handle(uint8_t *buf, int16_t len)
 {
-    char *ptr = NULL;
+	uint8_t *ptr = NULL;
     uint16_t ptr_len = 0;
 
     do{
@@ -280,7 +284,7 @@ bool wl_rx_handle(uint8_t *buf, int16_t len)
         {
              if(*buf == '\r')
              {
-                if(wl_rx_parse(ptr, ptr_len) == false)//长度不包括\r\n
+                if(wl_rx_parse((char *)ptr, ptr_len) == false)//长度不包括\r\n
                     return false;
 
                 ptr = NULL;
@@ -296,7 +300,7 @@ bool wl_rx_handle(uint8_t *buf, int16_t len)
 
     if(ptr != NULL && ptr_len > 0)
     {
-        if(wl_rx_parse(ptr, ptr_len) == false)//长度不包括\r\n
+        if(wl_rx_parse((char *)ptr, ptr_len) == false)//长度不包括\r\n
             return false;
     }
 
@@ -334,9 +338,6 @@ void wl_event_clear(void)
 
 static bool module_init(void)
 {
-    osEvent event = {0};
-
-    char *strx;
     uint16_t retry_cnt;
     uint32_t act_len;
 
@@ -345,7 +346,7 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
         {
             if(strstr((const char*)wl_rx_buf,(const char*)"OK"))
@@ -360,7 +361,7 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("ATE0\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
         {
             if(strstr((const char*)wl_rx_buf,(const char*)"OK"))
@@ -375,8 +376,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CGSN=1\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -389,8 +390,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CPIN?\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -405,8 +406,8 @@ static bool module_init(void)
         wl_event_clear();
         wl_get_cimi = true;
         ec800e_uart_printf("AT+CIMI\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -423,8 +424,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CSQ\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -437,8 +438,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+QICLOSE=1\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -451,8 +452,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CGREG?\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -466,8 +467,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+CEREG?\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -481,8 +482,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+QLTS=2\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -495,8 +496,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+QIACT=1\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -509,8 +510,8 @@ static bool module_init(void)
     do{
         wl_event_clear();
         ec800e_uart_printf("AT+QIACT?\r\n");
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
             break;
 
@@ -524,8 +525,8 @@ static bool module_init(void)
         wl_event_clear();
         ec800e_uart_printf("AT+QIOPEN=1,0,\"TCP\",\"39.106.91.24\",10181,0,1\r\n");
 wait_qiopen:
-        event = osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        uint32_t act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
         if(act_len && wl_rx_handle(wl_rx_buf, act_len))
         {
             if(wl.connect)

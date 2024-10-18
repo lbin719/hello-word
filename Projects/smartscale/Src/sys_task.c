@@ -4,7 +4,6 @@
 #include "hx711.h"
 #include "ec800e.h"
 #include "mj8000.h"
-#include "timer.h"
 #include "sys_task.h"
 #include "str.h"
 #include "rtc_timer.h"
@@ -12,12 +11,17 @@
 #include "wl_priv_data.h"
 #include "wl_task.h"
 #include "cmsis_os.h"
+#include "uart.h"
+#include "stmencrypt.h"
+
+extern void fct_task_handle(void);
 
 #define SYS_BPLIVE_TIMEOUT          (3000) 
 #define SYS_WEIGHT_TIMEOUT          (200) 
 
 #define SYS_IWEIGHT_TIMEOUT         (4 * 5)// 4s
 #define SYS_BWEIGHT_TIMEOUT         (8 * 5)// 8s
+
 
 static osThreadId Sys_ThreadHandle;
 static osTimerId bp_timehandle = NULL;
@@ -219,7 +223,7 @@ void mj_rx_handle(void)
             mj_uart_rx_frame.len --;
         mj_uart_rx_frame.buf[mj_uart_rx_frame.len] = '\0';
         LOG_I("[MJ]recv len:%d,data:%s\r\n", mj_uart_rx_frame.len, mj_uart_rx_frame.buf);
-        mj8000_rx_parse(mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
+        mj8000_rx_parse((const char *)mj_uart_rx_frame.buf, mj_uart_rx_frame.len);
 
         mj_uart_rx_frame.finsh = 0;
         uart4_recive_dma(mj_uart_rx_frame.buf, MJ8000_UART_RX_BUF_SIZE);

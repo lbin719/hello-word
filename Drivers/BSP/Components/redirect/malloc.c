@@ -23,6 +23,7 @@ void *malloc(size_t size)
 //        return 0;
 //    }
 //    return pvPortMalloc(size);
+	return NULL;
 }
 
 void *calloc(size_t nelem, size_t elsize)
@@ -40,11 +41,13 @@ void *calloc(size_t nelem, size_t elsize)
 //    }
 //
 //    return ptr;
+	return NULL;
 }
 
 void *realloc(void *ptr, size_t size)
 {
 //    return pvPortRealloc(ptr, size);
+	return NULL;
 }
 
 void free(void *ptr)

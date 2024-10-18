@@ -82,10 +82,10 @@ static DMA_HandleTypeDef spi1hdma_rx;
 
 static DMA_HandleTypeDef spi2hdma_tx;
 static DMA_HandleTypeDef spi2hdma_rx;
-
+#if LCD_USE_SPI3
 static DMA_HandleTypeDef spi3hdma_tx;
 static DMA_HandleTypeDef spi3hdma_rx;
-
+#endif
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
   GPIO_InitTypeDef gpio_init_struct;

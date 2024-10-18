@@ -22,7 +22,7 @@ void uart3_sync_output(const uint8_t *pData, uint16_t Size);
 #endif
 
 void uart4_init(void);
-void uart4_sync_output(uint8_t *pData, uint16_t Size);
+void uart4_sync_output(const uint8_t *pData, uint16_t Size);
 void uart4_recive_dma(uint8_t *pData, uint16_t Size);
 
 #ifdef __cplusplus

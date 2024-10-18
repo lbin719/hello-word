@@ -4,7 +4,6 @@
 #include "main.h"
 #include "hx711.h"
 #include "ec800e.h"
-#include "timer.h"
 #include "sys_task.h"
 #include "str.h"
 #include "rtc_timer.h"

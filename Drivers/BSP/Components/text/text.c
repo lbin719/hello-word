@@ -383,27 +383,27 @@ void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode,
     switch (size)
     {
         case 12:
-            pfont = (uint8_t *)asc2_1206[chr];  /* 调用1206字体 */
+            pfont = (uint8_t *)asc2_1206[(uint8_t)chr];  /* 调用1206字体 */
             break;
 
         case 16:
-            pfont = (uint8_t *)asc2_1608[chr];  /* 调用1608字体 */
+            pfont = (uint8_t *)asc2_1608[(uint8_t)chr];  /* 调用1608字体 */
             break;
 
         case 24:
-            pfont = (uint8_t *)asc2_2412[chr];  /* 调用2412字体 */
+            pfont = (uint8_t *)asc2_2412[(uint8_t)chr];  /* 调用2412字体 */
             break;
 
         case 28:
-            pfont = (uint8_t *)asc2_2814[chr];  /* 调用3216字体 */
+            pfont = (uint8_t *)asc2_2814[(uint8_t)chr];  /* 调用3216字体 */
             break;
 
         case 32:
-            pfont = (uint8_t *)asc2_3216[chr];  /* 调用3216字体 */
+            pfont = (uint8_t *)asc2_3216[(uint8_t)chr];  /* 调用3216字体 */
             break;
 
         case 48:
-            pfont = (uint8_t *)asc2_4824[chr];  /* 调用4824字体 */
+            pfont = (uint8_t *)asc2_4824[(uint8_t)chr];  /* 调用4824字体 */
             break;
 
         default:
@@ -449,7 +449,7 @@ void text_show_font_index(uint16_t x, uint16_t y, uint8_t index, uint8_t size, u
     uint16_t t, t1;
     uint16_t y0 = y;
     unsigned long  foffset;
-    uint8_t *dzk;
+    uint8_t *dzk = NULL;
     uint16_t csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size);     /* 得到字体一个字符对应点阵集所占的字节数 */
 
     if (size != 40 && size != 48)

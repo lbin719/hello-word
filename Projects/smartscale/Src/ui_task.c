@@ -9,6 +9,11 @@
 #include "sys_task.h"
 #include "wl_task.h"
 #include "cmsis_os.h"
+#include "lcd.h"
+#include <stdio.h>
+#include <string.h>
+#include "hx711.h"
+
 
 #define DISH_SIZE            (48)
 #define DISH_WIDTH           (DISH_SIZE*6)
@@ -237,7 +242,7 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_DEVICENUM_BIT)
       {
         //system number width 4
-        snprintf(disp_str, sizeof(disp_str), "%d", caiping_data.devicenum);
+        snprintf(disp_str, sizeof(disp_str), "%ld", caiping_data.devicenum);
         text_show_string_middle(DEVICE_NUM_LINE_XPOST, DEVICE_NUM_LINE_YPOST, // text 设备编号
                                 DEVICE_NUM_WIDTH, DEVICE_NUM_SIZE, 
                                 disp_str, 

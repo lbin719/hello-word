@@ -8,7 +8,7 @@
 #define SYS_INFO_FAIL               (-1)
 
 
-#define SYSINFO_MAGIC               (0xF5F5F503)
+#define SYSINFO_MAGIC               (0xF5F5F504)
 #define NVMS_MAGIC                  (0x55AA55AA)
 
 #define NVMS_INIT_VERSION_0         (0X00000000)

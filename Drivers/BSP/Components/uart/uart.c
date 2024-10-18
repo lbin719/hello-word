@@ -122,7 +122,7 @@ void uart4_init(void)
   }
 }
 
-void uart4_sync_output(uint8_t *pData, uint16_t Size)
+void uart4_sync_output(const uint8_t *pData, uint16_t Size)
 {
   HAL_UART_Transmit(&Uart4Handle, (uint8_t *)pData, Size, HAL_MAX_DELAY);
 }

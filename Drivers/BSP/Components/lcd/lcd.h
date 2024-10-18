@@ -12,7 +12,7 @@
 #define LCD_DRIVER_IC_ST7796    1
 #define LCD_DRIVER_IC_ILI9488   0
 
-#define LCD_HORIZONTAL 3  //閻庤鐭粻鐔封槈閸欏鐝烽悘鐐茬箻閵嗗酣寮崼鏇熷珱闁哄啫顑堝ù鍡涘棘閻熺増鍊� 	0-0閹艰揪闄勫Λ鍡樻姜椤掑﹦绀�1-180閹艰揪闄勫Λ鍡樻姜椤掑﹦绀�2-270閹艰揪闄勫Λ鍡樻姜椤掑﹦绀�3-90閹艰揪闄勫Λ鍡樻姜閿燂拷
+#define LCD_HORIZONTAL 3  //闁诲氦顫夐惌顔剧不閻斿皝妲堥柛娆忣槹閻濈兘鎮橀悙鑼闁靛棗閰ｅ顕€宕奸弴鐔风彵闂佸搫鍟鍫澝归崱娑樻闁荤喓澧楅崐锟� 	0-0闁硅壈鎻梽鍕涢崱妯诲妞ゆ帒锕︾粈锟�1-180闁硅壈鎻梽鍕涢崱妯诲妞ゆ帒锕︾粈锟�2-270闁硅壈鎻梽鍕涢崱妯诲妞ゆ帒锕︾粈锟�3-90闁硅壈鎻梽鍕涢崱妯诲闁跨噦鎷�
 
 #if LCD_DRIVER_IC_ILI9488
 #define LCD_PIXEL_RGB666
@@ -129,21 +129,21 @@ typedef struct
 #define GREEN         	 0x07E0
 #define CYAN          	 0x7FFF
 #define YELLOW        	 0xFFE0
-#define BROWN 			 0XBC40 //棕色
-#define BRRED 			 0XFC07 //棕红色
-#define GRAY  			 0X8430 //灰色
-//GUI颜色
-#define DARKBLUE      	 0X01CF	//深蓝色
-#define LIGHTBLUE      	 0X7D7C	//浅蓝色  
-#define GRAYBLUE       	 0X5458 //灰蓝色
-//以上三色为PANEL的颜色 
+#define BROWN 			 0XBC40 //妫曡壊
+#define BRRED 			 0XFC07 //妫曠孩鑹�
+#define GRAY  			 0X8430 //鐏拌壊
+//GUI棰滆壊
+#define DARKBLUE      	 0X01CF	//娣辫摑鑹�
+#define LIGHTBLUE      	 0X7D7C	//娴呰摑鑹�  
+#define GRAYBLUE       	 0X5458 //鐏拌摑鑹�
+//浠ヤ笂涓夎壊涓篜ANEL鐨勯鑹� 
  
-#define LIGHTGREEN     	 0X841F //浅绿色
-//#define LIGHTGRAY        0XEF5B //浅灰色(PANNEL)
-#define LGRAY 			     0XC618 //浅灰色(PANNEL),窗体背景色
+#define LIGHTGREEN     	 0X841F //娴呯豢鑹�
+//#define LIGHTGRAY        0XEF5B //娴呯伆鑹�(PANNEL)
+#define LGRAY 			     0XC618 //娴呯伆鑹�(PANNEL),绐椾綋鑳屾櫙鑹�
 
-#define LGRAYBLUE        0XA651 //浅灰蓝色(中间层颜色)
-#define LBBLUE           0X2B12 //浅棕蓝色(选择条目的反色)
+#define LGRAYBLUE        0XA651 //娴呯伆钃濊壊(涓棿灞傞鑹�)
+#define LBBLUE           0X2B12 //娴呮钃濊壊(閫夋嫨鏉＄洰鐨勫弽鑹�)
 
 #endif
 

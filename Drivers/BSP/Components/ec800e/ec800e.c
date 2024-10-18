@@ -4,9 +4,11 @@
 #include "stm32f1xx_hal.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include "string.h"
 #include "board.h"
 #include "ringbuffer.h"
 #include "wl_task.h"
+#include "cmsis_os.h"
 
 #define EC_RST_SET()        	    (EC_RST_GPIO_PORT->BSRR = (uint32_t)(EC_RST_GPIO_PIN  << 16u))
 #define EC_RST_RESET()       		(EC_RST_GPIO_PORT->BSRR = EC_RST_GPIO_PIN)
@@ -27,7 +29,7 @@ uint8_t ecrx_rbuf[ECRX_BUF_SIZE];
 
 void ec800e_uart_output(char *buf, uint16_t len)
 {
-    uart2_sync_output(buf, len);
+    uart2_sync_output((uint8_t *)buf, len);
     LOG_I("[EC] T:%s", buf);
 }
 
