@@ -4,21 +4,6 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-
-#define WL_HEART_PERIOD_MS                     (60*1000)
-#define WL_WAIT_RECEIVE_TIMEOUT                (500)
-
-#define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
-#define WL_NOTIFY_RECEIVE_BIT                  (0x1UL << 0)
-#define WL_NOTIFY_PRIVSEND_RIGISTER_BIT        (0x1UL << 1)
-#define WL_NOTIFY_PRIVSEND_HEART_BIT           (0x1UL << 2)
-#define WL_NOTIFY_PRIVSEND_BUHUO_BIT           (0x1UL << 3)
-#define WL_NOTIFY_PRIVSEND_BUHUOEND_BIT        (0x1UL << 4)
-#define WL_NOTIFY_PRIVSEND_BANGPAN_BIT         (0x1UL << 5)
-#define WL_NOTIFY_PRIVSEND_BANGPANEND_BIT      (0x1UL << 6)
-#define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7) // 空闲状态下重量变化上报
-
-
 /* 
 +CME ERROR 
 0 phone failure 拨打电话失败
@@ -57,15 +42,6 @@
 45 service provider personalization PUK required 需要网络服务商个性化 PUK 码
 46 corporate personalization PIN required 需要企业个性化 PIN 码
 47 corporate personalization PUK required 需要企业个性化 PUK 码
-*/
-#if 0
-tyepdef struct {
-    char *cmd;	/* AT指令 */
-    char *r_cmd;
-    int (*deal_func)(int opt, int argc, char *argv[]);
-}at_cmd_t;
-
-// int deal_uart_func(int opt, int argc, char *argv[]);
 
 at_cmd_t at_table[] = {
     {"AT",              "OK",       NULL},
@@ -84,7 +60,22 @@ at_cmd_t at_table[] = {
 	// AT+QIOPEN=1,0,"TCP","39.106.91.24",10181,0,1  OK
 	// AT+QISEND=0 \r\n hello ... SEND OK
 };
-#endif
+*/
+
+
+#define WL_HEART_PERIOD_MS                     (60*1000)
+#define WL_WAIT_RECEIVE_TIMEOUT                (500)
+
+#define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
+#define WL_NOTIFY_RECEIVE_BIT                  (0x1UL << 0)
+#define WL_NOTIFY_PRIVSEND_RIGISTER_BIT        (0x1UL << 1)
+#define WL_NOTIFY_PRIVSEND_HEART_BIT           (0x1UL << 2)
+#define WL_NOTIFY_PRIVSEND_BUHUO_BIT           (0x1UL << 3)
+#define WL_NOTIFY_PRIVSEND_BUHUOEND_BIT        (0x1UL << 4)
+#define WL_NOTIFY_PRIVSEND_BANGPAN_BIT         (0x1UL << 5)
+#define WL_NOTIFY_PRIVSEND_BANGPANEND_BIT      (0x1UL << 6)
+#define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7) // 空闲状态下重量变化上报
+
 
 // #define WL_STATUS_AT_BIT                    (0x1UL << 0)
 // #define WL_STATUS_ATE0_BIT                  (0x1UL << 1)
@@ -103,6 +94,9 @@ at_cmd_t at_table[] = {
 #define WL_STATUS_ENTERSEND_BIT             (0x1UL << 14)
 #define WL_STATUS_SENDFINSH_BIT             (0x1UL << 15)
 
+#define WL_STATUS_PRIVREGISTER_BIT          (0x1UL << 16)
+
+
 #define ARGC_LIMIT      (12)
 
 typedef enum
@@ -119,6 +113,7 @@ typedef enum
 
 typedef struct{
     uint32_t       status;
+    uint8_t        cme_error;
     uint8_t        device_status;
     uint8_t        rssi; 
     char           sn[WL_SN_LEN + 1];
@@ -128,11 +123,13 @@ typedef struct{
 
     uint32_t       priv_dnum;
     uint32_t       priv_fnum;
-    bool           priv_register;
     uint8_t        priv_res_result; //回复结果
 } wl_t;
 
 extern wl_t wl;
+
+void wl_set_status_bit(uint32_t status);
+void wl_clear_status_bit(uint32_t status);
 
 int32_t wl_ossignal_notify(int32_t signals);
 void wl_init(void);

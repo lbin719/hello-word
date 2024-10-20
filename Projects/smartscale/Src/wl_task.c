@@ -51,7 +51,6 @@ wl_t wl = {
     .device_status = SYS_STATUS_ZZDL,
     .rssi = 99,
     .priv_dnum = 0,
-    .priv_register = false,
 };
 
 volatile uint8_t priv_send_event = 0;
@@ -205,10 +204,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
 
     if ((argc >= 3) && (strncmp((const char*)argv[0], "+CME", 7) == 0) && (strncmp((const char*)argv[1], "ERROR", 7) == 0))
     {
-        if(strncmp((const char*)argv[1], "10", 2) == 0)
-        {
-            // 未插入 SIM 卡
-        }
+        wl.cme_error = atoi(argv[1]);
         return false;
     }
 
@@ -359,6 +355,9 @@ static bool wl_module_init(void)
     uint16_t retry_cnt;
     uint32_t act_len;
 
+    wl.status = 0;
+    wl.cme_error = 0;
+    
     // 通信检测
     retry_cnt = 5;
     wl_event_clear();

@@ -176,7 +176,7 @@ static bool wl_priv_res_user(int argc, char *argv[])
 
 static bool wl_priv_res_register(int argc, char *argv[])
 {
-    wl.priv_register = true;
+    wl_set_status_bit(WL_STATUS_PRIVREGISTER_BIT);
     return true;
 }
 
