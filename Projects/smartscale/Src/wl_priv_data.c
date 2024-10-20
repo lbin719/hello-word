@@ -49,10 +49,12 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
             rx_caiping.zhendongwucha,
             rx_caiping.devicenum);
 
+    portENTER_CRITICAL();
     memcpy(&caiping_data, &rx_caiping, sizeof(caiping_data_t));
+    portEXIT_CRITICAL();
     sysinfo_store_caipin(&caiping_data);
     ui_ossignal_notify(UI_NOTIFY_DISH_BIT | UI_NOTIFY_PRICE_BIT | UI_NOTIFY_PRICE_UNIT_BIT | UI_NOTIFY_ALL_BIT);
-
+    sys_ossignal_notify(SYS_NOTIFY_WLCAIPING_BIT);
 exit:
     wl_priv_tx(WL_PRIVRSEND_SETCAIPING_EVENT);
 

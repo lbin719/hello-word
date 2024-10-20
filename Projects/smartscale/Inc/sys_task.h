@@ -18,6 +18,7 @@
 #define SYS_NOTIFY_WEIGHTTIME_BIT        (0x1UL << 9)
 #define SYS_NOTIFY_WEIGHZERO_BIT         (0x1UL << 10)
 #define SYS_NOTIFY_WEIGHCALI_BIT         (0x1UL << 11)
+#define SYS_NOTIFY_WLCAIPING_BIT         (0x1UL << 12)
 typedef enum
 {
   SYS_STATUS_ZZDL = 0, // 正在登录

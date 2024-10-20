@@ -329,13 +329,17 @@ void SYS_Thread(void const *argument)
             {
                 weight_clear();
                 hx711_set_zero();
+                wtn6040_play(WTN_CZTQLTX_PLAY);
             }
             if(event.value.signals & SYS_NOTIFY_WEIGHCALI_BIT)
             {
                 weight_clear();
                 hx711_set_calibration(hx711_cali_value);
             }            
-            
+            if(event.value.signals & SYS_NOTIFY_WLCAIPING_BIT)
+            {
+                wtn6040_play(WTN_CPQHCG_PLAY);
+            }              
         }
     }
 }
