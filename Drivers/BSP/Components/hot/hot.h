@@ -7,7 +7,7 @@
 #define HOT_OFF         (0)
 
 
-void hot_ctrl(uint8_t ctrl);
+void hot_ctrl_store(uint8_t mode, uint8_t time);
 
 void hot_init(void);
 

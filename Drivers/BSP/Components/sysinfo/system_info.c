@@ -108,6 +108,18 @@ uint8_t sysinfo_get_voice(void)
   return sysinfo_store.wtn_voice;
 }
 
+void sysinfo_store_hot(uint8_t mode, uint8_t time)
+{
+  sysinfo_store.hot_mode = mode;
+  sysinfo_store.hot_time = time;
+}
+
+void sysinfo_get_hot(uint8_t *mode, uint8_t *time)
+{
+  *mode = sysinfo_store.hot_mode;
+  *time = sysinfo_store.hot_time;
+}
+
 static void sysinfo_init(void)
 {
   stmflash_read(STMFLASH_SYSINFO_START_ADDR, (uint8_t *)&sysinfo_store, sizeof(sysinfo_store));
@@ -120,7 +132,8 @@ static void sysinfo_init(void)
     sysinfo_store.hxgap = HX_DEFAULT_GAP;
     memcpy(&sysinfo_store.caiping_store, &default_caiping_data, sizeof(caiping_data_t));
     sysinfo_store.wtn_voice = WTN6040_DEFAULT_VOICE;
-
+    sysinfo_store.hot_mode = 0;
+    sysinfo_store.hot_time = 0;
     stmflash_erase(STMFLASH_SYSINFO_START_ADDR, STMFLASH_SYSINFO_SIZE);
     stmflash_write(STMFLASH_SYSINFO_START_ADDR, (uint32_t *)&sysinfo_store, sizeof(sysinfo_store));
   }

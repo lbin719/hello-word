@@ -285,12 +285,12 @@ void fct_hot_test(uint8_t argc, char **argv)
 {
     if (argc == 3 && !strcmp(argv[2], "on"))
     {
-        hot_ctrl(HOT_ON);
+        hot_ctrl_store(HOT_ON, 1);
         LOG_I("fct hot on ret:0\r\n");
     }
     else if (argc == 3 && !strcmp(argv[2], "off"))
     {
-        hot_ctrl(HOT_OFF);
+        hot_ctrl_store(HOT_OFF, 0);
         LOG_I("fct hot off ret:0\r\n");
     }  
     else

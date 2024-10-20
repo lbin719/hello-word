@@ -70,8 +70,8 @@ static bool wl_priv_set_qupi(int argc, char *argv[])
 
 static bool wl_priv_set_jiaozhun(int argc, char *argv[])
 {
-    uint32_t hx711_cali_value = atoi(argv[2]);
-    sys_ossignal_notify(SYS_NOTIFY_WEIGHZERO_BIT);
+    hx711_cali_value = atoi(argv[2]);
+    sys_ossignal_notify(SYS_NOTIFY_WEIGHCALI_BIT);
 
     wl.priv_res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_JIAOZHUN_EVENT);
@@ -103,8 +103,13 @@ static bool wl_priv_set_saomatou(int argc, char *argv[])
 
 static bool wl_priv_set_voice(int argc, char *argv[])
 {
-    uint8_t level = atoi(argv[2]);
+    if(argc != 3)
+    {
+        LOG_I("Error argc:%d\r\n", argc);
+        return false;
+    }
 
+    uint8_t level = atoi(argv[2]);
     wtn6040_set_voice_store(level);
 
     wl.priv_res_result = WL_OK;
@@ -115,8 +120,15 @@ static bool wl_priv_set_voice(int argc, char *argv[])
 
 static bool wl_priv_set_hot(int argc, char *argv[])
 {
-    uint8_t status = atoi(argv[2]);
-    hot_ctrl(status);
+    if(argc != 4)
+    {
+        LOG_I("Error argc:%d\r\n", argc);
+        return false;
+    }
+
+    uint8_t mode = atoi(argv[2]);
+    uint8_t time = atoi(argv[3]);    
+    hot_ctrl_store(mode, time);
 
     wl.priv_res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETHOT_EVENT);
@@ -125,7 +137,7 @@ static bool wl_priv_set_hot(int argc, char *argv[])
 
 static bool wl_priv_set_hottimer(int argc, char *argv[])
 {
-    uint32_t hot_timer = atoi(argv[2]);
+//    uint32_t hot_timer = atoi(argv[2]);
 
     wl.priv_res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETHOTTIMER_EVENT);

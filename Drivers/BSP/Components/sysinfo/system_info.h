@@ -35,9 +35,10 @@ typedef struct {
 
     caiping_data_t caiping_store;
     uint8_t wtn_voice;
-    uint8_t reve[3];
-    // bool fct_mode;                        // sysinfo fctmode
-    // uint8_t resvered;
+    uint8_t hot_mode;
+    uint8_t hot_time;
+    uint8_t resvered[1];
+
 } sysinfo_store_t;
 
 void sysinfo_store_hxzero(uint32_t zero);
@@ -52,6 +53,9 @@ caiping_data_t* sysinfo_get_caipin(void);
 
 void sysinfo_store_voice(uint8_t voice);
 uint8_t sysinfo_get_voice(void);
+
+void sysinfo_store_hot(uint8_t mode, uint8_t time);
+void sysinfo_get_hot(uint8_t *mode, uint8_t *time);
 
 // int sys_get_fw_version(char *ver, int len);
 // uint32_t sys_get_fw_version_int(void);
