@@ -613,6 +613,7 @@ wl_reset:
     }
 
     wl_ossignal_notify(WL_NOTIFY_PRIVSEND_RIGISTER_BIT);
+    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_HEART_BIT);
     osTimerStart(heart_timehandle, WL_HEART_PERIOD_MS);
 
     while(1)

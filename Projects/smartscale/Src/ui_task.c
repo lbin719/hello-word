@@ -305,8 +305,8 @@ static void UI_Thread(void const *argument)
         snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
         text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
 
-        snprintf(disp_str, sizeof(disp_str), "wl:0x%lx,%d", wl.status, wl.cme_error);
-        text_show_string_left(0, 36, 12*12, 12, disp_str, 12, 0, BLUE);
+        snprintf(disp_str, sizeof(disp_str), "wl:%lx,%d", wl.status, wl.cme_error);
+        text_show_string_left(0, 36, 12*8, 12, disp_str, 12, 0, BLUE);
       }
 #endif
     }
