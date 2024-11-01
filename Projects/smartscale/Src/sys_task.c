@@ -57,6 +57,11 @@ int get_change_weight(void)
     return change_weight;
 }
 
+int get_sys_weight(void)
+{
+    return sys_weight;
+}
+
 void weight_init(void)
 {
     // get sys_weight

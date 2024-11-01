@@ -114,10 +114,14 @@ void sysinfo_store_hot(uint8_t mode, uint8_t time)
   sysinfo_store.hot_time = time;
 }
 
-void sysinfo_get_hot(uint8_t *mode, uint8_t *time)
+uint8_t sysinfo_get_hotmode(void)
 {
-  *mode = sysinfo_store.hot_mode;
-  *time = sysinfo_store.hot_time;
+  return sysinfo_store.hot_mode;
+}
+
+uint8_t sysinfo_get_hottime(void)
+{
+  return sysinfo_store.hot_time;
 }
 
 static void sysinfo_init(void)

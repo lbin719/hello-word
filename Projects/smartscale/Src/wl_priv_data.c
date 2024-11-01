@@ -237,7 +237,11 @@ void wl_priv_tx(uint8_t event)
     }
     else if(event == WL_PRIVSEND_HEART_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, get_timestamp());
+        ec800e_uart_printf("{%d,%d,%d,0,0,%d,%d,%d,}\r\n", 
+                             WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, 
+                             get_sys_weight(), 
+                             sysinfo_get_hotmode(), sysinfo_get_hottime(),
+                             get_timestamp());
     }
     else if(event == WL_PRIVSEND_BUHUO_EVENT)
     {
@@ -275,7 +279,7 @@ void wl_priv_tx(uint8_t event)
     }
     else if(event == WL_PRIVRSEND_GETWEIGHT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FWEIGHT_RECMD, wl.priv_fnum, wl.priv_res_result, 152); //todu
+        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FWEIGHT_RECMD, wl.priv_fnum, wl.priv_res_result, get_sys_weight());
     }
     else if(event == WL_PRIVRSEND_GETSTATUS_EVENT)
     {

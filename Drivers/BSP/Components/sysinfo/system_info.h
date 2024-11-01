@@ -55,7 +55,8 @@ void sysinfo_store_voice(uint8_t voice);
 uint8_t sysinfo_get_voice(void);
 
 void sysinfo_store_hot(uint8_t mode, uint8_t time);
-void sysinfo_get_hot(uint8_t *mode, uint8_t *time);
+uint8_t sysinfo_get_hotmode(void);
+uint8_t sysinfo_get_hottime(void);
 
 // int sys_get_fw_version(char *ver, int len);
 // uint32_t sys_get_fw_version_int(void);

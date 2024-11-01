@@ -36,6 +36,7 @@ extern int upload_sweight;
 
 uint8_t get_sys_status(void);
 int get_change_weight(void);
+int get_sys_weight(void);
 void weight_clear(void);
 
 

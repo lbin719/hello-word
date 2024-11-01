@@ -59,7 +59,8 @@ void hot_init(void)
     hot_timehandle = osTimerCreate(osTimer(hot_timer), osTimerPeriodic, NULL);
     assert_param(hot_timehandle);
 
-    sysinfo_get_hot(&hot_mode, &hot_time);
+    hot_mode = sysinfo_get_hotmode();
+    hot_time = sysinfo_get_hottime();
     hot_ctrl(hot_mode, hot_time);
 
     LOG_I("%s mode:%d, time:%d\r\n", __FUNCTION__, hot_mode, hot_time);
