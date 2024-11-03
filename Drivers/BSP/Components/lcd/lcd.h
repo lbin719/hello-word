@@ -12,7 +12,7 @@
 #define LCD_DRIVER_IC_ST7796    1
 #define LCD_DRIVER_IC_ILI9488   0
 
-#define LCD_HORIZONTAL 3  //闁诲氦顫夐惌顔剧不閻斿皝妲堥柛娆忣槹閻濈兘鎮橀悙鑼闁靛棗閰ｅ顕€宕奸弴鐔风彵闂佸搫鍟鍫澝归崱娑樻闁荤喓澧楅崐锟� 	0-0闁硅壈鎻梽鍕涢崱妯诲妞ゆ帒锕︾粈锟�1-180闁硅壈鎻梽鍕涢崱妯诲妞ゆ帒锕︾粈锟�2-270闁硅壈鎻梽鍕涢崱妯诲妞ゆ帒锕︾粈锟�3-90闁硅壈鎻梽鍕涢崱妯诲闁跨噦鎷�
+#define LCD_HORIZONTAL          3  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 
 #if LCD_DRIVER_IC_ILI9488
 #define LCD_PIXEL_RGB666
@@ -109,7 +109,6 @@ typedef struct
 
 
 #ifdef LCD_PIXEL_RGB666
-
 #define WHITE         	 0xFCFCFC
 #define BLACK            0X000000
 #define RED           	 0xFC0000
@@ -117,50 +116,28 @@ typedef struct
 #define BLUE             0x0000FC
 
 #else
-
 #define WHITE         	 0xFFFF
 #define BLACK         	 0x0000	  
-#define BLUE         	 0x001F  
+#define BLUE           	 0x001F  
 #define BRED             0XF81F
-#define GRED 			 0XFFE0
-#define GBLUE			 0X07FF
+#define GRED 			       0XFFE0
+#define GBLUE			       0X07FF
 #define RED           	 0xF800
 #define MAGENTA       	 0xF81F
 #define GREEN         	 0x07E0
 #define CYAN          	 0x7FFF
 #define YELLOW        	 0xFFE0
-#define BROWN 			 0XBC40 //妫曡壊
-#define BRRED 			 0XFC07 //妫曠孩鑹�
-#define GRAY  			 0X8430 //鐏拌壊
-//GUI棰滆壊
-#define DARKBLUE      	 0X01CF	//娣辫摑鑹�
-#define LIGHTBLUE      	 0X7D7C	//娴呰摑鑹�  
-#define GRAYBLUE       	 0X5458 //鐏拌摑鑹�
-//浠ヤ笂涓夎壊涓篜ANEL鐨勯鑹� 
- 
-#define LIGHTGREEN     	 0X841F //娴呯豢鑹�
-//#define LIGHTGRAY        0XEF5B //娴呯伆鑹�(PANNEL)
-#define LGRAY 			     0XC618 //娴呯伆鑹�(PANNEL),绐椾綋鑳屾櫙鑹�
-
-#define LGRAYBLUE        0XA651 //娴呯伆钃濊壊(涓棿灞傞鑹�)
-#define LBBLUE           0X2B12 //娴呮钃濊壊(閫夋嫨鏉＄洰鐨勫弽鑹�)
-
+#define BROWN 			     0XBC40 //棕色
+#define BRRED 			     0XFC07 //棕红色
+#define GRAY  			     0X8430 //灰色
+#define DARKBLUE      	 0X01CF	//深蓝色
+#define LIGHTBLUE      	 0X7D7C	//浅蓝色  
+#define GRAYBLUE       	 0X5458 //灰蓝色
+#define LIGHTGREEN     	 0X841F //浅绿色
+#define LGRAY 			     0XC618 //浅灰色(PANNEL),窗体背景色
+#define LGRAYBLUE        0XA651 //浅灰蓝色(中间层颜色)
+#define LBBLUE           0X2B12 //浅棕蓝色(选择条目的反色)
 #endif
-
-
-// /**
-//   * @brief  LCD color
-//   */
-// #define LCD_COLOR_BLACK         0x0000
-// #define LCD_COLOR_GREY          0xF7DE
-// #define LCD_COLOR_BLUE          0x001F
-// #define LCD_COLOR_RED           0xF800
-// #define LCD_COLOR_GREEN         0x07E0
-// #define LCD_COLOR_CYAN          0x07FF
-// #define LCD_COLOR_MAGENTA       0xF81F
-// #define LCD_COLOR_YELLOW        0xFFE0
-// #define LCD_COLOR_WHITE         0xFFFF
-
 
 
 extern _lcd_dev lcd_dev;
