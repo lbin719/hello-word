@@ -96,6 +96,8 @@ uint32_t hx711_get_weight(void)
 		diff_value = read_value - zero_value;				
 		weight_value = (uint32_t)((float)diff_value/gap_value); 																		
 	}
+	else
+		weight_value = 0;
 	// LOG_I("[HX]read value:%d, weight: %dg\r\n", read_value, weight_value);
 	return weight_value;
 }
