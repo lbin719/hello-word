@@ -90,6 +90,9 @@ void st7796_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint1
 
 	lcd_write_cmddata(setcursor_xpos_cmd, sizeof(setcursor_xpos_cmd));
 	lcd_write_cmddata(setcursor_ypos_cmd, sizeof(setcursor_ypos_cmd));
+
+	uint8_t write_gram_cmd[] = {0x2C};
+	lcd_write_cmddata(write_gram_cmd, sizeof(write_gram_cmd));
 }
 
 void st7796_DrawHLine(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length)
@@ -139,6 +142,16 @@ void st7796_Fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16
   {
     lcd_write_data(data, sizeof(data));
   }
+}
+
+void st7796_Fill_Date(const uint8_t *buf, uint32_t len, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
+{
+  if(sx + ex > st7796_dev.width) return;
+  if(sy + ey > st7796_dev.height) return;
+
+  /* Set Cursor */
+  st7796_SetDisplayWindow(sx, sy, (ex - sx + 1), (ey - sy + 1));
+  lcd_write_data(buf, len);
 }
 
 uint16_t st7796_GetLcdPixelWidth(void)
@@ -225,6 +238,7 @@ LCD_DrvTypeDef   st7796_drv =
   .DrawHLine = st7796_DrawHLine,
   .DrawVLine = st7796_DrawVLine,
   .DrawFill = st7796_Fill,
+  .DrawFillDate = st7796_Fill_Date,
   .GetLcdPixelWidth = st7796_GetLcdPixelWidth,
   .GetLcdPixelHeight = st7796_GetLcdPixelHeight,
   .DrawBitmap = st7796_DrawBitmap,

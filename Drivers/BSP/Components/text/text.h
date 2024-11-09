@@ -41,4 +41,5 @@ void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode,
 
 void text_show_font_index(uint16_t x, uint16_t y, uint8_t index, uint8_t size, uint8_t mode, uint32_t color);
 
+void text_show_logo(uint16_t sx, uint16_t sy);
 #endif

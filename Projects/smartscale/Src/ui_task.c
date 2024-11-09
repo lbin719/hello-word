@@ -109,6 +109,8 @@ static void UI_Thread(void const *argument)
     {
       if(event.value.signals & UI_NOTIFY_LOCK_BIT)
       {
+        text_show_logo(30, 120);
+
         //draw lines
         lcd_draw_hline(BLACK, 5, 60, 480-5*2);
         lcd_draw_hline(BLACK, 5, 265, 480-5*2);

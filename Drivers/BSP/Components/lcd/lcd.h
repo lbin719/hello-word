@@ -89,6 +89,7 @@ typedef struct
   void     (*DrawHLine)(uint16_t, uint16_t, uint16_t, uint16_t);
   void     (*DrawVLine)(uint16_t, uint16_t, uint16_t, uint16_t);
   void     (*DrawFill)(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
+  void     (*DrawFillDate)(const uint8_t*, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t);
   uint16_t (*GetLcdPixelWidth)(void);
   uint16_t (*GetLcdPixelHeight)(void);
   void     (*DrawBitmap)(uint16_t, uint16_t, uint8_t*);

@@ -115,6 +115,14 @@ void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint
     }
 }
 
+void lcd_draw_filldate(const uint8_t *buf, uint32_t len, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
+{
+    if(sx  > ex || sy > ey)
+        return ;
+    if(lcd_drv->DrawFillDate)
+        lcd_drv->DrawFillDate(buf, len, sx, sy, ex, ey);
+}
+
 void lcd_init(void)
 {
 #if LCD_DRIVER_IC_ST7735S
