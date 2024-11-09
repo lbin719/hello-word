@@ -12,9 +12,17 @@ static osTimerId hot_timehandle = NULL;
 uint8_t hot_mode = 0;
 uint8_t hot_time = 0;
 
+uint8_t hot_status = HOT_OFF;
+
+uint8_t get_hot_status(void)
+{
+    return hot_status;
+}
+
 static void hot_ostimercallback(void const * argument)
 {
     (void) argument;
+    hot_status = HOT_OFF;
     HOT_CTRL_OFF();
 }
 
@@ -28,10 +36,12 @@ static void hot_ctrl(uint8_t mode, uint8_t time)
     if(mode == HOT_ON)
     {
         HOT_CTRL_ON();
+        hot_status = HOT_ON;
         osTimerStart(hot_timehandle, (uint32_t)time*60*1000);
     }
     else
     {
+        hot_status = HOT_OFF;
         HOT_CTRL_OFF();
     }
 }

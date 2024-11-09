@@ -15,6 +15,7 @@
 #include "cmsis_os.h"
 #include "lcd.h"
 #include "hx711.h"
+#include "hot.h"
 #include "system_info.h"
 
 
@@ -299,7 +300,7 @@ static void UI_Thread(void const *argument)
 #if DISPLAY_DEBUG_INFO
       if(event.value.signals & UI_NOTIFY_DEBUGINFO_BIT)
       {
-        snprintf(disp_str, sizeof(disp_str), "w:%ldg", hx711_get_weight_value());
+        snprintf(disp_str, sizeof(disp_str), "w:%ldg, h:%d", hx711_get_weight_value(), get_hot_status());
         text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
 
         snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
