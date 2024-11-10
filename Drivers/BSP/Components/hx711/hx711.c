@@ -14,7 +14,7 @@
 #define HX711_DOUT_PIN()			HAL_GPIO_ReadPin(HX711_DOUT_GPIO_PORT, HX711_DOUT_GPIO_PIN)
 
 #define HX711_READ_TIMEOUT		(100000)//100ms
-
+#define HX711_WEIGHT_WUCHA		(0)
 
 static uint32_t zero_value = 0;
 static float gap_value = 0;
@@ -89,12 +89,16 @@ void hx711_set_calibration(uint32_t weight)
 
 uint32_t hx711_get_weight(void)
 {
+	uint32_t read_weight = 0;
+
 	uint32_t diff_value;
 	uint32_t read_value = hx711_read(HX711_READ_TIMEOUT);
 	if(read_value > zero_value)
 	{
 		diff_value = read_value - zero_value;				
-		weight_value = (uint32_t)((float)diff_value/gap_value); 																		
+		read_weight = (uint32_t)((float)diff_value/gap_value);
+		if(abs(read_weight - weight_value) > HX711_WEIGHT_WUCHA)
+			 weight_value = read_weight; //更新																		
 	}
 	else
 		weight_value = 0;
