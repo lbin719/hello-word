@@ -60,6 +60,11 @@ void wl_set_status_bit(uint32_t status)
     wl.status |= status;
 }
 
+bool wl_get_status_bit(uint32_t status)
+{
+    return (wl.status & status) ? true : false;
+}
+
 void wl_clear_status_bit(uint32_t status)
 {
     wl.status &= ~status;
@@ -128,11 +133,13 @@ bool wl_ctrl_cmd(int argc, char *argv[])
         if(argv[1][0] == '0' && (argv[2][0] == '1' || argv[2][0] == '5')) //返回正常 或漫游
         {
             wl_set_status_bit(WL_STATUS_CGREG_BIT);
+            ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
             return true;
         }
         else
         {
             wl_clear_status_bit(WL_STATUS_CGREG_BIT);
+            ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
             return false;
         }
     }
@@ -233,7 +240,7 @@ bool wl_rx_parse(char *ptr, uint16_t len)
         return false;
     }
 
-#if 1
+#if 0
     LOG_I("[WL]argc: %d argv:", argc);
     for (int i = 0; i < argc; i++)
         LOG_I_NOTICK(" %s", argv[i]);
@@ -357,7 +364,7 @@ static bool wl_module_init(void)
 
     wl.status = 0;
     wl.cme_error = 0;
-    
+
     // 通信检测
     retry_cnt = 5;
     wl_event_clear();
@@ -655,6 +662,7 @@ wl_reset:
             }
             if(event.value.signals & WL_NOTIFY_PRIVSEND_HEART_BIT)
             {
+                ec800e_uart_printf("AT+CSQ\r\n"); // 获取信号强度
                 wl_priv_tx(WL_PRIVSEND_HEART_EVENT);
             }           
         }

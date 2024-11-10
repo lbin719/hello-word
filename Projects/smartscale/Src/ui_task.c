@@ -77,10 +77,10 @@ static void debug_ostimercallback(void const * argument)
 static void draw_single(uint16_t x, uint16_t y, uint8_t level)
 {
   // lcd_draw_fill(RED, x, y, x + 40, y + 40);
-  lcd_draw_fill(level > 0 ? BLACK : LGRAY, x + 6, y + 25, x + 10, y + 40);
-  lcd_draw_fill(level > 1 ? BLACK : LGRAY, x + 16, y + 20, x + 20, y + 40);
-  lcd_draw_fill(level > 2 ? BLACK : LGRAY, x + 26, y + 15, x + 30, y + 40);
-  lcd_draw_fill(level > 3 ? BLACK : LGRAY, x + 36, y + 10 , x + 40, y + 40);
+  lcd_draw_fill(level > 0 ? BLACK : LGRAY, x + 6, y + 34, x + 10, y + 46);
+  lcd_draw_fill(level > 1 ? BLACK : LGRAY, x + 16, y + 26, x + 20, y + 46);
+  lcd_draw_fill(level > 2 ? BLACK : LGRAY, x + 26, y + 18, x + 30, y + 46);
+  lcd_draw_fill(level > 3 ? BLACK : LGRAY, x + 36, y + 10 , x + 40, y + 46);
 }
 
 int32_t ui_ossignal_notify(int32_t signals)
@@ -157,6 +157,28 @@ static void UI_Thread(void const *argument)
         snprintf(disp_str, sizeof(disp_str), "v:%s", MCU_FW_VERSION);
         text_show_string_left(0, 0, 12*6, 12, disp_str, 12, 0, BLUE);
 #endif
+      }
+
+      if(event.value.signals & UI_NOTIFY_SIGNEL_BIT)
+      {
+        if(wl_get_status_bit(WL_STATUS_CGREG_BIT))
+          snprintf(disp_str, sizeof(disp_str), "4G", get_sys_status());
+        else
+          snprintf(disp_str, sizeof(disp_str), "  ", get_sys_status());
+        text_show_string_left(430+6, 10, 12, 12, disp_str, 12, 0, BLACK);
+
+        // draw single
+        uint8_t rssi = 0;
+        if(wl.rssi == 0)
+          rssi = 1;
+        else if(wl.rssi == 1)
+          rssi = 2;
+        else if(wl.rssi <= 30)
+          rssi = 3;
+        else if(wl.rssi == 31) 
+          rssi = 4;
+
+        draw_single(430, 0, rssi);
       }
 
       if(event.value.signals & UI_NOTIFY_DISH_BIT)
@@ -281,22 +303,6 @@ static void UI_Thread(void const *argument)
                                 DOWN_SIZE, 
                                 0, 
                                 RED);
-      }
-
-      if(event.value.signals & UI_NOTIFY_SIGNEL_BIT)
-      {
-        // draw single
-        uint8_t rssi = 0;
-        if(wl.rssi == 0)
-          rssi = 1;
-        else if(wl.rssi == 1)
-          rssi = 2;
-        else if(wl.rssi <= 30)
-          rssi = 3;
-        else if(wl.rssi == 31) 
-          rssi = 4;
-
-        draw_single(430, 0, rssi);
       }
 
 #if DISPLAY_DEBUG_INFO

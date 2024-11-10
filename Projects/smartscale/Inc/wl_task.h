@@ -129,6 +129,7 @@ typedef struct{
 extern wl_t wl;
 
 void wl_set_status_bit(uint32_t status);
+bool wl_get_status_bit(uint32_t status);
 void wl_clear_status_bit(uint32_t status);
 
 int32_t wl_ossignal_notify(int32_t signals);
