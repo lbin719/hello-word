@@ -503,7 +503,7 @@ void text_show_font_index(uint16_t x, uint16_t y, uint8_t index, uint8_t size, u
 
 void text_show_logo(uint16_t sx, uint16_t sy)
 {
-   lcd_draw_filldate(qqimage, sizeof(qqimage), sx, sy, sx + 39, sy + 39);
+//    lcd_draw_filldate(qqimage, sizeof(qqimage), sx, sy, sx + 39, sy + 39);
 }
 
 
