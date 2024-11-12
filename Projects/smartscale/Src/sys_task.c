@@ -167,13 +167,14 @@ void mj_buhuo_handle(void)
         return ;// ingore
     mj_parse_lasttime = osKernelSysTick();
 
-    if(sys_status == SYS_STATUS_SBZC) // enter
+    if(sys_status == SYS_STATUS_SBZC) // quest enter
     {
-        weight_upload();
-        sys_status = SYS_STATUS_BHZ;
         wl_ossignal_notify(WL_NOTIFY_PRIVSEND_BUHUO_BIT);
-        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-        wtn6040_play(WTN_KSBH_PLAY);
+
+        // weight_upload();
+        // sys_status = SYS_STATUS_BHZ;
+        // ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+        // wtn6040_play(WTN_KSBH_PLAY);
     }
     else if(sys_status == SYS_STATUS_BHZ) // exit
     {
@@ -297,7 +298,27 @@ void SYS_Thread(void const *argument)
                     }
                 }
             } 
-            
+            if(event.value.signals & SYS_NOTIFY_MJBUHUOENTER_BIT)//发起补货回复
+            {
+                if(sys_status == SYS_STATUS_SBZC) // enter
+                {
+                    if(wlpriv_buhuo_result)
+                    {
+                        if(sys_status == SYS_STATUS_SBZC)
+                        {
+                            weight_upload();
+                            sys_status = SYS_STATUS_BHZ;
+                            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+                            wtn6040_play(WTN_KSBH_PLAY);
+                        }
+                    }
+                    else
+                    {
+                        // wtn6040_play(WTN_CPHWBD_PLAY);
+                    }
+                }
+            } 
+
             if(event.value.signals & SYS_NOTIFY_MJBPEXIT_BIT)
             {
                 quest_enter_banpan = false;

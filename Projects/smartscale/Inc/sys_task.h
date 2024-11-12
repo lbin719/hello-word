@@ -10,7 +10,7 @@
 #define SYS_NOTIFY_MJRX_BIT              (0x1UL << 1)
 #define SYS_NOTIFY_MJIDLE_BIT            (0x1UL << 2)
 // #define SYS_NOTIFY_MJBUHUO_BIT           (0x1UL << 3)
-// #define SYS_NOTIFY_MJBPENTER_BIT         (0x1UL << 4)
+#define SYS_NOTIFY_MJBUHUOENTER_BIT      (0x1UL << 4)
 #define SYS_NOTIFY_MJBPEXIT_BIT          (0x1UL << 5)
 #define SYS_NOTIFY_WLBPENTER_BIT         (0x1UL << 6)
 #define SYS_NOTIFY_WLLX_BIT              (0x1UL << 7)

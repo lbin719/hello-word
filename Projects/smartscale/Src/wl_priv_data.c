@@ -16,6 +16,7 @@
 #include "cmsis_os.h"
 
 bool wlpriv_banpan_result = false;
+bool wlpriv_buhuo_result = false;
 uint32_t hx711_cali_value = 0;
 
 static bool wl_priv_set_caiping(int argc, char *argv[])
@@ -157,6 +158,10 @@ static bool wl_priv_set_reboot(int argc, char *argv[])
 /* ------------------------------------ */
 static bool wl_priv_res_buhuo(int argc, char *argv[])
 {
+    if(argv[2][0] == '0')
+        wlpriv_buhuo_result = true;
+    else
+        wlpriv_buhuo_result = false;
     return true;
 }
 
@@ -232,7 +237,7 @@ void wl_priv_tx(uint8_t event)
 	osDelay(2);
     if(event == WL_PRIVSEND_RIGISTER_EVENT)
     {
-        // ec800e_uart_printf("{%d,%d,862584075695577,460074425636505,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum);        //test
+        // ec800e_uart_printf("{%d,%d,862584075695205,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum);        //test
         ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum, wl.sn, wl.imsi);
     }
     else if(event == WL_PRIVSEND_HEART_EVENT)
@@ -264,10 +269,9 @@ void wl_priv_tx(uint8_t event)
         ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DIWEIGHT_CMD, ++wl.priv_dnum, upload_cweight, upload_sweight, get_timestamp());
     } 
 
-
     else if(event == WL_PRIVRSEND_SETCAIPING_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_DXINTIAOBAO_CMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FCAIPING_RECMD, wl.priv_fnum, wl.priv_res_result);
     }
     else if(event == WL_PRIVRSEND_QUPI_EVENT)
     {

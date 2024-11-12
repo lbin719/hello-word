@@ -73,7 +73,9 @@ typedef enum
 
 
 extern bool wlpriv_banpan_result;
+extern bool wlpriv_buhuo_result;
 extern uint32_t hx711_cali_value;
+
 bool wl_priv_rx_parse(int argc, char *argv[]);
 void wl_priv_tx(uint8_t event);
 
