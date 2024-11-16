@@ -10,6 +10,9 @@
 #include "wl_task.h"
 #include "cmsis_os.h"
 
+#define EC_EN_SET()        	        (EC_EN_GPIO_PORT->BSRR = (uint32_t)(EC_EN_GPIO_PIN  << 16u))
+#define EC_EN_RESET()       		(EC_EN_GPIO_PORT->BSRR = EC_EN_GPIO_PIN)
+
 #define EC_RST_SET()        	    (EC_RST_GPIO_PORT->BSRR = (uint32_t)(EC_RST_GPIO_PIN  << 16u))
 #define EC_RST_RESET()       		(EC_RST_GPIO_PORT->BSRR = EC_RST_GPIO_PIN)
 
@@ -112,20 +115,26 @@ void ec800e_clear_rx_buf(void)
 
 void ec800e_init(void)
 {
-    GPIO_InitTypeDef gpio_init_struct = {0};
-
+    EC_EN_GPIO_CLK_ENABLE();
     EC_PWR_GPIO_CLK_ENABLE();
     EC_RST_GPIO_CLK_ENABLE();
-    gpio_init_struct.Pin = EC_PWR_GPIO_PIN;
+
+    GPIO_InitTypeDef gpio_init_struct = {0};
+    gpio_init_struct.Pin = EC_EN_GPIO_PIN;
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
     gpio_init_struct.Pull = GPIO_NOPULL;
     gpio_init_struct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    HAL_GPIO_Init(EC_EN_GPIO_PORT, &gpio_init_struct);
+
+    gpio_init_struct.Pin = EC_PWR_GPIO_PIN;
     HAL_GPIO_Init(EC_PWR_GPIO_PORT, &gpio_init_struct);
 
     gpio_init_struct.Pin = EC_RST_GPIO_PIN;
     HAL_GPIO_Init(EC_RST_GPIO_PORT, &gpio_init_struct);
 
     //POWER ON
+    EC_EN_SET();
+    osDelay(20);
     EC_RST_RESET();
     EC_PWR_SET();
     osDelay(30);
@@ -134,7 +143,6 @@ void ec800e_init(void)
     EC_RST_SET();
 
     uart2_init();
-
 
     ring_buf_create(&ecrx_rb_handle, ecrx_rbuf, sizeof(ecrx_rbuf));
     uart2_recive_dma(ecuart_rx_buf, ECUART_RX_BUF_SIZE);

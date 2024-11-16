@@ -64,6 +64,10 @@
 #define EC_RST_GPIO_PIN                   GPIO_PIN_3
 #define EC_RST_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOC_CLK_ENABLE()
 
+#define EC_EN_GPIO_PORT                  GPIOB
+#define EC_EN_GPIO_PIN                   GPIO_PIN_1
+#define EC_EN_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOB_CLK_ENABLE()
+
 
 /* MJ8000 uart4 TX:PC10 RX:PC11 */
 #define UART4_TX_GPIO_PORT                GPIOC
