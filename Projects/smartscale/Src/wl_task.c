@@ -662,7 +662,7 @@ wl_reset:
             }
             if(event.value.signals & WL_NOTIFY_PRIVSEND_HEART_BIT)
             {
-                ec800e_uart_printf("AT+CSQ\r\n"); // 获取信号强度
+                // ec800e_uart_printf("AT+CSQ\r\n"); // 获取信号强度
                 wl_priv_tx(WL_PRIVSEND_HEART_EVENT);
             }           
         }

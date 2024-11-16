@@ -17,6 +17,7 @@
 #include "hx711.h"
 #include "hot.h"
 #include "system_info.h"
+#include "wl_priv_data.h"
 
 
 #define DISH_SIZE            (48)
@@ -254,11 +255,12 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_SUMSUM_PRICE_BIT)
       {
         int weight = abs(get_change_weight());
-        float sum_price = sum_price = (float)weight * caiping_data.price;
+        float sum_price = (float)weight * caiping_data.price;
         if(caiping_data.price_unit)
           sum_price = sum_price / caiping_data.price_unit;
+
         if(get_sys_status() == SYS_STATUS_QQC)
-          sum_price += 12.34;
+          sum_price += recive_sum_price;
         snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price);
         text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST,          // text 消费总额
                               NUM_WIDTH, NUM_SIZE, 

@@ -125,7 +125,7 @@ void weight_period_handle(void) // 200ms 周期
             wtn6040_play(WTN_WSBDCP_PLAY);
         }
     }
-    else if(change_weight && (sys_status == SYS_STATUS_QXFHCP))// 空闲状态下重量未变化
+    else if(sys_status == SYS_STATUS_QXFHCP)// 空闲状态下重量未变化
     {
         if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)// 空闲状态下重量变化 并上传重量
         {
@@ -134,7 +134,7 @@ void weight_period_handle(void) // 200ms 周期
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
     }
-    else if(change_weight && (sys_status == SYS_STATUS_BHZ))// 补货中重量未变化
+    else if(sys_status == SYS_STATUS_BHZ)// 补货中重量未变化
     {
         if(++upload_weight_num >= SYS_BWEIGHT_TIMEOUT) // 超时退出补货 并上传重量
         {
@@ -143,12 +143,12 @@ void weight_period_handle(void) // 200ms 周期
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
     }
-    else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
-    {
-        sys_status = SYS_STATUS_QXFHCP;
-        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-        wtn6040_play(WTN_WSBDCP_PLAY);
-    }
+    // else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
+    // {
+    //     sys_status = SYS_STATUS_QXFHCP;
+    //     ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+    //     wtn6040_play(WTN_WSBDCP_PLAY);
+    // }
     else
     {
         upload_weight_num = 0;
@@ -327,7 +327,7 @@ void SYS_Thread(void const *argument)
                 {
                     weight_upload();
                     sys_status = SYS_STATUS_SBZC;
-                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT);
+                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
                 }
             } 
 

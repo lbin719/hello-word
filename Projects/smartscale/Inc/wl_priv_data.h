@@ -74,6 +74,7 @@ typedef enum
 
 extern bool wlpriv_banpan_result;
 extern bool wlpriv_buhuo_result;
+extern float recive_sum_price;
 extern uint32_t hx711_cali_value;
 
 bool wl_priv_rx_parse(int argc, char *argv[]);

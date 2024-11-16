@@ -17,6 +17,7 @@
 
 bool wlpriv_banpan_result = false;
 bool wlpriv_buhuo_result = false;
+float recive_sum_price = 0;
 uint32_t hx711_cali_value = 0;
 
 static bool wl_priv_set_caiping(int argc, char *argv[])
@@ -173,7 +174,10 @@ static bool wl_priv_res_weight(int argc, char *argv[])
 static bool wl_priv_res_user(int argc, char *argv[])
 {
     if(argv[2][0] == '0')
+    {
         wlpriv_banpan_result = true;
+        recive_sum_price = strtof(argv[3], NULL);
+    }
     else
         wlpriv_banpan_result = false;
 
