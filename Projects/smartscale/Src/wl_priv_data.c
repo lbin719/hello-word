@@ -17,8 +17,10 @@
 
 bool wlpriv_banpan_result = false;
 bool wlpriv_buhuo_result = false;
-float recive_sum_price = 0;
+
 uint32_t hx711_cali_value = 0;
+
+wlpriv_t wlpriv = {0};
 
 static bool wl_priv_set_caiping(int argc, char *argv[])
 {
@@ -35,10 +37,10 @@ static bool wl_priv_set_caiping(int argc, char *argv[])
     rx_caiping.zhendongwucha = atoi(argv[7]);
     rx_caiping.devicenum = atoi(argv[8]);
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     if(rx_caiping.mode > 1)
     {
-        wl.priv_res_result = WL_ERROR;
+        wlpriv.res_result = WL_ERROR;
         goto exit;
     }
 
@@ -67,7 +69,7 @@ static bool wl_priv_set_qupi(int argc, char *argv[])
 {
     sys_ossignal_notify(SYS_NOTIFY_WEIGHZERO_BIT);
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_QUPI_EVENT);
     return true;
 }
@@ -77,21 +79,21 @@ static bool wl_priv_set_jiaozhun(int argc, char *argv[])
     hx711_cali_value = atoi(argv[2]);
     sys_ossignal_notify(SYS_NOTIFY_WEIGHCALI_BIT);
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_JIAOZHUN_EVENT);
     return true;
 }
 
 static bool wl_priv_get_weight(int argc, char *argv[])
 {
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_GETWEIGHT_EVENT);
     return true;
 }
 
 static bool wl_priv_get_status(int argc, char *argv[])
 {
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_GETSTATUS_EVENT);
     return true;
 }
@@ -100,7 +102,7 @@ static bool wl_priv_set_saomatou(int argc, char *argv[])
 {
     mj8000_setconfig();
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETSAOMATOU_EVENT);
     return true;
 }
@@ -116,7 +118,7 @@ static bool wl_priv_set_voice(int argc, char *argv[])
     uint8_t level = atoi(argv[2]);
     wtn6040_set_voice_store(level);
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETVOICE_EVENT);
 
     return true;
@@ -134,7 +136,7 @@ static bool wl_priv_set_hot(int argc, char *argv[])
     uint8_t time = atoi(argv[3]);    
     hot_ctrl_store(mode, time);
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETHOT_EVENT);
     return true;
 }
@@ -143,7 +145,7 @@ static bool wl_priv_set_hottimer(int argc, char *argv[])
 {
 //    uint32_t hot_timer = atoi(argv[2]);
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_SETHOTTIMER_EVENT);
     return true;
 }
@@ -151,7 +153,7 @@ static bool wl_priv_set_hottimer(int argc, char *argv[])
 static bool wl_priv_set_reboot(int argc, char *argv[])
 {
 
-    wl.priv_res_result = WL_OK;
+    wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_REBOOT_EVENT);
     return true;
 }
@@ -176,7 +178,7 @@ static bool wl_priv_res_user(int argc, char *argv[])
     if(argv[2][0] == '0')
     {
         wlpriv_banpan_result = true;
-        recive_sum_price = strtof(argv[3], NULL);
+        wlpriv.user_sumprice = strtof(argv[3], NULL);
     }
     else
         wlpriv_banpan_result = false;
@@ -214,104 +216,104 @@ static const priv_func_mapping_t priv_func[]={
 
 bool wl_priv_rx_parse(int argc, char *argv[])
 {
-    bool ret = true;
+    wlpriv.rx_pnum++;
 
-   int cmd = atoi(argv[0]);
-   wl.priv_fnum = atoi(argv[1]);
+    bool ret = false;
+    int cmd = atoi(argv[0]);
+    wlpriv.service_num = atoi(argv[1]);
 
-   for (uint32_t i = 0; i < (sizeof(priv_func) / sizeof(priv_func_mapping_t)); i++)
-   {
-       if (cmd == priv_func[i].cmd)
-       {
-           LOG_I("[WL]found cmd[%d]: %d\r\n", i, priv_func[i].cmd);
-           if (priv_func[i].func)
-           {
-               ret = priv_func[i].func(argc, argv);
-           }
-           break;
-       }
-   }
+    for (uint32_t i = 0; i < (sizeof(priv_func) / sizeof(priv_func_mapping_t)); i++)
+    {
+        if (cmd == priv_func[i].cmd)
+        {
+            LOG_I("[WL]found cmd[%d]: %d\r\n", i, priv_func[i].cmd);
+            if (priv_func[i].func)
+                ret = priv_func[i].func(argc, argv);
+            break;
+        }
+    }
 
     return ret;
 }
 
 void wl_priv_tx(uint8_t event)
 {
+    wlpriv.tx_pnum++;
 	ec800e_uart_printf("AT+QISEND=0\r\n");
 	osDelay(2);
     if(event == WL_PRIVSEND_RIGISTER_EVENT)
     {
-        // ec800e_uart_printf("{%d,%d,862584075695205,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum);        //test
-        ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wl.priv_dnum, wl.sn, wl.imsi);
+        ec800e_uart_printf("{%d,%d,862584075695205,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num);        //test
+        // ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num, wl.sn, wl.imsi);
     }
     else if(event == WL_PRIVSEND_HEART_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%d,0,0,%d,%d,%d,}\r\n", 
-                             WL_PRIV_DXINTIAOBAO_CMD, ++wl.priv_dnum, 
+                             WL_PRIV_DXINTIAOBAO_CMD, ++wlpriv.device_num, 
                              get_sys_weight(), 
                              sysinfo_get_hotmode(), sysinfo_get_hottime(),
                              get_timestamp());
     }
     else if(event == WL_PRIVSEND_BUHUO_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%s,%d,}\r\n", WL_PRIV_DBUHUO_CMD, ++wl.priv_dnum, mj_str, get_timestamp());
+        ec800e_uart_printf("{%d,%d,%s,%d,}\r\n", WL_PRIV_DBUHUO_CMD, ++wlpriv.device_num, mj_str, get_timestamp());
     }
     else if(event == WL_PRIVSEND_BHWEIGHT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DBHWEIGHT_CMD, ++wl.priv_dnum, upload_cweight, upload_sweight, get_timestamp());
+        ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DBHWEIGHT_CMD, ++wlpriv.device_num, upload_cweight, upload_sweight, get_timestamp());
     }
     else if(event == WL_PRIVSEND_BANGPAN_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%s,%d,}\r\n", WL_PRIV_DUSER_CMD, ++wl.priv_dnum, mj_str, get_timestamp());
+        ec800e_uart_printf("{%d,%d,%s,%d,}\r\n", WL_PRIV_DUSER_CMD, ++wlpriv.device_num, mj_str, get_timestamp());
     }
     else if(event == WL_PRIVSEND_BPWEIGHT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%s,%d,%d,}\r\n", WL_PRIV_DBPWEIGHT_CMD, ++wl.priv_dnum, mj_str, upload_cweight, get_timestamp());
+        ec800e_uart_printf("{%d,%d,%s,%d,%d,}\r\n", WL_PRIV_DBPWEIGHT_CMD, ++wlpriv.device_num, mj_str, upload_cweight, get_timestamp());
     }  
     else if(event == WL_PRIVSEND_IWEIGHT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DIWEIGHT_CMD, ++wl.priv_dnum, upload_cweight, upload_sweight, get_timestamp());
+        ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DIWEIGHT_CMD, ++wlpriv.device_num, upload_cweight, upload_sweight, get_timestamp());
     } 
 
     else if(event == WL_PRIVRSEND_SETCAIPING_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FCAIPING_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FCAIPING_RECMD, wlpriv.service_num, wlpriv.res_result);
     }
     else if(event == WL_PRIVRSEND_QUPI_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FQUPI_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FQUPI_RECMD, wlpriv.service_num, wlpriv.res_result);
     }
     else if(event == WL_PRIVRSEND_JIAOZHUN_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FJIAOZHUN_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FJIAOZHUN_RECMD, wlpriv.service_num, wlpriv.res_result);
     }
     else if(event == WL_PRIVRSEND_GETWEIGHT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FWEIGHT_RECMD, wl.priv_fnum, wl.priv_res_result, get_sys_weight());
+        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FWEIGHT_RECMD, wlpriv.service_num, wlpriv.res_result, get_sys_weight());
     }
     else if(event == WL_PRIVRSEND_GETSTATUS_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FGETSTATUS_RECMD, wl.priv_fnum, wl.priv_res_result, 0);
+        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_FGETSTATUS_RECMD, wlpriv.service_num, wlpriv.res_result, 0);
     }    
     else if(event == WL_PRIVRSEND_SETSAOMATOU_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FSAOMATUO_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FSAOMATUO_RECMD, wlpriv.service_num, wlpriv.res_result);
     }   
     else if(event == WL_PRIVRSEND_SETVOICE_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FSETVOICE_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FSETVOICE_RECMD, wlpriv.service_num, wlpriv.res_result);
     }
     else if(event == WL_PRIVRSEND_SETHOT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FHOT_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FHOT_RECMD, wlpriv.service_num, wlpriv.res_result);
     }
     else if(event == WL_PRIVRSEND_SETHOTTIMER_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FHOTTIMER_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FHOTTIMER_RECMD, wlpriv.service_num, wlpriv.res_result);
     }
     else if(event == WL_PRIVRSEND_REBOOT_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FREBOOT_RECMD, wl.priv_fnum, wl.priv_res_result);
+        ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FREBOOT_RECMD, wlpriv.service_num, wlpriv.res_result);
 
         LOG_I("system reboot\r\n");
         HAL_Delay(500);

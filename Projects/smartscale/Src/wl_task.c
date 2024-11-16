@@ -17,11 +17,12 @@
 #include "wl_task.h"
 #include "stdlib.h"
 
-static osThreadId WL_ThreadHandle;
-// static bool wl_moudle_status = false;
-static bool wl_get_cimi = false;
+
 #define WL_RX_BUFFER_SIZE   (256)
 uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
+
+static bool wl_get_cimi = false;
+static osThreadId WL_ThreadHandle;
 static osTimerId heart_timehandle = NULL;
 
 
@@ -45,12 +46,9 @@ int32_t wl_ossignal_notify(int32_t signals)
 #define WL_ATRESPOND_TIMEOUT_MS         (2000)
 #define WL_HEART_TIMEOUT_MS             (60*1000)
 
-
 wl_t wl = {
     .status = 0,
-    .device_status = SYS_STATUS_ZZDL,
     .rssi = 99,
-    .priv_dnum = 0,
 };
 
 volatile uint8_t priv_send_event = 0;
@@ -277,7 +275,9 @@ bool wl_rx_parse(char *ptr, uint16_t len)
     }
 
 	if ((argc == 1) && (strncmp((const char*)argv[0], "ERROR", 5) == 0))
+    {
 		return true;
+    }
 
 	if ((argc == 1) && (strncmp((const char*)argv[0], "AT", 2) == 0))
 		return true;

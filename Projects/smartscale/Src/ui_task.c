@@ -260,7 +260,7 @@ static void UI_Thread(void const *argument)
           sum_price = sum_price / caiping_data.price_unit;
 
         if(get_sys_status() == SYS_STATUS_QQC)
-          sum_price += recive_sum_price;
+          sum_price += wlpriv.user_sumprice;
         snprintf(disp_str, sizeof(disp_str), "%.2f", sum_price);
         text_show_string_left(NUM_LINE_XPOST, FOURTH_LINE_YPOST,          // text 消费总额
                               NUM_WIDTH, NUM_SIZE, 
@@ -313,11 +313,14 @@ static void UI_Thread(void const *argument)
         snprintf(disp_str, sizeof(disp_str), "w:%ldg, h:%d", hx711_get_weight_value(), get_hot_status());
         text_show_string_left(0, 12, 12*6, 12, disp_str, 12, 0, BLUE);
 
-        snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
-        text_show_string_left(0, 24, 12*6, 12, disp_str, 12, 0, BLUE);
-
         snprintf(disp_str, sizeof(disp_str), "wl:%lx,%d", wl.status, wl.cme_error);
+        text_show_string_left(0, 24, 12*8, 12, disp_str, 12, 0, BLUE);
+
+        snprintf(disp_str, sizeof(disp_str), "pr t:%x,r:%d", wlpriv.tx_pnum, wlpriv.rx_pnum);
         text_show_string_left(0, 36, 12*8, 12, disp_str, 12, 0, BLUE);
+
+        // snprintf(disp_str, sizeof(disp_str), "sys:%d", get_sys_status());
+        // text_show_string_left(0, 48, 12*6, 12, disp_str, 12, 0, BLUE);
       }
 #endif
     }

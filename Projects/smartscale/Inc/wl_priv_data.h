@@ -4,13 +4,6 @@
 #include "stdbool.h"
 #include "stdint.h"
 
-typedef bool (*priv_func_t)(int argc, char *argv[]);
-
-typedef struct
-{
-    int cmd;
-    priv_func_t func;
-} priv_func_mapping_t;
 
 // Cmd ID	命令名称
 #define WL_PRIV_DBUHUO_CMD              (1) // 1	设备发起补货
@@ -71,10 +64,38 @@ typedef enum
 
 }wl_privsend_e;
 
+typedef enum
+{
+  WL_OK = 0, 
+  WL_ERROR,     
+  WL_TIMEOUT,     
+}wl_result_e;
 
+typedef bool (*priv_func_t)(int argc, char *argv[]);
+
+typedef struct
+{
+    int cmd;
+    priv_func_t func;
+} priv_func_mapping_t;
+
+typedef struct{
+  uint32_t tx_pnum;
+  uint32_t rx_pnum;
+
+  uint32_t service_num;
+  uint32_t device_num;
+  uint8_t res_result;
+
+  float user_sumprice;
+
+} wlpriv_t;
+
+
+extern wlpriv_t wlpriv;
 extern bool wlpriv_banpan_result;
 extern bool wlpriv_buhuo_result;
-extern float recive_sum_price;
+
 extern uint32_t hx711_cali_value;
 
 bool wl_priv_rx_parse(int argc, char *argv[]);

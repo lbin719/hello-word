@@ -63,7 +63,7 @@ at_cmd_t at_table[] = {
 */
 
 
-#define WL_HEART_PERIOD_MS                     (60*1000)
+#define WL_HEART_PERIOD_MS                     (30*1000)
 #define WL_WAIT_RECEIVE_TIMEOUT                (500)
 
 #define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)
@@ -99,13 +99,6 @@ at_cmd_t at_table[] = {
 
 #define ARGC_LIMIT      (12)
 
-typedef enum
-{
-  WL_OK = 0, 
-  WL_ERROR,     
-  WL_TIMEOUT,     
-}wl_result_e;
-
 #define WL_SN_LEN                       (15)
 #define WL_IMSI_LEN                     (15)
 #define WL_ICCID_LEN                    (20)
@@ -114,16 +107,11 @@ typedef enum
 typedef struct{
     uint32_t       status;
     uint8_t        cme_error;
-    uint8_t        device_status;
     uint8_t        rssi; 
     char           sn[WL_SN_LEN + 1];
     char           imsi[WL_IMSI_LEN + 1];
     char           iccid[WL_ICCID_LEN + 1];
     char           ip[WL_IP_LEN + 1];
-
-    uint32_t       priv_dnum;
-    uint32_t       priv_fnum;
-    uint8_t        priv_res_result; //回复结果
 } wl_t;
 
 extern wl_t wl;
