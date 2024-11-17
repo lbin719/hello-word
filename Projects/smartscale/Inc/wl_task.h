@@ -63,7 +63,6 @@ at_cmd_t at_table[] = {
 */
 
 
-#define WL_HEART_PERIOD_MS                     (30*1000)
 #define WL_WAIT_RECEIVE_TIMEOUT                (500)
 
 #define WL_TASK_NOTIFY                         (0xFFFFFFFFUL)

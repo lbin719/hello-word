@@ -20,7 +20,7 @@ extern void fct_task_handle(void);
 #define SYS_WEIGHT_TIMEOUT          (200) 
 
 #define SYS_IWEIGHT_TIMEOUT         (4 * 5)// 4s
-#define SYS_BWEIGHT_TIMEOUT         (8 * 5)// 8s
+#define SYS_BWEIGHT_TIMEOUT         (10 * 5)// 10s
 
 
 static osThreadId Sys_ThreadHandle;
@@ -141,6 +141,7 @@ void weight_period_handle(void) // 200ms 周期
             weight_upload();
             sys_status = SYS_STATUS_SBZC;
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
+            wtn6040_play(WTN_BHWC_PLAY);
         }
     }
     // else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
@@ -304,17 +305,14 @@ void SYS_Thread(void const *argument)
                 {
                     if(wlpriv_buhuo_result)
                     {
-                        if(sys_status == SYS_STATUS_SBZC)
-                        {
-                            weight_upload();
-                            sys_status = SYS_STATUS_BHZ;
-                            ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-                            wtn6040_play(WTN_KSBH_PLAY);
-                        }
+                        weight_upload();
+                        sys_status = SYS_STATUS_BHZ;
+                        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+                        wtn6040_play(WTN_KSBH_PLAY);
                     }
                     else
                     {
-                        // wtn6040_play(WTN_CPHWBD_PLAY);
+                        // wtn6040_play(WTN_CPHWBD_PLAY); // test
                     }
                 }
             } 
@@ -331,18 +329,25 @@ void SYS_Thread(void const *argument)
                 }
             } 
 
-            if(event.value.signals & SYS_NOTIFY_WLREGISTER_BIT)
+            if(event.value.signals & SYS_NOTIFY_WLLJ_BIT)
             {
                 if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
                 {
-                    sys_status = SYS_STATUS_SBZC;
-                    ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+                    // sys_status = SYS_STATUS_SBZC;
+                    // ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
                 }
             }
-
             if(event.value.signals & SYS_NOTIFY_WLLX_BIT)
             {
                 sys_status = SYS_STATUS_SBLX;
+                ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+            }
+            if(event.value.signals & SYS_NOTIFY_WLREGRET_BIT)
+            {
+                if(wl_get_status_bit(WL_STATUS_PRIVREGISTER_BIT))
+                    sys_status = SYS_STATUS_SBZC;
+                else
+                    sys_status = SYS_STATUS_ZCSB;
                 ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             }
 

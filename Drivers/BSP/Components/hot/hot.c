@@ -14,9 +14,14 @@ uint8_t hot_time = 0;
 
 uint8_t hot_status = HOT_OFF;
 
-uint8_t get_hot_status(void)
+uint8_t get_current_hot_status(void)
 {
     return hot_status;
+}
+
+uint32_t get_current_hot_time(void)
+{
+
 }
 
 static void hot_ostimercallback(void const * argument)

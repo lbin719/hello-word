@@ -4,6 +4,9 @@
 #include "stdbool.h"
 #include "stdint.h"
 
+#define WL_HEART_PERIOD_MS                     (30*1000)
+#define WLPRIV_WAIT_TIMEOUT                    (5000)
+
 
 // Cmd ID	命令名称
 #define WL_PRIV_DBUHUO_CMD              (1) // 1	设备发起补货
@@ -41,6 +44,7 @@
 #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
 #define WL_PRIV_FBPWEIGHT_RECMD         (16 + 128) // 16	
 #define WL_PRIV_FIWEIGHT_RECMD          (17 + 128) // 17	
+
 typedef enum
 {
   WL_PRIVSEND_RIGISTER_EVENT = 1, 
@@ -101,4 +105,5 @@ extern uint32_t hx711_cali_value;
 bool wl_priv_rx_parse(int argc, char *argv[]);
 void wl_priv_tx(uint8_t event);
 
+void wlpriv_init(void);
 #endif

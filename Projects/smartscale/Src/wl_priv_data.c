@@ -21,6 +21,44 @@ bool wlpriv_buhuo_result = false;
 uint32_t hx711_cali_value = 0;
 
 wlpriv_t wlpriv = {0};
+static osTimerId heart_timehandle = NULL;
+
+static osTimerId priv_timehandle = NULL;
+wl_privsend_e   timeout_event = 0;
+
+static void heart_ostimercallback(void const * argument)
+{
+    (void) argument;
+    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_HEART_BIT);
+    osTimerStart(heart_timehandle, WL_HEART_PERIOD_MS);
+}
+
+static void priv_ostimercallback(void const * argument)
+{
+    (void) argument;
+
+    if(timeout_event == WL_PRIVSEND_RIGISTER_EVENT) // 注册失败
+    {
+        vPortEnterCritical();
+        wl_clear_status_bit(WL_STATUS_PRIVREGISTER_BIT);
+        vPortExitCritical();
+        sys_ossignal_notify(SYS_NOTIFY_WLREGRET_BIT); // 通知sys，设设备注册结果设备连接成功
+    }
+
+    timeout_event = 0;
+}
+
+void wl_priv_timestart_event(wl_privsend_e event)
+{
+    timeout_event = event;
+    osTimerStart(priv_timehandle, WLPRIV_WAIT_TIMEOUT);
+}
+
+void wl_priv_timestop_event(void)
+{
+    timeout_event = 0;
+    osTimerStop(priv_timehandle);
+}
 
 static bool wl_priv_set_caiping(int argc, char *argv[])
 {
@@ -165,6 +203,7 @@ static bool wl_priv_res_buhuo(int argc, char *argv[])
         wlpriv_buhuo_result = true;
     else
         wlpriv_buhuo_result = false;
+    sys_ossignal_notify(SYS_NOTIFY_MJBUHUOENTER_BIT);
     return true;
 }
 
@@ -189,7 +228,19 @@ static bool wl_priv_res_user(int argc, char *argv[])
 
 static bool wl_priv_res_register(int argc, char *argv[])
 {
-    wl_set_status_bit(WL_STATUS_PRIVREGISTER_BIT);
+    wl_priv_timestop_event();
+
+    if(argv[2][0] == '0') // 设备注册成功，
+    {
+        wl_set_status_bit(WL_STATUS_PRIVREGISTER_BIT);
+        osTimerStart(heart_timehandle, 0); // 开始发送心跳包
+    }
+    else
+    {
+        wl_clear_status_bit(WL_STATUS_PRIVREGISTER_BIT);
+    }
+    
+    sys_ossignal_notify(SYS_NOTIFY_WLREGRET_BIT); // 通知sys，设设备注册结果设备连接成功
     return true;
 }
 
@@ -243,15 +294,16 @@ void wl_priv_tx(uint8_t event)
 	osDelay(2);
     if(event == WL_PRIVSEND_RIGISTER_EVENT)
     {
-        ec800e_uart_printf("{%d,%d,862584075695205,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num);        //test
-        // ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num, wl.sn, wl.imsi);
+        // ec800e_uart_printf("{%d,%d,862584075695205,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num);        //test
+        ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num, wl.sn, wl.imsi);
+        wl_priv_timestart_event(event);
     }
     else if(event == WL_PRIVSEND_HEART_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%d,0,0,%d,%d,%d,}\r\n", 
                              WL_PRIV_DXINTIAOBAO_CMD, ++wlpriv.device_num, 
                              get_sys_weight(), 
-                             sysinfo_get_hotmode(), sysinfo_get_hottime(),
+                             get_current_hot_status(), sysinfo_get_hottime(),
                              get_timestamp());
     }
     else if(event == WL_PRIVSEND_BUHUO_EVENT)
@@ -314,11 +366,27 @@ void wl_priv_tx(uint8_t event)
     else if(event == WL_PRIVRSEND_REBOOT_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FREBOOT_RECMD, wlpriv.service_num, wlpriv.res_result);
+        ec800e_uart_printf("%c", 0x1A);//发送完成函数
 
         LOG_I("system reboot\r\n");
         HAL_Delay(500);
         NVIC_SystemReset();
+    }
+    else
+    {
+        return ;
     } 
     ec800e_uart_printf("%c", 0x1A);//发送完成函数          
     // priv_send_event = 0;
+}
+
+void wlpriv_init(void)
+{
+    osTimerDef(heart_timer, heart_ostimercallback);
+    heart_timehandle = osTimerCreate(osTimer(heart_timer), osTimerOnce, NULL);
+    assert_param(heart_timehandle);
+
+    osTimerDef(priv_timer, priv_ostimercallback);
+    priv_timehandle = osTimerCreate(osTimer(priv_timer), osTimerOnce, NULL);
+    assert_param(priv_timehandle);
 }

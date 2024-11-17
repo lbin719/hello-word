@@ -23,14 +23,6 @@ uint8_t wl_rx_buf[WL_RX_BUFFER_SIZE+1];
 
 static bool wl_get_cimi = false;
 static osThreadId WL_ThreadHandle;
-static osTimerId heart_timehandle = NULL;
-
-
-static void heart_ostimercallback(void const * argument)
-{
-    (void) argument;
-    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_HEART_BIT);
-}
 
 int32_t wl_ossignal_notify(int32_t signals)
 {
@@ -616,12 +608,9 @@ wl_reset:
     }
     else
     {
-        sys_ossignal_notify(SYS_NOTIFY_WLREGISTER_BIT);
+        sys_ossignal_notify(SYS_NOTIFY_WLLJ_BIT); // 设备连接成功
+        wl_ossignal_notify(WL_NOTIFY_PRIVSEND_RIGISTER_BIT); // 发送注册指令
     }
-
-    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_RIGISTER_BIT);
-    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_HEART_BIT);
-    osTimerStart(heart_timehandle, WL_HEART_PERIOD_MS);
 
     while(1)
     {
@@ -671,9 +660,7 @@ wl_reset:
 
 void wl_init(void)
 {
-    osTimerDef(heart_timer, heart_ostimercallback);
-    heart_timehandle = osTimerCreate(osTimer(heart_timer), osTimerPeriodic, NULL);
-    assert_param(heart_timehandle);
+    wlpriv_init();
 
     osThreadDef(WLThread, WL_Thread, osPriorityAboveNormal, 0, 512);
     WL_ThreadHandle = osThreadCreate(osThread(WLThread), NULL);

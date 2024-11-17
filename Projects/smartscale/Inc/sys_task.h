@@ -14,11 +14,12 @@
 #define SYS_NOTIFY_MJBPEXIT_BIT          (0x1UL << 5)
 #define SYS_NOTIFY_WLBPENTER_BIT         (0x1UL << 6)
 #define SYS_NOTIFY_WLLX_BIT              (0x1UL << 7)
-#define SYS_NOTIFY_WLREGISTER_BIT        (0x1UL << 8)
-#define SYS_NOTIFY_WEIGHTTIME_BIT        (0x1UL << 9)
-#define SYS_NOTIFY_WEIGHZERO_BIT         (0x1UL << 10)
-#define SYS_NOTIFY_WEIGHCALI_BIT         (0x1UL << 11)
-#define SYS_NOTIFY_WLCAIPING_BIT         (0x1UL << 12)
+#define SYS_NOTIFY_WLLJ_BIT              (0x1UL << 8)
+#define SYS_NOTIFY_WLREGRET_BIT          (0x1UL << 9)
+#define SYS_NOTIFY_WEIGHTTIME_BIT        (0x1UL << 10)
+#define SYS_NOTIFY_WEIGHZERO_BIT         (0x1UL << 11)
+#define SYS_NOTIFY_WEIGHCALI_BIT         (0x1UL << 12)
+#define SYS_NOTIFY_WLCAIPING_BIT         (0x1UL << 13)
 typedef enum
 {
   SYS_STATUS_ZZDL = 0, // 正在登录
@@ -28,6 +29,7 @@ typedef enum
   SYS_STATUS_QBDCP,    // 请绑定餐盘
   SYS_STATUS_QQC,      // 请取餐
   SYS_STATUS_QXFHCP,   // 请先放好餐盘
+  SYS_STATUS_ZCSB,     // 注册失败
 }sys_status_e;
 
 extern char mj_str[MJ_STR_MAX_LEN + 1];
