@@ -32,8 +32,8 @@
 #define STRINGIZE(s) TOSTRING(s)
 
 #define MCU_FW_VERSION_MAX                1
-#define MCU_FW_VERSION_MAJOR              0
-#define MCU_FW_VERSION_MINOR              5
+#define MCU_FW_VERSION_MAJOR              1
+#define MCU_FW_VERSION_MINOR              0
 #define MCU_FW_VERSION_REVISION           0
 #define MCU_FW_VERSION                    STRINGIZE(MCU_FW_VERSION_MAX) "." \
                                           STRINGIZE(MCU_FW_VERSION_MAJOR) "." \
