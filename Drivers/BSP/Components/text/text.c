@@ -320,12 +320,12 @@ void text_show_string_middle(uint16_t x, uint16_t y, uint16_t width, uint16_t he
 
     if (strlenth > width) /* 超过了, 不能居中显示 */
     {
-        text_show_string(x, y, lcd_dev.width, lcd_dev.height, str, size, mode, color);
+        text_show_string(x, y, width, height, str, size, mode, color);
     }
     else
     {
         offest = (width - strlenth) / 2;
-        text_show_string(offest + x, y, lcd_dev.width, lcd_dev.height, str, size, mode, color);
+        text_show_string(offest + x, y, width, height, str, size, mode, color);
         if((mode == 0) && (offest > 0))
         {
             lcd_draw_fill(g_back_color, x, y, (x + offest - 1), (y + size));
