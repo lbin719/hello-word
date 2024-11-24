@@ -23,8 +23,9 @@ static void led_ostimercallback(void const * argument)
     HAL_GPIO_TogglePin(LED_RED_GPIO_PORT, LED_RED_GPIO_PIN);
 }
 
-static void led_control(bool on, uint32_t timer)
+void led_control(bool on, uint32_t timer)
 {
+    LOG_I("LED:%d, timer:%d", on, timer);
     led_status = on;
     if(led_status)
     {
@@ -64,6 +65,6 @@ void led_init(void)
     led_timehandle = osTimerCreate(osTimer(led_timer), osTimerPeriodic, NULL);
     assert_param(led_timehandle);
 
-    led_control(true, 50);
+    // led_control(true, 50);
     LOG_I("%s\r\n", __FUNCTION__);
 }
