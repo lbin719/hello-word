@@ -272,7 +272,7 @@ static void UI_Thread(void const *argument)
       if(event.value.signals & UI_NOTIFY_DEVICENUM_BIT)
       {
         //system number width 4
-        snprintf(disp_str, sizeof(disp_str), "%ld", caiping_data.devicenum);
+        snprintf(disp_str, sizeof(disp_str), "%4d", caiping_data.devicenum);
         text_show_string_middle(DEVICE_NUM_LINE_XPOST, DEVICE_NUM_LINE_YPOST, // text 设备编号
                                 DEVICE_NUM_WIDTH, DEVICE_NUM_SIZE, 
                                 disp_str, 
