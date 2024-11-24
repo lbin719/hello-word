@@ -105,8 +105,10 @@ exit:
 
 static bool wl_priv_set_qupi(int argc, char *argv[])
 {
+    wtn6040_play(WTN_QQKTPTX_PLAY);
+    osDelay(4000);
     sys_ossignal_notify(SYS_NOTIFY_WEIGHZERO_BIT);
-
+    osDelay(500);
     wlpriv.res_result = WL_OK;
     wl_priv_tx(WL_PRIVRSEND_QUPI_EVENT);
     return true;
@@ -294,6 +296,7 @@ void wl_priv_tx(uint8_t event)
 	osDelay(2);
     if(event == WL_PRIVSEND_RIGISTER_EVENT)
     {
+        // ec800e_uart_printf("{%d,%d,865269073414190,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num);        //test
         // ec800e_uart_printf("{%d,%d,862584075695205,460088340106940,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num);        //test
         ec800e_uart_printf("{%d,%d,%s,%s,}\r\n", WL_PRIV_DREGISTER_CMD, ++wlpriv.device_num, wl.sn, wl.imsi);
         wl_priv_timestart_event(event);

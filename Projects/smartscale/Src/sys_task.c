@@ -51,6 +51,22 @@ static void weight_ostimercallback(void const * argument)
     sys_ossignal_notify(SYS_NOTIFY_WEIGHTTIME_BIT);
 }
 
+uint8_t get_sys_status(void)
+{
+    return sys_status;
+}
+void set_sys_status(uint8_t status)
+{
+    sys_status = status;
+    if(sys_status == SYS_STATUS_SBZC)
+    {
+        led_control(0, 0);
+    }
+    else
+    {
+        led_control(true, 50);
+    }
+}
 
 int get_change_weight(void)
 {
@@ -120,7 +136,7 @@ void weight_period_handle(void) // 200ms 周期
 
         if(sys_status == SYS_STATUS_SBZC)
         {
-            sys_status = SYS_STATUS_QXFHCP;
+            set_sys_status(SYS_STATUS_QXFHCP);
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             wtn6040_play(WTN_WSBDCP_PLAY);
         }
@@ -130,7 +146,7 @@ void weight_period_handle(void) // 200ms 周期
         if(++upload_weight_num >= SYS_IWEIGHT_TIMEOUT)// 空闲状态下重量变化 并上传重量
         {
             weight_upload();
-            sys_status = SYS_STATUS_SBZC;
+            set_sys_status(SYS_STATUS_SBZC);
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         }
     }
@@ -139,17 +155,17 @@ void weight_period_handle(void) // 200ms 周期
         if(++upload_weight_num >= SYS_BWEIGHT_TIMEOUT) // 超时退出补货 并上传重量
         {
             weight_upload();
-            sys_status = SYS_STATUS_SBZC;
+            set_sys_status(SYS_STATUS_SBZC);
             ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
             wtn6040_play(WTN_BHWC_PLAY);
         }
     }
-    // else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
-    // {
-    //     sys_status = SYS_STATUS_QXFHCP;
-    //     ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
-    //     wtn6040_play(WTN_WSBDCP_PLAY);
-    // }
+    else if(change_weight && (sys_status == SYS_STATUS_SBZC))// 等待到设备正常状态
+    {
+        set_sys_status(SYS_STATUS_QXFHCP);
+        ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
+        wtn6040_play(WTN_WSBDCP_PLAY);
+    }
     else
     {
         upload_weight_num = 0;
@@ -180,7 +196,7 @@ void mj_buhuo_handle(void)
     else if(sys_status == SYS_STATUS_BHZ) // exit
     {
         weight_upload();
-        sys_status = SYS_STATUS_SBZC;
+        set_sys_status(SYS_STATUS_SBZC);
         ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
         wtn6040_play(WTN_BHWC_PLAY);
     }
@@ -239,11 +255,6 @@ void mj_rx_handle(void)
 
 bool send_banpan_cmd = false;
 
-uint8_t get_sys_status(void)
-{
-    return sys_status;
-}
-
 int32_t sys_ossignal_notify(int32_t signals)
 {
     if(!Sys_ThreadHandle)
@@ -287,13 +298,13 @@ void SYS_Thread(void const *argument)
                     if(wlpriv_banpan_result)
                     {
                         weight_upload();
-                        sys_status = SYS_STATUS_QQC;
+                        set_sys_status(SYS_STATUS_QQC);
                         ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
                         wtn6040_play(WTN_SMCGQQC_PLAY);
                     }
                     else
                     {
-                        sys_status = SYS_STATUS_QBDCP;
+                        set_sys_status(SYS_STATUS_QBDCP);
                         ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT);
                         wtn6040_play(WTN_CPHWBD_PLAY);
                     }
@@ -306,7 +317,7 @@ void SYS_Thread(void const *argument)
                     if(wlpriv_buhuo_result)
                     {
                         weight_upload();
-                        sys_status = SYS_STATUS_BHZ;
+                        set_sys_status(SYS_STATUS_BHZ);
                         ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
                         wtn6040_play(WTN_KSBH_PLAY);
                     }
@@ -324,7 +335,7 @@ void SYS_Thread(void const *argument)
                 if(sys_status == SYS_STATUS_QQC || sys_status == SYS_STATUS_QBDCP)
                 {
                     weight_upload();
-                    sys_status = SYS_STATUS_SBZC;
+                    set_sys_status(SYS_STATUS_SBZC);
                     ui_ossignal_notify(UI_NOTIFY_STATUS_BIT | UI_NOTIFY_USERNUM_BIT | UI_NOTIFY_WEIGHT_BIT | UI_NOTIFY_SUM_PRICE_BIT | UI_NOTIFY_SUMSUM_PRICE_BIT);
                 }
             } 
@@ -333,21 +344,21 @@ void SYS_Thread(void const *argument)
             {
                 if(sys_status == SYS_STATUS_ZZDL || sys_status == SYS_STATUS_SBLX)
                 {
-                    // sys_status = SYS_STATUS_SBZC;
+                    // set_sys_status(SYS_STATUS_SBZC);
                     // ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
                 }
             }
             if(event.value.signals & SYS_NOTIFY_WLLX_BIT)
             {
-                sys_status = SYS_STATUS_SBLX;
+                set_sys_status(SYS_STATUS_SBLX);
                 ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             }
             if(event.value.signals & SYS_NOTIFY_WLREGRET_BIT)
             {
                 if(wl_get_status_bit(WL_STATUS_PRIVREGISTER_BIT))
-                    sys_status = SYS_STATUS_SBZC;
+                    set_sys_status(SYS_STATUS_SBZC);
                 else
-                    sys_status = SYS_STATUS_ZCSB;
+                    set_sys_status(SYS_STATUS_ZCSB);
                 ui_ossignal_notify(UI_NOTIFY_STATUS_BIT);
             }
 
