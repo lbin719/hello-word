@@ -113,8 +113,11 @@ bool wl_ctrl_cmd(int argc, char *argv[])
     if (strncmp((const char*)argv[0], "+CSQ", 4) == 0)
     {
         wl.rssi = atoi(argv[1]);
-        wl_set_status_bit(WL_STATUS_CSQ_BIT);
-        ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
+        if(wl.rssi < 99)
+        {
+            wl_set_status_bit(WL_STATUS_CSQ_BIT);
+            ui_ossignal_notify(UI_NOTIFY_SIGNEL_BIT);
+        }
         return true;
     }
 
@@ -459,6 +462,7 @@ static bool wl_module_init(void)
         }
         if(--retry_cnt == 0)
             goto exit;
+        osDelay(500);
     }while(1);
 
     // 断开连接
