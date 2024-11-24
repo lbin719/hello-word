@@ -16,6 +16,7 @@
 #define WTN6040_PLAY(x)     (0x00 + x)// 语音索引
 #define WTN6040_LEVEL(x)    (0xE0 + x)// 调节音量0~15
 
+static osMutexId wtn_osMutexHandle = NULL;
 
 void wtn6040_write_data(uint8_t data)
 {
@@ -49,30 +50,36 @@ void wtn6040_play(uint8_t index)
 {
     LOG_I("[WTN]play:%d\r\n", index);
     
+    osMutexWait(wtn_osMutexHandle, osWaitForever);
     if(index > WTN6040_MAX_PLAY)
         index = WTN6040_MAX_PLAY;
 
     wtn6040_write_data(WTN6040_PLAY(index));
+    osMutexRelease(wtn_osMutexHandle);
 }
 
 void wtn6040_set_voice(uint8_t level)
 {
     LOG_I("[WTN]set voice:%d\r\n", level);
-
+    osMutexWait(wtn_osMutexHandle, osWaitForever);
     if(level > WTN6040_MAX_VOICE)
         level = WTN6040_MAX_VOICE;
 
     wtn6040_write_data(WTN6040_LEVEL(level));
+    osMutexRelease(wtn_osMutexHandle);
 }
 
 void wtn6040_set_voice_store(uint8_t level)
 {
     LOG_I("[WTN]set voice store :%d\r\n", level);
 
+    osMutexWait(wtn_osMutexHandle, osWaitForever);
     if(level > WTN6040_MAX_VOICE)
         level = WTN6040_MAX_VOICE;
 
     wtn6040_write_data(WTN6040_LEVEL(level));
+    osMutexRelease(wtn_osMutexHandle);
+
     sysinfo_store_voice(level);
 }
 
@@ -93,6 +100,10 @@ void wtn6040_init(void)
     // gpio_init_struct.Pin = WTN6040_BUSY_GPIO_PIN;
     // gpio_init_struct.Mode = GPIO_MODE_INPUT;
     // HAL_GPIO_Init(WTN6040_BUSY_GPIO_PORT, &gpio_init_struct);
+
+    osMutexDef(wtn_osMutex);
+    wtn_osMutexHandle = osMutexCreate(osMutex(wtn_osMutex));
+    assert_param(wtn_osMutexHandle);
 
     uint8_t voice = sysinfo_get_voice();
     wtn6040_set_voice(voice);   

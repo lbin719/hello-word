@@ -9,9 +9,6 @@
 #define WTN6040_MAX_PLAY        (8)
 
 
-
-
-
 #define WTN_KSBH_PLAY           0x01 // 开始补货
 #define WTN_BHWC_PLAY           0x02 // 补货完成
 #define WTN_CPQHCG_PLAY         0x03 // 菜品切换成功
