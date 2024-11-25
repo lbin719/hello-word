@@ -360,8 +360,9 @@ static bool wl_module_init(void)
     wl.status = 0;
     wl.cme_error = 0;
 
+    ec800e_hw_reset();
     // 通信检测
-    retry_cnt = 5;
+    retry_cnt = 10;
     wl_event_clear();
     do{
         ec800e_uart_printf("AT\r\n");
@@ -373,6 +374,7 @@ static bool wl_module_init(void)
         }
         if(--retry_cnt == 0)
             goto exit;
+        osDelay(500);
     }while(1);
 
     // 关回显
@@ -408,7 +410,7 @@ static bool wl_module_init(void)
     }while(1);
 
     // 检测SIM卡
-    retry_cnt = 5;
+    retry_cnt = 20;
     wl_event_clear();
     do{
         ec800e_uart_printf("AT+CPIN?\r\n");
@@ -448,7 +450,7 @@ static bool wl_module_init(void)
     wl_get_cimi = false;
 
     // 获取信号强度
-    retry_cnt = 5;
+    retry_cnt = 20;
     wl_event_clear();
     do{
         ec800e_uart_printf("AT+CSQ\r\n");
@@ -463,21 +465,6 @@ static bool wl_module_init(void)
         if(--retry_cnt == 0)
             goto exit;
         osDelay(500);
-    }while(1);
-
-    // 断开连接
-    retry_cnt = 5;
-    wl_event_clear();
-    do{
-        ec800e_uart_printf("AT+QICLOSE=1\r\n");
-        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
-        if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
-        {
-            if(strstr((const char*)wl_rx_buf,(const char*)"OK"))
-                break;
-        }
-        if(--retry_cnt == 0)
-            goto exit;
     }while(1);
 
     // 获取网络状态
@@ -533,8 +520,23 @@ static bool wl_module_init(void)
             goto exit;
     }while(1);
 
-    // 激活 PDP 场景
+    // 断开连接
     retry_cnt = 5;
+    wl_event_clear();
+    do{
+        ec800e_uart_printf("AT+QICLOSE=1\r\n");
+        osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
+        if(ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE))
+        {
+            if(strstr((const char*)wl_rx_buf,(const char*)"OK"))
+                break;
+        }
+        if(--retry_cnt == 0)
+            goto exit;
+    }while(1);
+
+    // 激活 PDP 场景
+    retry_cnt = 3;
     wl_event_clear();
     do{
         ec800e_uart_printf("AT+QIACT=1\r\n");

@@ -26,6 +26,7 @@ void ec800e_uart_printf(char *fmt, ...);
 void ec800e_start_recv(void);
 bool ec800e_wait_recv_data(void);
 
+void ec800e_hw_reset(void);
 /* 操作函数 */
 // void atk_idm750c_uart_printf(char *fmt, ...);           /* ATK-IDM750C UART printf */
 // void atk_idm750c_uart_rx_restart(void);                 /* ATK-IDM750C UART重新开始接收数据 */

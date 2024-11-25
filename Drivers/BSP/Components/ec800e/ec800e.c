@@ -113,6 +113,16 @@ void ec800e_clear_rx_buf(void)
 //     return false;
 // }
 
+void ec800e_hw_reset(void)
+{
+    EC_RST_RESET();
+    EC_PWR_RESET();
+    osDelay(300);
+    EC_RST_SET();
+    osDelay(500);
+    EC_PWR_SET();
+}
+
 void ec800e_init(void)
 {
     EC_EN_GPIO_CLK_ENABLE();
@@ -135,12 +145,7 @@ void ec800e_init(void)
     //POWER ON
     EC_EN_SET();
     osDelay(20);
-    EC_RST_RESET();
-    EC_PWR_SET();
-    osDelay(30);
-    EC_PWR_RESET();
-    osDelay(300);
-    EC_RST_SET();
+    // ec800e_hw_reset();
 
     uart2_init();
 
