@@ -20,7 +20,7 @@ extern void fct_task_handle(void);
 #define SYS_WEIGHT_TIMEOUT          (200) 
 
 #define SYS_IWEIGHT_TIMEOUT         (4 * 5)// 4s
-#define SYS_BWEIGHT_TIMEOUT         (10 * 5)// 10s
+#define SYS_BWEIGHT_TIMEOUT         (20 * 5)// 20s
 
 
 static osThreadId Sys_ThreadHandle;
