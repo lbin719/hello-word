@@ -6,7 +6,7 @@
 #define WTN6040_DEFAULT_VOICE   (15)
 
 #define WTN6040_MAX_VOICE       (15)
-#define WTN6040_MAX_PLAY        (8)
+#define WTN6040_MAX_PLAY        (9)
 
 
 #define WTN_KSBH_PLAY           0x01 // 开始补货
