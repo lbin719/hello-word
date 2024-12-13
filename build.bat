@@ -32,9 +32,9 @@ set PROJCETSDIR=Projects\smartscale\Applications\HID_Standalone
 stm32cubeidec.exe --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data .\ -build %PROJECTNAME%
 
 @REM mkdir binary
-@REM copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.elf .\binary
-@REM copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.map .\binary
-@REM copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.bin .\binary
-@REM copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%_raw.bin .\binary
+copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.elf .\binary
+copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.map .\binary
+copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%.bin .\binary
+copy .\%PROJCETSDIR%\Debug\%PROJECTNAME%_raw.bin .\binary
 
 @REM pause
