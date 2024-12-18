@@ -197,7 +197,7 @@ bool wl_ctrl_cmd(int argc, char *argv[])
         }
         else
         {
-            wl_clear_status_bit(WL_STATUS_QIOPEN_BIT);
+            // wl_clear_status_bit(WL_STATUS_QIOPEN_BIT);
             return false;
         }
     }
