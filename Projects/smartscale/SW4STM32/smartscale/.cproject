@@ -76,6 +76,9 @@
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/FreeRTOS/Source/include"/>
 									<listOptionValue builtIn="false" value="../../../../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3"/>									
+									<listOptionValue builtIn="false" value="../../../../../Middlewares/emWin/Config"/>	
+									<listOptionValue builtIn="false" value="../../../../../Middlewares/emWin/Include"/>									
+									<listOptionValue builtIn="false" value="../../../../../Middlewares/emWin/emWin_Demo"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../Drivers/CmBacktrace"/>
 								</option>

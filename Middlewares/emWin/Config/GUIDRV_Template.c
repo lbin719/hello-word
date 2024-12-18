@@ -21,7 +21,7 @@ for  the  purposes  of  creating  libraries  for  ARM7, ARM9, Cortex-M
 series,  and   Cortex-R4   processor-based  devices,  sublicensed  and
 distributed as part of the  MDK-ARM  Professional  under the terms and
 conditions  of  the   End  User  License  supplied  with  the  MDK-ARM
-Professional.
+Professional. 
 Full source code is available at: www.segger.com
 
 We appreciate your understanding and fairness.
@@ -31,7 +31,7 @@ Licensor:                 SEGGER Software GmbH
 Licensed to:              ARM Ltd, 110 Fulbourn Road, CB1 9NJ Cambridge, UK
 Licensed SEGGER software: emWin
 License number:           GUI-00181
-License model:            LES-SLA-20007, Agreement, effective since October 1st 2011
+License model:            LES-SLA-20007, Agreement, effective since October 1st 2011 
 Licensed product:         MDK-ARM Professional
 Licensed platform:        ARM7/9, Cortex-M/R4
 Licensed number of seats: -
@@ -48,14 +48,6 @@ Purpose     : Template driver, could be used as starting point for new
 #include "GUI_Private.h"
 #include "LCD_SIM.h"
 #include "LCD_ConfDefaults.h"
-#include "lcd.h"
-//#include "./SYSTEM/sys/sys.h"
-// #include "./BSP/TOUCH/touch.h"
-
-
-/* 定义LCD的命令和数据位. */
-//#define UCGUI_LCD_CMD   LCD_BASE                     /* 地址为LCD的CMD */
-//#define UCGUI_LCD_DATA  (((LCD_BASE >> 1) + 1) << 1) /* 地址为LCD的RAM */
 
 /*********************************************************************
 *
@@ -68,28 +60,28 @@ Purpose     : Template driver, could be used as starting point for new
 *       Macros for MIRROR_, SWAP_ and LUT_
 */
 #if (!defined (LCD_LUT_COM) && !defined(LCD_LUT_SEG))
-  #if   (!LCD_MIRROR_X && !LCD_MIRROR_Y && !LCD_SWAP_XY)
+  #if   (!LCD_MIRROR_X && !LCD_MIRROR_Y && !LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) x
     #define LOG2PHYS_Y(x, y) y
-  #elif (!LCD_MIRROR_X && !LCD_MIRROR_Y &&  LCD_SWAP_XY)
+  #elif (!LCD_MIRROR_X && !LCD_MIRROR_Y &&  LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) y
     #define LOG2PHYS_Y(x, y) x
-  #elif (!LCD_MIRROR_X &&  LCD_MIRROR_Y && !LCD_SWAP_XY)
+  #elif (!LCD_MIRROR_X &&  LCD_MIRROR_Y && !LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) x
     #define LOG2PHYS_Y(x, y) LCD_YSIZE - 1 - (y)
-  #elif (!LCD_MIRROR_X &&  LCD_MIRROR_Y &&  LCD_SWAP_XY)
+  #elif (!LCD_MIRROR_X &&  LCD_MIRROR_Y &&  LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) y
     #define LOG2PHYS_Y(x, y) LCD_XSIZE - 1 - (x)
-  #elif ( LCD_MIRROR_X && !LCD_MIRROR_Y && !LCD_SWAP_XY)
+  #elif ( LCD_MIRROR_X && !LCD_MIRROR_Y && !LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) LCD_XSIZE - 1 - (x)
     #define LOG2PHYS_Y(x, y) y
-  #elif ( LCD_MIRROR_X && !LCD_MIRROR_Y &&  LCD_SWAP_XY)
+  #elif ( LCD_MIRROR_X && !LCD_MIRROR_Y &&  LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) LCD_YSIZE - 1 - (y)
     #define LOG2PHYS_Y(x, y) x
-  #elif ( LCD_MIRROR_X &&  LCD_MIRROR_Y && !LCD_SWAP_XY)
+  #elif ( LCD_MIRROR_X &&  LCD_MIRROR_Y && !LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) LCD_XSIZE - 1 - (x)
     #define LOG2PHYS_Y(x, y) LCD_YSIZE - 1 - (y)
-  #elif ( LCD_MIRROR_X &&  LCD_MIRROR_Y &&  LCD_SWAP_XY)
+  #elif ( LCD_MIRROR_X &&  LCD_MIRROR_Y &&  LCD_SWAP_XY) 
     #define LOG2PHYS_X(x, y) LCD_YSIZE - 1 - (y)
     #define LOG2PHYS_Y(x, y) LCD_XSIZE - 1 - (x)
   #endif
@@ -166,9 +158,9 @@ static void _SetPixelIndex(GUI_DEVICE * pDevice, int x, int y, LCD_PIXELINDEX Pi
       //
       // TBD by customer...
       //
-//        lcd_draw_point(x,y,PixelIndex);
-//        BSP_LCD_DrawPixel(x,y,PixelIndex);
-//        st7735s_WritePixel(x,y,PixelIndex);
+      lcd_draw_point(x,y,PixelIndex);
+      // BSP_LCD_DrawPixel(x,y,PixelIndex);
+      // st7735s_WritePixel(x,y,PixelIndex);
     }
     #if (LCD_MIRROR_X == 0) && (LCD_MIRROR_Y == 0) && (LCD_SWAP_XY == 0)
       #undef xPhys
@@ -212,8 +204,8 @@ static LCD_PIXELINDEX _GetPixelIndex(GUI_DEVICE * pDevice, int x, int y) {
       //
       // TBD by customer...
       //
-      //liaobin todu
-      // PixelIndex = lcd_read_point(x,y);
+      // PixelIndex = 0;
+      PixelIndex = lcd_read_point(x,y);
     }
     #if (LCD_MIRROR_X == 0) && (LCD_MIRROR_Y == 0) && (LCD_SWAP_XY == 0)
       #undef xPhys
@@ -241,24 +233,23 @@ static void _XorPixel(GUI_DEVICE * pDevice, int x, int y) {
 *       _FillRect
 */
 static void _FillRect(GUI_DEVICE * pDevice, int x0, int y0, int x1, int y1) {
-    int x;
+  LCD_PIXELINDEX PixelIndex;
+  int x;
 
-    if (GUI_pContext->DrawMode & LCD_DRAWMODE_XOR)
-    {
-        for (; y0 <= y1; y0++)
-        {
-            for (x = x0; x <= x1; x++)
-            {
-                _XorPixel(pDevice, x, y0);
-            }
-        }
+  PixelIndex = LCD__GetColorIndex();
+  if (GUI_pContext->DrawMode & LCD_DRAWMODE_XOR) {
+    for (; y0 <= y1; y0++) {
+      for (x = x0; x <= x1; x++) {
+        _XorPixel(pDevice, x, y0);
+      }
     }
-    else
-    {
-//        lcd_fill(x0,y0,x1,y1,LCD_COLORINDEX);
-//    	BSP_LCD_SetTextColor(LCD_COLORINDEX);
-//    	BSP_LCD_FillRect(x0,y0,x1,y1);
+  } else {
+    for (; y0 <= y1; y0++) {
+      for (x = x0; x <= x1; x++) {
+        _SetPixelIndex(pDevice, x, y0, PixelIndex);
+      }
     }
+  }
 }
 
 /*********************************************************************
@@ -513,17 +504,9 @@ static void  _DrawBitLine8BPP(GUI_DEVICE * pDevice, int x, int y, U8 const * p, 
 *   Only required for 16bpp color depth of target. Should be removed otherwise.
 */
 static void _DrawBitLine16BPP(GUI_DEVICE * pDevice, int x, int y, U16 const * p, int xsize) {
-//    // LCD_PIXELINDEX pixel;
-////    extern void st7735s_SetCursor(uint16_t Xpos, uint16_t Ypos);
-//    st7735s_SetCursor(x, y);
-////    lcd_set_cursor(x,y);
-////    *(__IO uint16_t *)(UCGUI_LCD_CMD) = lcddev.wramcmd; /* 写入颜色值 */
-//    for (;xsize > 0; xsize --, x++, p++)
-//    {
-//      // pixel = *p;
-////      *(__IO uint16_t *)(UCGUI_LCD_DATA) = pixel;
-//      st7735s_Write_Gram(*p);
-//    }
+  for (;xsize > 0; xsize--, x++, p++) {
+    _SetPixelIndex(pDevice, x, y, *p);
+  }
 }
 
 /*********************************************************************
@@ -546,7 +529,7 @@ static void _DrawBitLine32BPP(GUI_DEVICE * pDevice, int x, int y, U32 const * p,
 */
 static void _DrawBitmap(GUI_DEVICE * pDevice, int x0, int y0,
                        int xSize, int ySize,
-                       int BitsPerPixel,
+                       int BitsPerPixel, 
                        int BytesPerLine,
                        const U8 * pData, int Diff,
                        const LCD_PIXELINDEX * pTrans) {

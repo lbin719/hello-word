@@ -42,9 +42,6 @@ Purpose     : Display controller configuration (single layer)
 */
 
 #include "GUI.h"
-//#include "./BSP/LCD/lcd.h"
-//#include "./BSP/TOUCH/touch.h"
-#include "GUIDRV_Template.h"
 
 /*********************************************************************
 *
@@ -58,7 +55,7 @@ Purpose     : Display controller configuration (single layer)
 //   the target display.
 //
 #define XSIZE_PHYS 480
-#define YSIZE_PHYS 272
+#define YSIZE_PHYS 320
 
 //
 // Color conversion
@@ -66,7 +63,7 @@ Purpose     : Display controller configuration (single layer)
 //   the color mode of the target display. Detaileds can be found in
 //   the chapter "Colors" in the emWin user manual.
 //
-#define COLOR_CONVERSION GUICC_8888
+#define COLOR_CONVERSION GUICC_M565
 
 //
 // Display driver
@@ -77,7 +74,7 @@ Purpose     : Display controller configuration (single layer)
 //   manual. Beyond that sample configuration files can be found in
 //   The folder "Sample\LCDConf\%DISPLAY_DRIVER%\".
 //
-#define DISPLAY_DRIVER GUIDRV_WIN32
+#define DISPLAY_DRIVER GUIDRV_TEMPLATE
 
 /*********************************************************************
 *
@@ -112,59 +109,21 @@ Purpose     : Display controller configuration (single layer)
 *   Called during the initialization process in order to set up the
 *   display driver configuration.
 */
-void LCD_X_Config(void)
-{
-//    GUI_DEVICE_CreateAndLink(&GUIDRV_Template_API, GUICC_M565, 0, 0); /* ������ʾ�������� */
-//    LCD_SetSizeEx(0, lcddev.width, lcddev.height);
-//    LCD_SetVSizeEx(0, lcddev.width, lcddev.height);
-//
-//
-//    /* �жϵ��������ǵ����� */
-//    if ((tp_dev.touchtype & 0x80) == 0)
-//    {
-//        /* ������Ļȫ��Ĭ��Ϊ2.8�� 320X240 */
-//        if (lcddev.dir == 0)        /* ���� */
-//        {
-//            GUI_TOUCH_SetOrientation(GUI_MIRROR_X);
-//            GUI_TOUCH_Calibrate(GUI_COORD_X, 0, lcddev.width, 155, 3903);
-//            GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, lcddev.height, 188, 3935);
-//        }
-//        else                        /* ���� */
-//        {
-//            GUI_TOUCH_SetOrientation(GUI_SWAP_XY);
-//            GUI_TOUCH_Calibrate(GUI_COORD_X, 0, lcddev.width, 188, 3903);
-//            GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, lcddev.height, 155, 3935);
-//        }
-//    }
-//    else                            /* ������ */
-//    {
-//        if (lcddev.id == 0X1963)    /* 1963Ϊ7���� 800*480 */
-//        {
-//            /* 6368 3816 */
-//            /* GUI_TOUCH_SetOrientation(GUI_SWAP_XY|GUI_MIRROR_Y); */
-//            GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 800, 0, 799);
-//            GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 480, 0, 479);
-//        }
-//        else if (lcddev.id == 0X5310 || lcddev.id == 0X6804) /* 0X5510 0X6804Ϊ3.5�� 320x480 */
-//        {
-//            if (lcddev.dir == 0)    /* ���� */
-//            {
-//                GUI_TOUCH_SetOrientation(GUI_MIRROR_X);
-//            }
-//            else                    /* ����*/
-//            {
-//                GUI_TOUCH_SetOrientation(GUI_SWAP_XY);
-//            }
-//
-//            GUI_TOUCH_Calibrate(GUI_COORD_X, 0, lcddev.width, 3931, 226);
-//            GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, lcddev.height, 3812, 196);
-//        }
-//        else
-//        {
-//            GUI_TOUCH_Calibrate(GUI_COORD_X,0,lcddev.width,0,lcddev.width - 1);
-//            GUI_TOUCH_Calibrate(GUI_COORD_Y,0,lcddev.height,0,lcddev.height - 1);
-//        }
-//    }
+void LCD_X_Config(void) {
+  //
+  // Set display driver and color conversion for 1st layer
+  //
+  GUI_DEVICE_CreateAndLink(DISPLAY_DRIVER, COLOR_CONVERSION, 0, 0);
+  //
+  // Display driver configuration
+  //
+  if (LCD_GetSwapXY()) {
+    LCD_SetSizeEx (0, YSIZE_PHYS, XSIZE_PHYS);
+    LCD_SetVSizeEx(0, YSIZE_PHYS, XSIZE_PHYS);
+  } else {
+    LCD_SetSizeEx (0, XSIZE_PHYS, YSIZE_PHYS);
+    LCD_SetVSizeEx(0, XSIZE_PHYS, YSIZE_PHYS);
+  }
 }
 
 /*********************************************************************
@@ -176,8 +135,7 @@ void LCD_X_Config(void)
 *   Display driver for certain purposes. Using GUIDRV_Win32 it is not
 *   required to react to any command.
 */
-int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
-{
+int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData) {
   GUI_USE_PARA(LayerIndex);
   GUI_USE_PARA(Cmd);
   GUI_USE_PARA(pData);

@@ -42,7 +42,6 @@ Purpose     : Display controller initialization
 */
 
 #include "GUI.h"
-//#include "./MALLOC/malloc.h"
 
 /*********************************************************************
 *
@@ -53,10 +52,7 @@ Purpose     : Display controller initialization
 //
 // Define the available number of bytes available for the GUI
 //
-#define USE_EXRAM      0             /* 根据开发板选择，0为不使用外部 SRAM  */
-#define GUI_NUMBYTES (20*1024)       /* 根据开发板选择，设置 EMWIN 内存大小 */
-#define GUI_BLOCKSIZE 0X80           /* 块大小 */
-
+#define GUI_NUMBYTES  (20*1024)//0x200000
 
 /*********************************************************************
 *
@@ -73,25 +69,18 @@ Purpose     : Display controller initialization
 *   available memory for the GUI.
 */
 void GUI_X_Config(void) {
-
-#if (USE_EXRAM)
-    /* 从外部 SRAM 中分配 GUI_NUMBYTES 字节的内存 */
-    U32 *aMemory = mymalloc(SRAMEX, GUI_NUMBYTES);
-    
-#else
-    //
-    // 32 bit aligned memory area
-    //
-    static U32 aMemory[GUI_NUMBYTES / 4];
-#endif
-    //
-    // Assign memory to emWin
-    //
-    GUI_ALLOC_AssignMemory(aMemory, GUI_NUMBYTES);
-    //
-    // Set default font
-    //
-    GUI_SetDefaultFont(GUI_FONT_6X8);
+  //
+  // 32 bit aligned memory area
+  //
+  static U32 aMemory[GUI_NUMBYTES / 4];
+  //
+  // Assign memory to emWin
+  //
+  GUI_ALLOC_AssignMemory(aMemory, GUI_NUMBYTES);
+  //
+  // Set default font
+  //
+  GUI_SetDefaultFont(GUI_FONT_6X8);
 }
 
 /*************************** End of file ****************************/

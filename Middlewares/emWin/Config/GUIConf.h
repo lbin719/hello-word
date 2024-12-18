@@ -48,34 +48,34 @@ Purpose     : Configures emWins abilities, fonts etc.
 *
 *       Multi layer/display support
 */
-#define GUI_NUM_LAYERS            1    /* 显示的最大层数 */
+#define GUI_NUM_LAYERS            1    // Maximum number of available layers
 
 /*********************************************************************
 *
 *       Multi tasking support
 */
-#define GUI_OS                    (0)  /* 0:不使用操作系统 */
+#define GUI_OS                    (1)  // Compile with multitasking support
 
 /*********************************************************************
 *
 *       Configuration of touch support
 */
-#define GUI_SUPPORT_TOUCH         (0)  /* 0:不支持触摸 */
+#define GUI_SUPPORT_TOUCH         (0)  // Support a touch screen (req. win-manager)
 
 /*********************************************************************
 *
 *       Default font
 */
-#define GUI_DEFAULT_FONT          &GUI_Font6x8  /* 默认字体 */
+#define GUI_DEFAULT_FONT          &GUI_Font6x8
 
 /*********************************************************************
 *
 *         Configuration of available packages
 */
-#define GUI_SUPPORT_MOUSE    0    /* 支持鼠标 */
-#define GUI_WINSUPPORT       0    /* 支持窗口管理 */
-#define GUI_SUPPORT_MEMDEV   0    /* 支持存储设备 */
-#define GUI_SUPPORT_DEVICES  1    /* 使用设备指针 */
+#define GUI_SUPPORT_MOUSE    0    // Mouse support
+#define GUI_WINSUPPORT       1    // Use Window Manager
+#define GUI_SUPPORT_MEMDEV   0    // Use Memory Devices
+#define GUI_SUPPORT_DEVICES  1    // Enable use of device pointers
 
 #endif  // Avoid multiple inclusion
 

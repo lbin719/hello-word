@@ -115,7 +115,7 @@ void GUI_X_Log     (const char *s) { GUI_USE_PARA(s); }
 void GUI_X_Warn    (const char *s) { GUI_USE_PARA(s); }
 void GUI_X_ErrorOut(const char *s) { GUI_USE_PARA(s); }
 
-/* 定义一些跟系统有关的函数，防止报错 */
+/* 瀹氫箟涓�浜涜窡绯荤粺鏈夊叧鐨勫嚱鏁帮紝闃叉鎶ラ敊 */
 void GUI_X_InitOS(void){}
 void GUI_X_Lock(void){}
 void GUI_X_Unlock(void){}

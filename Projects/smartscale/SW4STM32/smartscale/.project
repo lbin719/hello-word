@@ -221,6 +221,31 @@
 			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/timers.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/emWin/Config/GUIConf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/emWin/Config/GUIConf.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/Config/GUIDRV_Template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/emWin/Config/GUIDRV_Template.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/Config/LCDConf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/emWin/Config/LCDConf.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/Lib/GUI_CM3_L.lib</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/emWin/Lib/ARM/GUI_CM3_L.lib</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/emWin/OS/GUI_X_uCOS.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Middlewares/emWin/OS/GUI_X_uCOS.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/delay/delay.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Drivers/BSP/Components/delay/delay.c</locationURI>
