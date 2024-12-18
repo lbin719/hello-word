@@ -150,7 +150,7 @@ void lcd_read_cmddata(uint8_t cmd, uint8_t *data, uint16_t len);
 
 void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len);
 
-
+uint32_t lcd_read_point(uint16_t x, uint16_t y);
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color);
 void lcd_draw_hline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);
 void lcd_draw_vline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);

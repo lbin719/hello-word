@@ -83,6 +83,33 @@ void st7796_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode)
 	lcd_write_data(data, sizeof(data));
 }
 
+void st7796_Read_SetCursor(uint16_t Xpos, uint16_t Ypos)
+{
+	uint8_t setcursor_xpos_cmd[] = {0x2A, (uint8_t)(Xpos>>8), (uint8_t)(Xpos&0XFF), (uint8_t)((st7796_dev.width - 1)>>8), (uint8_t)((st7796_dev.width - 1)&0XFF)};
+	uint8_t setcursor_ypos_cmd[] = {0x2B, (uint8_t)(Ypos>>8), (uint8_t)(Ypos&0XFF), (uint8_t)((st7796_dev.height - 1)>>8), (uint8_t)((st7796_dev.height - 1)&0XFF)};
+
+	lcd_write_cmddata(setcursor_xpos_cmd, sizeof(setcursor_xpos_cmd));
+	lcd_write_cmddata(setcursor_ypos_cmd, sizeof(setcursor_ypos_cmd));
+
+	// uint8_t write_gram_cmd[] = {0x2E};
+	// lcd_write_cmddata(write_gram_cmd, sizeof(write_gram_cmd));
+}
+
+uint16_t st7796_ReadPixel(uint16_t Xpos, uint16_t Ypos)
+{
+  if((Xpos >= st7796_dev.width) || (Ypos >= st7796_dev.height))
+  {
+    return 0;
+  }
+
+  /* Set Cursor */
+  st7796_Read_SetCursor(Xpos, Ypos);
+
+	uint8_t data[4] = {0};
+  lcd_read_cmddata(0x2E, data, 4);
+  return (uint16_t)(data[0] << 8 | data[1]);
+}
+
 void st7796_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height)
 {
 	uint8_t setcursor_xpos_cmd[] = {0x2A, (uint8_t)(Xpos>>8), (uint8_t)(Xpos&0XFF), (uint8_t)((Xpos + Width - 1)>>8), (uint8_t)((Xpos + Width - 1)&0XFF)};
@@ -233,7 +260,7 @@ LCD_DrvTypeDef   st7796_drv =
   .DisplayOff = st7796_DisplayOff,
   .SetCursor = st7796_SetCursor,
   .WritePixel = st7796_WritePixel,
-  .ReadPixel = 0,
+  .ReadPixel = st7796_ReadPixel,
   .SetDisplayWindow = st7796_SetDisplayWindow,
   .DrawHLine = st7796_DrawHLine,
   .DrawVLine = st7796_DrawVLine,

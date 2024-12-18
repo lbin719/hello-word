@@ -81,6 +81,15 @@ void lcd_panel_exec_cmd(const uint8_t *cmd_table, uint32_t len)
     return ;
 }
 
+uint32_t lcd_read_point(uint16_t x, uint16_t y)
+{
+    uint32_t color = 0;
+
+    if(lcd_drv->ReadPixel)
+        color = lcd_drv->ReadPixel(x, y);
+    return color;
+}
+
 void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color)
 {
     if(lcd_drv->WritePixel)
