@@ -143,10 +143,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart->Instance == USART1)                    /* 如果是串口1 */
   {
-  #ifdef LOG_DEBUG_ENABLE
-    extern void usmart_recive_callback(uint8_t *data, uint16_t len);
-    usmart_recive_callback(uart1_rx_buffer, 1);
-  #endif
+//  #ifdef LOG_DEBUG_ENABLE
+//    extern void usmart_recive_callback(uint8_t *data, uint16_t len);
+//    usmart_recive_callback(uart1_rx_buffer, 1);
+//  #endif
     HAL_UART_Receive_IT(huart, (uint8_t *)uart1_rx_buffer, RXBUFFERSIZE);
   }
 }

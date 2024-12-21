@@ -35,7 +35,7 @@ static uint16_t  g_fac_us = 0;      /* us延时倍乘数 */
 /* 添加公共头文件 (FreeRTOS 需要用到) */
 #include "FreeRTOS.h"
 #include "task.h"
-
+#include "lvgl.h"
 extern void xPortSysTickHandler(void);
 
 /**
@@ -45,6 +45,7 @@ extern void xPortSysTickHandler(void);
  */
 void SysTick_Handler(void)
 {
+    lv_tick_inc(1);
     HAL_IncTick();
     if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) /* OS开始跑了,才执行正常的调度处理 */
     {

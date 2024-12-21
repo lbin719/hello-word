@@ -1,8 +1,5 @@
 #include "main.h"
 #include "ulog.h"
-#if 0
-#include "usbd_storage.h"
-#endif
 #include "norflash.h"
 #include "fs.h"
 #include "stmflash.h"
@@ -10,30 +7,13 @@
 #include "fonts.h"
 #include "version.h"
 #include "text.h"
-#include "stmencrypt.h"
-#include "mj8000.h"
-#include "ec800e.h"
-#include "wtn6040.h"
 #include "led.h"
-#include "hot.h"
-#include "key.h"
-#include "sys_task.h"
-#include "ui_task.h"
 #include "cmsis_os.h"
-#include "system_info.h"
-#include "hx711.h"
-#include "wl_task.h"
+
 
 const char CodeBuildDate[] = {__DATE__};
 const char CodeBuildTime[] = {__TIME__};
 
-#if 0
-extern USBD_StorageTypeDef  USBD_DISK_fops;
-USBD_HandleTypeDef USBD_Device;
-
-extern volatile uint8_t g_usb_state_reg;
-extern volatile uint8_t g_device_state;
-#endif
 
 void SystemClock_Config(void);
 
@@ -53,44 +33,11 @@ void System_Thread(void const * argument)
   LOG_I("%s Demo\r\n", PRODUCT_DEVICE_NAME);
 #endif
 
-  stmencrypt_init();
-
-  /* CmBacktrace initialize */
-  // cm_backtrace_init(PRODUCT_DEVICE_NAME, MCU_HW_VERSION, MCU_FW_VERSION);
-  // cm_backtrace_set_callback(NULL);
-
-  sys_data_init();
-
   board_init();
 
   norflash_init();
 
-  hot_init();
-
   led_init();
-
-  key_init();
-  
-  hx711_init();
-  
-  mj8000_init();
-
-  ec800e_init();
-
-  wtn6040_init();
-
-#if 0
-  usbd_port_config(0);
-  osDelay(500);
-  usbd_port_config(1);
-  osDelay(500);
-  USBD_Init(&USBD_Device, &MSC_Desc, 0);
-  USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);
-  USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);
-  USBD_Start(&USBD_Device);
-  while(1);
-  osDelay(5000);
-#endif
 
   fs_init();
 
@@ -99,10 +46,6 @@ void System_Thread(void const * argument)
   lcd_init();
 
   ui_init();
-
-  wl_init();
-
-  sys_init();
 
   osThreadTerminate(osThreadGetId());
   while(1);
@@ -123,7 +66,7 @@ int main(void)
   __HAL_RCC_AFIO_CLK_ENABLE();
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
-  osThreadDef(SystemThread, System_Thread, osPriorityHigh, 0, 512);
+  osThreadDef(SystemThread, System_Thread, osPriorityHigh, 0, 256);
   SystemThreadHandle = osThreadCreate(osThread(SystemThread), NULL);
 
   /* Start scheduler */

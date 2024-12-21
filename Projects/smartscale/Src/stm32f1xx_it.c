@@ -151,10 +151,10 @@ void DebugMon_Handler(void)
 /*  available peripheral interrupt handler's name please refer to the startup */
 /*  file (startup_stm32f1xx.s).                                               */
 /******************************************************************************/
-void USB_LP_CAN1_RX0_IRQHandler(void)
-{
-    HAL_PCD_IRQHandler(&hpcd);
-}
+//void USB_LP_CAN1_RX0_IRQHandler(void)
+//{
+//    HAL_PCD_IRQHandler(&hpcd);
+//}
 
 void DMA1_Channel2_IRQHandler(void)
 {
@@ -211,8 +211,8 @@ void USART2_IRQHandler(void)
 
     HAL_UART_AbortReceive(&Uart2Handle);
 
-    extern void ec800e_uart_rx_callback(UART_HandleTypeDef *huart);
-    ec800e_uart_rx_callback(&Uart2Handle);
+//    extern void ec800e_uart_rx_callback(UART_HandleTypeDef *huart);
+//    ec800e_uart_rx_callback(&Uart2Handle);
   }
 
   HAL_UART_IRQHandler(&Uart2Handle);
@@ -237,8 +237,8 @@ void UART4_IRQHandler(void)
 
     HAL_UART_AbortReceive(&Uart4Handle);
 
-    extern void mj8000_uart_rx_callback(UART_HandleTypeDef *huart);
-    mj8000_uart_rx_callback(&Uart4Handle);
+//    extern void mj8000_uart_rx_callback(UART_HandleTypeDef *huart);
+//    mj8000_uart_rx_callback(&Uart4Handle);
   }
   HAL_UART_IRQHandler(&Uart4Handle);
 }

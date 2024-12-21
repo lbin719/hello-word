@@ -29,7 +29,6 @@
 #include "lcd.h"
 #include "ulog.h"
 #include "font.h"
-#include "logo.h"
 
 /* 字库存放在磁盘中的路径 */
 char *const FONT_GBK_PATH[] =
@@ -504,10 +503,7 @@ void text_show_font_index(uint16_t x, uint16_t y, uint8_t index, uint8_t size, u
 }
 #endif
 
-void text_show_logo(uint16_t sx, uint16_t sy)
-{
-   lcd_draw_filldate((uint8_t *)logo_RGB565, sizeof(logo_RGB565), sx, sy, (sx + LOGO_WEIGHT - 1), (sy + LOGO_HEIGHT - 1));
-}
+
 
 
 
