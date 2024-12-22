@@ -16,8 +16,8 @@
 /*********************
  *      DEFINES
  *********************/
-#define MY_DISP_HOR_RES (32) /* 屏幕宽度 */
-#define MY_DISP_VER_RES (32) /* 屏幕高度 */
+#define MY_DISP_HOR_RES (480) /* 屏幕宽度 */
+#define MY_DISP_VER_RES (320) /* 屏幕高度 */
 
 /**********************
  *      TYPEDEFS

@@ -97,20 +97,20 @@ void fs_init()
         }
 #endif
         //printf fat
-        result = f_opendir(&dir, "/");
-        if(result == FR_OK) // 打开当前目录
-        {
-            do {
-                FRESULT result = f_readdir(&dir, &fno);
-                if((result != FR_OK) || !fno.fname[0])
-                {
-                    // LOG_I("f_readdir error result:%d name:0x%02x\r\n", result, fno.fname[0]);
-                    break;
-                }
-                LOG_I("file:%s, size:%d\r\n", fno.fname, fno.fsize); // 打印符合条件的文件名
-            }while(1);
-        }
-        f_closedir(&dir);
+//        result = f_opendir(&dir, "/");
+//        if(result == FR_OK) // 打开当前目录
+//        {
+//            do {
+//                FRESULT result = f_readdir(&dir, &fno);
+//                if((result != FR_OK) || !fno.fname[0])
+//                {
+//                    // LOG_I("f_readdir error result:%d name:0x%02x\r\n", result, fno.fname[0]);
+//                    break;
+//                }
+//                LOG_I("file:%s, size:%d\r\n", fno.fname, fno.fsize); // 打印符合条件的文件名
+//            }while(1);
+//        }
+//        f_closedir(&dir);
     }
 
     /* 卸载驱动，防止和USB MSC冲突 */

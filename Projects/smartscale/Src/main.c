@@ -41,8 +41,6 @@ void System_Thread(void const * argument)
 
   fs_init();
 
-  fonts_init();
-
   lcd_init();
 
   ui_init();
