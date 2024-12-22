@@ -45,7 +45,6 @@ extern void xPortSysTickHandler(void);
  */
 void SysTick_Handler(void)
 {
-    lv_tick_inc(1);
     HAL_IncTick();
     if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) /* OS开始跑了,才执行正常的调度处理 */
     {

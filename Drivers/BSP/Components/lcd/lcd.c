@@ -20,12 +20,12 @@ void lcd_write_data(uint8_t *data, uint16_t len)
 	LCD_DC_HIGH();// data
 
  	LCD_CS_LOW();  //LCD_CS=0
-//	if(len > 10)
-//	{
-//		spi1_dma_write(data, len);
-//		spi1_dma_wait_finsh();
-//	}
-//	else
+	if(len > 10)
+	{
+		spi1_dma_write(data, len);
+		spi1_dma_wait_finsh();
+	}
+	else
 		spi1_bytes_write(data, len);
 	LCD_CS_HIGH();  //LCD_CS=1
 }
@@ -124,12 +124,12 @@ void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint
     }
 }
 
-void lcd_draw_filldate(const uint8_t *buf, uint32_t len, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
+void lcd_draw_filldate(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint8_t *buf)
 {
-    if(sx  > ex || sy > ey)
-        return ;
+    // if(sx  > ex || sy > ey)
+    //     return ;
     if(lcd_drv->DrawFillDate)
-        lcd_drv->DrawFillDate(buf, len, sx, sy, ex, ey);
+        lcd_drv->DrawFillDate(sx, sy, ex, ey, buf);
 }
 
 void lcd_init(void)

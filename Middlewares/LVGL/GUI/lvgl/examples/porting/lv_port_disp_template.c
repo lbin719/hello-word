@@ -140,20 +140,19 @@ static void disp_init(void)
 static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
     /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
+    // int32_t x;
+    // int32_t y;
+    // for(y = area->y1; y <= area->y2; y++) {
+    //     for(x = area->x1; x <= area->x2; x++) {
+    //         /*Put a pixel to the display. For example:*/
+    //         /*put_px(x, y, *color_p)*/
+    //         lcd_draw_point(x, y, (uint32_t)color_p->full);
+    //         color_p++;
+    //     }
+    // }
 
-    int32_t x;
-    int32_t y;
-    uint16_t color;
-    for(y = area->y1; y <= area->y2; y++) {
-        for(x = area->x1; x <= area->x2; x++) {
-            /*Put a pixel to the display. For example:*/
-            /*put_px(x, y, *color_p)*/
-            color = color_p->full;
-            lcd_draw_point(x, y, (uint32_t)color);
-            color_p++;
-        }
-    }
-
+    lcd_draw_filldate(area->x1, area->y1, area->x2, area->y2, (uint8_t*)color_p);
+    // lcd_color_fill(area->x1, area->y1, area->x2, area->y2, (uint16_t*)color_p);
     /*IMPORTANT!!!
      *Inform the graphics library that you are ready with the flushing*/
     lv_disp_flush_ready(disp_drv);

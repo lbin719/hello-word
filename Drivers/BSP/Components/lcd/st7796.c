@@ -171,14 +171,14 @@ void st7796_Fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16
   }
 }
 
-void st7796_Fill_Date(const uint8_t *buf, uint32_t len, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey)
+void st7796_Fill_Date(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint8_t *buf)
 {
-  if(sx + ex > st7796_dev.width) return;
-  if(sy + ey > st7796_dev.height) return;
-
+  uint16_t w = ex - sx + 1;
+  uint16_t h = ey - sy + 1;
+ 
   /* Set Cursor */
-  st7796_SetDisplayWindow(sx, sy, (ex - sx + 1), (ey - sy + 1));
-  lcd_write_data(buf, len);
+  st7796_SetDisplayWindow(sx, sy, w, h);
+  lcd_write_data(buf, w * h * 2);
 }
 
 uint16_t st7796_GetLcdPixelWidth(void)

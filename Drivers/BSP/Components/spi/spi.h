@@ -8,7 +8,7 @@
  extern "C" {
 #endif
 
-#define SPI_FLASH_TIMEOUT   100
+#define SPI_FLASH_TIMEOUT   500
 
 extern SPI_HandleTypeDef Spi1Handle; /* SPI1句柄 */
 

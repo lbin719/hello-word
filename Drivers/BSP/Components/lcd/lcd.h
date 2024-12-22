@@ -89,7 +89,7 @@ typedef struct
   void     (*DrawHLine)(uint16_t, uint16_t, uint16_t, uint16_t);
   void     (*DrawVLine)(uint16_t, uint16_t, uint16_t, uint16_t);
   void     (*DrawFill)(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
-  void     (*DrawFillDate)(const uint8_t*, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t);
+  void     (*DrawFillDate)(uint16_t, uint16_t, uint16_t, uint16_t, uint8_t*);
   uint16_t (*GetLcdPixelWidth)(void);
   uint16_t (*GetLcdPixelHeight)(void);
   void     (*DrawBitmap)(uint16_t, uint16_t, uint8_t*);
@@ -155,6 +155,7 @@ void lcd_draw_point(uint16_t x, uint16_t y, uint32_t color);
 void lcd_draw_hline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);
 void lcd_draw_vline(uint16_t RGBCode, uint16_t Xpos, uint16_t Ypos, uint16_t Length);
 void lcd_draw_fill(uint16_t RGBCode, uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey);
+void lcd_draw_filldate(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint8_t *buf);
 void lcd_init(void);
 
 
