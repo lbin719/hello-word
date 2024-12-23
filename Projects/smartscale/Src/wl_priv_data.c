@@ -329,7 +329,10 @@ void wl_priv_tx(uint8_t event)
     {
         ec800e_uart_printf("{%d,%d,%d,%d,%d,}\r\n", WL_PRIV_DIWEIGHT_CMD, ++wlpriv.device_num, upload_cweight, upload_sweight, get_timestamp());
     } 
-
+    else if(event == WL_PRIVSEND_HOTST_EVENT)
+    {
+        ec800e_uart_printf("{%d,%d,%d,%d,}\r\n", WL_PRIV_HOTST_CMD, ++wlpriv.device_num, get_current_hot_status(), get_timestamp());
+    } 
     else if(event == WL_PRIVRSEND_SETCAIPING_EVENT)
     {
         ec800e_uart_printf("{%d,%d,%d,}\r\n", WL_PRIV_FCAIPING_RECMD, wlpriv.service_num, wlpriv.res_result);

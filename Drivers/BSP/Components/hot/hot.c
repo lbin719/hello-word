@@ -3,6 +3,7 @@
 #include "ulog.h"
 #include  "system_info.h"
 #include "cmsis_os.h"
+#include "wl_task.h"
 
 #define HOT_CTRL_ON()        	    (HOT_CTRL_GPIO_PORT->BSRR = HOT_CTRL_GPIO_PIN)
 #define HOT_CTRL_OFF()       		(HOT_CTRL_GPIO_PORT->BSRR = (uint32_t)(HOT_CTRL_GPIO_PIN  << 16u))
@@ -29,6 +30,7 @@ static void hot_ostimercallback(void const * argument)
     (void) argument;
     hot_status = HOT_OFF;
     HOT_CTRL_OFF();
+    wl_ossignal_notify(WL_NOTIFY_PRIVSEND_HOTST_BIT);
 }
 
 static void hot_ctrl(uint8_t mode, uint8_t time)

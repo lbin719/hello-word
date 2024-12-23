@@ -74,7 +74,7 @@ at_cmd_t at_table[] = {
 #define WL_NOTIFY_PRIVSEND_BANGPAN_BIT         (0x1UL << 5)
 #define WL_NOTIFY_PRIVSEND_BANGPANEND_BIT      (0x1UL << 6)
 #define WL_NOTIFY_PRIVSEND_IWEIGHT_BIT         (0x1UL << 7) // 空闲状态下重量变化上报
-
+#define WL_NOTIFY_PRIVSEND_HOTST_BIT           (0x1UL << 8) 
 
 // #define WL_STATUS_AT_BIT                    (0x1UL << 0)
 // #define WL_STATUS_ATE0_BIT                  (0x1UL << 1)

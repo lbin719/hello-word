@@ -26,6 +26,7 @@
 #define WL_PRIV_DXINTIAOBAO_CMD         (15) // 15	设备发送心跳包
 #define WL_PRIV_DBPWEIGHT_CMD           (16) // 16	设备绑盘传感器重量变化上报
 #define WL_PRIV_DIWEIGHT_CMD            (17) // 17	设备空闲状态传感器重量变化上报
+#define WL_PRIV_HOTST_CMD               (18) // 18	设备加热状态上报
 
 #define WL_PRIV_DBUHUO_RECMD            (1 + 128) // 1	设备发起补货
 #define WL_PRIV_DBHWEIGHT_RECMD         (2 + 128) // 2	设备补货完成传感器重量变化上报
@@ -44,6 +45,7 @@
 #define WL_PRIV_DXINTIAOBAO_RECMD       (15 + 128) // 15	设备发送心跳包
 #define WL_PRIV_FBPWEIGHT_RECMD         (16 + 128) // 16	
 #define WL_PRIV_FIWEIGHT_RECMD          (17 + 128) // 17	
+#define WL_PRIV_FHOTST_RECMD            (18 + 128) // 18	
 
 typedef enum
 {
@@ -54,6 +56,7 @@ typedef enum
   WL_PRIVSEND_BANGPAN_EVENT,
   WL_PRIVSEND_BPWEIGHT_EVENT,
   WL_PRIVSEND_IWEIGHT_EVENT,
+  WL_PRIVSEND_HOTST_EVENT,
 
   WL_PRIVRSEND_SETCAIPING_EVENT,
   WL_PRIVRSEND_QUPI_EVENT,
