@@ -26,7 +26,7 @@ set BASEDIR=%~dp0
 set PROJCETSDIR=Projects\smartscale\SW4STM32\smartscale
 
 @REM import project
-@REM stm32cubeidec.exe --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data .\ -import %BASEDIR%\%PROJCETSDIR%
+stm32cubeidec.exe --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data .\ -import %BASEDIR%\%PROJCETSDIR%
 
 @REM clean and build
 stm32cubeidec.exe --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data .\ -cleanBuild %PROJECTNAME%
