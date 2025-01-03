@@ -73,9 +73,8 @@ bool wl_ctrl_cmd(int argc, char *argv[])
 
         if(argc == 3 && strcmp((const char*)argv[1], "closed") == 0)
         {
-            LOG_I("wl close system reboot\r\n");
-            HAL_Delay(10);
-            NVIC_SystemReset();
+            LOG_I("wl close and reset\r\n");
+            wl_ossignal_notify(WL_NOTIFY_WLRESET_BIT);
             return true;
         }
     }
@@ -664,7 +663,13 @@ wl_reset:
             {
                 // ec800e_uart_printf("AT+CSQ\r\n"); // 获取信号强度
                 wl_priv_tx(WL_PRIVSEND_HEART_EVENT);
-            }           
+            }   
+
+            if(event.value.signals & WL_NOTIFY_WLRESET_BIT)
+            {
+                goto wl_reset;
+            }  
+                    
         }
     }
 }
