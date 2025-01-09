@@ -12625,75 +12625,74 @@ LOAD c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.ext
  .rodata.str1.1
                 0x000000000802a16b       0xfc ./Application/User/wl_priv_data.o
  .rodata.str1.1
-                0x000000000802a267      0x209 ./Application/User/wl_task.o
-                                        0x21d (size before relaxing)
+                0x000000000802a267      0x20b ./Application/User/wl_task.o
+                                        0x21f (size before relaxing)
  .rodata.str1.1
-                0x000000000802a470       0x1e ./Drivers/BSP/Components/ec800e/ec800e.o
+                0x000000000802a472       0x1e ./Drivers/BSP/Components/ec800e/ec800e.o
                                          0x23 (size before relaxing)
  .rodata.str1.1
-                0x000000000802a48e       0x57 ./Drivers/BSP/Components/encrypt/stmencrypt.o
+                0x000000000802a490       0x57 ./Drivers/BSP/Components/encrypt/stmencrypt.o
  .rodata.str1.1
-                0x000000000802a4e5       0x9f ./Drivers/BSP/Components/flash/norflash.o
+                0x000000000802a4e7       0x9f ./Drivers/BSP/Components/flash/norflash.o
                                          0xa2 (size before relaxing)
  .rodata.str1.1
-                0x000000000802a584       0x38 ./Drivers/BSP/Components/flash/stmflash.o
+                0x000000000802a586       0x38 ./Drivers/BSP/Components/flash/stmflash.o
  .rodata.str1.1
-                0x000000000802a5bc       0x48 ./Drivers/BSP/Components/fs/fs.o
+                0x000000000802a5be       0x48 ./Drivers/BSP/Components/fs/fs.o
  .rodata.str1.1
-                0x000000000802a604       0x2d ./Drivers/BSP/Components/hot/hot.o
+                0x000000000802a606       0x2d ./Drivers/BSP/Components/hot/hot.o
  .rodata.str1.1
-                0x000000000802a631       0xa7 ./Drivers/BSP/Components/hx711/hx711.o
+                0x000000000802a633       0xa7 ./Drivers/BSP/Components/hx711/hx711.o
  .rodata.str1.1
-                0x000000000802a6d8        0x5 ./Drivers/BSP/Components/key/key.o
+                0x000000000802a6da        0x5 ./Drivers/BSP/Components/key/key.o
  .rodata.str1.1
-                0x000000000802a6d8       0x11 ./Drivers/BSP/Components/led/led.o
+                0x000000000802a6da       0x11 ./Drivers/BSP/Components/led/led.o
                                          0x16 (size before relaxing)
  .rodata.str1.1
-                0x000000000802a6e9        0x5 ./Drivers/BSP/Components/mj8000/mj8000.o
+                0x000000000802a6eb        0x5 ./Drivers/BSP/Components/mj8000/mj8000.o
  .rodata.str1.1
-                0x000000000802a6e9       0x19 ./Drivers/BSP/Components/redirect/printf.o
+                0x000000000802a6eb       0x19 ./Drivers/BSP/Components/redirect/printf.o
  .rodata.str1.1
-                0x000000000802a702      0x12f ./Drivers/BSP/Components/text/text.o
+                0x000000000802a704      0x12f ./Drivers/BSP/Components/text/text.o
  .rodata.str1.1
-                0x000000000802a831        0x6 ./Drivers/BSP/Components/ulog/ulog.o
+                0x000000000802a833        0x6 ./Drivers/BSP/Components/ulog/ulog.o
  .rodata.str1.1
-                0x000000000802a837       0x3e ./Drivers/BSP/Components/wtn6040/wtn6040.o
+                0x000000000802a839       0x3e ./Drivers/BSP/Components/wtn6040/wtn6040.o
                                          0x43 (size before relaxing)
  .rodata.str1.1
-                0x000000000802a875      0x7d6 ./Drivers/CmBacktrace/cm_backtrace.o
+                0x000000000802a877      0x7d6 ./Drivers/CmBacktrace/cm_backtrace.o
                                         0x7ff (size before relaxing)
  .rodata.str1.1
-                0x000000000802b04b       0x11 ./Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_rcc.o
+                0x000000000802b04d       0x11 ./Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_rcc.o
  .rodata.str1.1
-                0x000000000802b05c       0x44 ./Middlewares/Third_party/FatFs/ff.o
+                0x000000000802b05e       0x44 ./Middlewares/Third_party/FatFs/ff.o
  .rodata.str1.1
-                0x000000000802b0a0        0x1 ./Middlewares/Third_party/FreeRTOS/CMSIS_RTOS/cmsis_os.o
+                0x000000000802b0a2        0x1 ./Middlewares/Third_party/FreeRTOS/CMSIS_RTOS/cmsis_os.o
  .rodata.str1.1
-                0x000000000802b0a0       0x52 ./Middlewares/Third_party/FreeRTOS/queue.o
+                0x000000000802b0a2       0x52 ./Middlewares/Third_party/FreeRTOS/queue.o
  .rodata.str1.1
-                0x000000000802b0f2       0x47 ./Middlewares/Third_party/FreeRTOS/tasks.o
+                0x000000000802b0f4       0x47 ./Middlewares/Third_party/FreeRTOS/tasks.o
                                          0x57 (size before relaxing)
  .rodata.str1.1
-                0x000000000802b139       0x50 ./Middlewares/Third_party/FreeRTOS/timers.o
+                0x000000000802b13b       0x50 ./Middlewares/Third_party/FreeRTOS/timers.o
                                          0x60 (size before relaxing)
  .rodata.str1.1
-                0x000000000802b189       0x54 ./Middlewares/Third_party/FreeRTOS/portable/heap_4.o
+                0x000000000802b18b       0x54 ./Middlewares/Third_party/FreeRTOS/portable/heap_4.o
                                          0x64 (size before relaxing)
  .rodata.str1.1
-                0x000000000802b1dd       0x56 ./Middlewares/Third_party/FreeRTOS/portable/port.o
+                0x000000000802b1df       0x56 ./Middlewares/Third_party/FreeRTOS/portable/port.o
                                          0x66 (size before relaxing)
- *fill*         0x000000000802b233        0x1 
+ *fill*         0x000000000802b235        0x3 
  .rodata._global_impure_ptr
-                0x000000000802b234        0x4 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-impure.o)
-                0x000000000802b234                _global_impure_ptr
+                0x000000000802b238        0x4 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-impure.o)
+                0x000000000802b238                _global_impure_ptr
  .rodata._strtod_l.str1.1
-                0x000000000802b238        0x9 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
+                0x000000000802b23c        0x9 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
                                           0xd (size before relaxing)
- *fill*         0x000000000802b241        0x3 
- .rodata.fpi.1  0x000000000802b244       0x14 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
+ *fill*         0x000000000802b245        0x3 
+ .rodata.fpi.1  0x000000000802b248       0x14 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
  .rodata.fpinan.0
-                0x000000000802b258       0x14 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
- *fill*         0x000000000802b26c        0x4 
+                0x000000000802b25c       0x14 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
  .rodata.tinytens
                 0x000000000802b270       0x28 c:/st/stm32cubeide_1.12.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.win32_1.0.200.202301161003/tools/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc_nano.a(lib_a-strtod.o)
  .rodata._ctype_

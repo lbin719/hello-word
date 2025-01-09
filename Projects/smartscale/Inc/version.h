@@ -33,7 +33,7 @@
 
 #define MCU_FW_VERSION_MAX                1
 #define MCU_FW_VERSION_MAJOR              1
-#define MCU_FW_VERSION_MINOR              3
+#define MCU_FW_VERSION_MINOR              4
 #define MCU_FW_VERSION_REVISION           0
 #define MCU_FW_VERSION                    STRINGIZE(MCU_FW_VERSION_MAX) "." \
                                           STRINGIZE(MCU_FW_VERSION_MAJOR) "." \

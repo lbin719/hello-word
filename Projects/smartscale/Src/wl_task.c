@@ -570,7 +570,7 @@ static bool wl_module_init(void)
     retry_cnt = 5;
     wl_event_clear();
     do{
-        ec800e_uart_printf("AT+QIOPEN=1,0,\"TCP\",\"39.106.91.24\",10181,0,1\r\n");
+        ec800e_uart_printf("AT+QIOPEN=1,0,\"TCP\",\"120.79.137.150\",10181,0,1\r\n");
 wait_qiopen:
         osSignalWait(WL_NOTIFY_RECEIVE_BIT, WL_WAIT_RECEIVE_TIMEOUT); //wait receive
         act_len = ec800e_get_rx_buf(wl_rx_buf, WL_RX_BUFFER_SIZE);
